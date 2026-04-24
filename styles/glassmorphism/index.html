@@ -13,18 +13,16 @@
     body {
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
+      padding: 40px 20px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       background:
         radial-gradient(ellipse at 20% 50%, #7b2ff7 0%, transparent 50%),
         radial-gradient(ellipse at 80% 20%, #00c6fb 0%, transparent 45%),
         radial-gradient(ellipse at 60% 80%, #f857a6 0%, transparent 45%),
         linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 100%);
-      overflow: hidden;
     }
-
-    /* Floating orb accents */
     body::before, body::after {
       content: '';
       position: fixed;
@@ -33,268 +31,683 @@
       opacity: 0.35;
       pointer-events: none;
     }
-    body::before {
-      width: 420px; height: 420px;
-      background: #7b2ff7;
-      top: -100px; left: -100px;
-    }
-    body::after {
-      width: 380px; height: 380px;
-      background: #00c6fb;
-      bottom: -80px; right: -80px;
-    }
+    body::before { width: 420px; height: 420px; background: #7b2ff7; top: -100px; left: -100px; }
+    body::after  { width: 380px; height: 380px; background: #00c6fb; bottom: -80px; right: -80px; }
 
     .card {
-      width: 400px;
+      width: 420px;
       padding: 36px 32px;
       border-radius: 24px;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255,255,255,0.08);
       backdrop-filter: blur(20px) saturate(160%);
       -webkit-backdrop-filter: blur(20px) saturate(160%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
       position: relative;
       z-index: 1;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
     }
 
-    .card-header {
-      margin-bottom: 28px;
-      text-align: center;
+    .card-header { margin-bottom: 0; text-align: center; }
+    .card-header .badge-eyebrow {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); margin-bottom: 8px;
     }
-    .card-header .badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 8px;
-    }
-    .card-header h1 {
-      font-size: 26px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
-    }
+    .card-header h1 { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.2; }
     .card-header h1 span {
       background: linear-gradient(90deg, #a78bfa, #60c8f8, #f9a8d4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
 
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      margin: 20px 0;
+    /* Section stagger */
+    .section {
+      margin-bottom: 24px;
+      opacity: 0; transform: translateY(8px);
+      animation: sectionIn 0.4s ease forwards;
+      animation-delay: var(--delay, 0ms);
+    }
+    @keyframes sectionIn { to { opacity: 1; transform: translateY(0); } }
+
+    .section-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+      margin-bottom: 14px; padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* Buttons */
-    .btn-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); margin: 20px 0; }
+
+    /* Base button */
     .btn {
-      flex: 1;
-      padding: 11px 16px;
-      border-radius: 12px;
-      border: none;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+      padding: 11px 16px; border-radius: 12px; border: none;
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; position: relative; overflow: hidden;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
     }
     .btn:active { transform: scale(0.97); }
+    .btn:disabled, .btn[disabled] { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+    .btn .ripple {
+      position: absolute; border-radius: 50%;
+      background: currentColor; opacity: 0.3; transform: scale(0);
+      animation: rippleAnim 0.5s linear; pointer-events: none;
+    }
+    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
     .btn-primary {
       background: linear-gradient(135deg, #a78bfa, #60c8f8);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(167, 139, 250, 0.4);
+      color: #fff; box-shadow: 0 4px 16px rgba(167,139,250,0.4);
     }
     .btn-primary:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(167,139,250,0.55); }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
       border: 1px solid rgba(255,255,255,0.18);
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.16); }
 
-    /* Form rows */
+    .btn-tertiary {
+      background: transparent; color: #a78bfa; border: none;
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+    .btn-tertiary:hover { opacity: 0.8; }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff; box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover { box-shadow: 0 6px 20px rgba(239,68,68,0.45); }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff; box-shadow: 0 4px 16px rgba(245,158,11,0.3);
+    }
+    .btn-warning:hover { box-shadow: 0 6px 20px rgba(245,158,11,0.45); }
+
+    .btn-success {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff; box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+    }
+    .btn-success:hover { box-shadow: 0 6px 20px rgba(34,197,94,0.45); }
+
+    .btn-icon-only {
+      width: 40px; height: 40px; padding: 0;
+      background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 10px;
+      font-size: 16px;
+    }
+    .btn-icon-only[data-tooltip] { position: relative; }
+    .btn-icon-only[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,6,30,0.9); color: rgba(255,255,255,0.9);
+      font-size: 11px; font-weight: 500; padding: 4px 8px;
+      border-radius: 6px; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.15);
+      opacity: 0; pointer-events: none; transition: opacity 0.15s;
+    }
+    .btn-icon-only[data-tooltip]:hover::after { opacity: 1; }
+
+    .btn-icon-label { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.15); }
+    .btn-icon-label:hover { background: rgba(255,255,255,0.12); }
+    .btn-label-icon { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+    .btn-label-icon:hover { background: rgba(167,139,250,0.22); }
+
+    .btn-load { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.12); }
+    .spinner {
+      display: none; width: 13px; height: 13px; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.2); border-top-color: currentColor;
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+    }
+    .btn-load.is-loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Button showcase */
+    .btn-showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .btn-showcase-item { display: flex; flex-direction: column; gap: 6px; }
+    .variant-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.4); }
+    .btn-showcase-item .btn { width: 100%; }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .btn-row .btn { flex: 1; }
+
+    /* Form controls */
     .form-group { margin-bottom: 20px; }
     .form-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 8px;
+      display: flex; justify-content: space-between;
+      font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); margin-bottom: 8px;
     }
     .form-label span { color: #a78bfa; font-weight: 600; }
 
-    /* Slider */
     input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 99px;
-      background: rgba(255,255,255,0.12);
-      outline: none;
-      cursor: pointer;
+      -webkit-appearance: none; width: 100%; height: 5px;
+      border-radius: 99px; background: rgba(255,255,255,0.12);
+      outline: none; cursor: pointer;
     }
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px; height: 18px;
+      -webkit-appearance: none; width: 18px; height: 18px;
       border-radius: 50%;
       background: linear-gradient(135deg, #a78bfa, #60c8f8);
       border: 2px solid rgba(255,255,255,0.6);
       box-shadow: 0 2px 8px rgba(167,139,250,0.5);
       transition: transform 0.15s;
     }
-    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    input[type="range"]:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Checkbox */
     .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: background 0.15s;
-      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.15s; margin-bottom: 20px;
     }
     .checkbox-row:hover { background: rgba(255,255,255,0.09); }
     .checkbox-row input[type="checkbox"] { display: none; }
     .check-box {
-      width: 20px; height: 20px;
-      border-radius: 6px;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.06);
+      width: 20px; height: 20px; border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.06);
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s; flex-shrink: 0;
     }
     .check-box svg { display: none; width: 12px; height: 12px; }
+    .check-box svg path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset 0.3s ease; }
     input[type="checkbox"]:checked ~ .check-box {
-      background: linear-gradient(135deg, #a78bfa, #60c8f8);
-      border-color: transparent;
+      background: linear-gradient(135deg, #a78bfa, #60c8f8); border-color: transparent;
     }
     input[type="checkbox"]:checked ~ .check-box svg { display: block; }
+    input[type="checkbox"]:checked ~ .check-box svg path { stroke-dashoffset: 0; }
     .check-label { font-size: 14px; color: rgba(255,255,255,0.8); font-weight: 500; }
 
-    /* Select / combo */
     .glass-select {
-      width: 100%;
-      padding: 11px 14px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.85);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      outline: none;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
+      width: 100%; padding: 11px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85); font-family: 'Inter', sans-serif; font-size: 14px;
+      outline: none; cursor: pointer; appearance: none; -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 36px;
+      background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+      transition: border-color 0.2s;
     }
     .glass-select option { background: #1a0a2e; color: #fff; }
     .glass-select:focus { border-color: rgba(167,139,250,0.5); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+    .glass-select:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Text input */
     .glass-input {
-      width: 100%;
-      padding: 11px 14px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.85);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      outline: none;
+      width: 100%; padding: 11px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85); font-family: 'Inter', sans-serif; font-size: 14px;
+      outline: none; transition: border-color 0.2s;
     }
     .glass-input::placeholder { color: rgba(255,255,255,0.3); }
     .glass-input:focus { border-color: rgba(167,139,250,0.5); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+    .glass-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Output */
+    /* Toggle */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .toggle {
+      width: 44px; height: 26px; border-radius: 99px;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15);
+      position: relative; cursor: pointer;
+      transition: background-color 0.25s cubic-bezier(0.4,0,0.2,1), border-color 0.25s;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.5);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), background-color 0.25s;
+    }
+    .toggle[aria-checked="true"] { background: rgba(167,139,250,0.5); border-color: rgba(167,139,250,0.6); }
+    .toggle[aria-checked="true"]::after { transform: translateX(18px); background: #a78bfa; }
+    .toggle[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+    .toggle-label { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    /* Disabled states */
+    .disabled-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .ds-col-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+    .ds-col-label.active { color: #a78bfa; }
+    .ds-col-label.disabled { color: rgba(239,68,68,0.7); }
+    .disabled-col .checkbox-row { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+    /* Badges */
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 99px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-default { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+    .badge-success { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-error   { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-info    { background: rgba(96,200,248,0.15); color: #60c8f8; border: 1px solid rgba(96,200,248,0.3); }
+    .badge-dismiss {
+      background: none; border: none; cursor: pointer; color: inherit;
+      font-size: 13px; line-height: 1; padding: 0; opacity: 0.6; transition: opacity 0.15s;
+    }
+    .badge-dismiss:hover { opacity: 1; }
+
+    /* Progress */
+    .progress-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+    .progress-bar {
+      height: 6px; background: rgba(255,255,255,0.1);
+      border-radius: 99px; overflow: hidden; margin-bottom: 14px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #a78bfa, #60c8f8);
+      border-radius: 99px; transition: width 0.3s ease;
+    }
+    .progress-bar.indeterminate .progress-fill {
+      width: 40%;
+      animation: indeterminate 1.5s ease-in-out infinite;
+    }
+    @keyframes indeterminate { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+
+    /* Components */
+    .component-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+    /* Skeleton */
+    .skeleton-wrapper .real-content { display: block; }
+    .skeleton-wrapper .skel-content { display: none; }
+    .skeleton-wrapper.show-skel .real-content { display: none; }
+    .skeleton-wrapper.show-skel .skel-content { display: block; }
+    .sk-card {
+      padding: 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .sk-block {
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+    @keyframes shimmer { from{background-position:200% 0} to{background-position:-200% 0} }
+    .sk-avatar { width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; }
+    .sk-body { flex: 1; }
+    .sk-line { height: 10px; border-radius: 4px; margin-bottom: 8px; }
+    .sk-line:last-child { width: 60%; margin-bottom: 0; }
+
     .output {
-      margin-top: 20px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(255,255,255,0.08);
-      font-size: 12px;
-      color: rgba(255,255,255,0.5);
-      font-family: 'Inter', monospace;
-      min-height: 40px;
-      white-space: pre-wrap;
-      word-break: break-word;
+      margin-top: 20px; padding: 12px 14px; border-radius: 10px;
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px; color: rgba(255,255,255,0.5); min-height: 40px;
+      white-space: pre-wrap; word-break: break-word;
     }
     .output strong { color: #a78bfa; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed; top: 20px; right: 20px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      padding: 12px 16px; border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+      display: flex; align-items: center; gap: 8px; min-width: 240px;
+      pointer-events: auto; transform: translateX(110%);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast-success { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .toast-error   { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .toast-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .toast-info    { background: rgba(96,200,248,0.15); color: #60c8f8; border: 1px solid rgba(96,200,248,0.3); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, calc(-50% + 16px));
+      z-index: 510; width: 380px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: #fff; }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .modal-body { padding: 18px 24px; font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+    .modal-footer { padding: 14px 24px 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section { animation: none; opacity: 1; transform: none; }
+      .btn .ripple { animation: none; }
+      .spinner { animation: none; }
+      .sk-block { animation: none; background: rgba(255,255,255,0.08); }
+      .progress-bar.indeterminate .progress-fill { animation: none; width: 50%; }
+      .toast { transition: none; }
+      .modal, .modal-backdrop { transition: none; }
+      .toggle, .toggle::after { transition: none; }
+      .check-box svg path { transition: none; }
+      input[type="range"]::-webkit-slider-thumb { transition: none; }
+      .card { transition: none; }
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="card-header">
-      <div class="badge">Style Showcase</div>
+    <div class="card-header section">
+      <div class="badge-eyebrow">Style Showcase</div>
       <h1><span>Glassmorphism</span> Menu</h1>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Primary clicked')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Secondary clicked')">Reset</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="form-group">
-      <div class="form-label">Opacity <span id="opacityVal">72%</span></div>
-      <input type="range" min="0" max="100" value="72" id="opacitySlider"
-        oninput="document.getElementById('opacityVal').textContent=this.value+'%'; log('Opacity: '+this.value+'%')">
-    </div>
-
-    <label class="checkbox-row">
-      <input type="checkbox" id="blurToggle" onchange="log('Blur enabled: '+this.checked)">
-      <div class="check-box">
-        <svg viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+    <!-- ── BUTTON SHOWCASE ── -->
+    <div class="section">
+      <div class="divider" style="margin-top:20px"></div>
+      <div class="section-title">Button Showcase</div>
+      <div class="btn-showcase">
+        <div class="btn-showcase-item">
+          <div class="variant-label">Primary</div>
+          <button class="btn btn-primary" onclick="log('Primary clicked')">Apply</button>
+          <button class="btn btn-primary" disabled>Apply</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Secondary</div>
+          <button class="btn btn-secondary" onclick="log('Secondary clicked')">Reset</button>
+          <button class="btn btn-secondary" disabled>Reset</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Tertiary</div>
+          <button class="btn btn-tertiary" onclick="log('Tertiary clicked')">Learn more</button>
+          <button class="btn btn-tertiary" disabled>Learn more</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Danger</div>
+          <button class="btn btn-danger" onclick="log('Danger clicked')">Delete</button>
+          <button class="btn btn-danger" disabled>Delete</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Warning</div>
+          <button class="btn btn-warning" onclick="log('Warning clicked')">Caution</button>
+          <button class="btn btn-warning" disabled>Caution</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Success</div>
+          <button class="btn btn-success" onclick="log('Success clicked')">Confirm</button>
+          <button class="btn btn-success" disabled>Confirm</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Icon Only</div>
+          <button class="btn btn-icon-only" data-tooltip="Settings" aria-label="Settings" tabindex="0" onclick="log('Icon clicked')">⚙</button>
+          <button class="btn btn-icon-only" disabled aria-label="Settings">⚙</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Icon + Label</div>
+          <button class="btn btn-icon-label" onclick="log('Icon+label clicked')">✨ Launch</button>
+          <button class="btn btn-icon-label" disabled>✨ Launch</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Label + Icon</div>
+          <button class="btn btn-label-icon" onclick="log('Label+icon clicked')">Export ↗</button>
+          <button class="btn btn-label-icon" disabled>Export ↗</button>
+        </div>
+        <div class="btn-showcase-item">
+          <div class="variant-label">Loading</div>
+          <button class="btn btn-load" id="loadBtn" onclick="triggerLoad(this)">
+            <span class="spinner"></span><span class="btn-text">Apply</span>
+          </button>
+          <button class="btn btn-load is-loading" disabled>
+            <span class="spinner" style="display:inline-block"></span><span>Loading...</span>
+          </button>
+        </div>
       </div>
-      <span class="check-label">Enable blur backdrop</span>
-    </label>
-
-    <div class="form-group">
-      <div class="form-label">Theme preset</div>
-      <select class="glass-select" onchange="log('Theme: '+this.value)">
-        <option>Aurora Violet</option>
-        <option>Ocean Cyan</option>
-        <option>Sunset Rose</option>
-        <option>Emerald Mist</option>
-      </select>
     </div>
 
-    <div class="form-group">
-      <input class="glass-input" type="text" placeholder="Enter overlay title…" oninput="log('Title: '+this.value)">
+    <!-- ── ORIGINAL CONTROLS ── -->
+    <div class="section">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="log('Primary clicked')">Apply</button>
+        <button class="btn btn-secondary" onclick="log('Secondary clicked')">Reset</button>
+      </div>
+      <div class="divider"></div>
+      <div class="form-group">
+        <div class="form-label">Opacity <span id="opacityVal">72%</span></div>
+        <input type="range" min="0" max="100" value="72"
+          oninput="document.getElementById('opacityVal').textContent=this.value+'%'; log('Opacity: '+this.value+'%')">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="blurToggle" onchange="log('Blur enabled: '+this.checked)">
+        <div class="check-box">
+          <svg viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="check-label">Enable blur backdrop</span>
+      </label>
+      <div class="form-group">
+        <div class="form-label">Theme preset</div>
+        <select class="glass-select" onchange="log('Theme: '+this.value)">
+          <option>Aurora Violet</option><option>Ocean Cyan</option>
+          <option>Sunset Rose</option><option>Emerald Mist</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <input class="glass-input" type="text" placeholder="Enter overlay title…" oninput="log('Title: '+this.value)">
+      </div>
+    </div>
+
+    <!-- ── DISABLED STATES ── -->
+    <div class="section">
+      <div class="section-title">Disabled States</div>
+      <div class="disabled-grid">
+        <div>
+          <div class="ds-col-label active">Enabled</div>
+          <div class="form-group">
+            <div class="form-label" style="font-size:12px">Text Input</div>
+            <input class="glass-input" type="text" placeholder="Enabled…" />
+          </div>
+          <div class="form-group">
+            <div class="form-label" style="font-size:12px">Slider</div>
+            <input type="range" min="0" max="100" value="50" />
+          </div>
+          <label class="checkbox-row" style="margin-bottom:10px">
+            <input type="checkbox" checked>
+            <div class="check-box" style="background:linear-gradient(135deg,#a78bfa,#60c8f8);border-color:transparent">
+              <svg viewBox="0 0 12 10" fill="none" width="12" height="10">
+                <path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:20;stroke-dashoffset:0"/>
+              </svg>
+            </div>
+            <span class="check-label">Checkbox</span>
+          </label>
+          <div class="toggle-wrap">
+            <div class="toggle" role="switch" aria-checked="true" tabindex="0"
+              onclick="this.setAttribute('aria-checked',this.getAttribute('aria-checked')==='true'?'false':'true')"
+              onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();this.click()}"></div>
+            <span class="toggle-label">Toggle</span>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <select class="glass-select"><option>Aurora Violet</option><option>Ocean Cyan</option></select>
+          </div>
+        </div>
+        <div class="disabled-col">
+          <div class="ds-col-label disabled">Disabled</div>
+          <div class="form-group">
+            <div class="form-label" style="font-size:12px">Text Input</div>
+            <input class="glass-input" type="text" placeholder="Disabled…" disabled />
+          </div>
+          <div class="form-group">
+            <div class="form-label" style="font-size:12px">Slider</div>
+            <input type="range" min="0" max="100" value="50" disabled />
+          </div>
+          <label class="checkbox-row" style="margin-bottom:10px;opacity:0.5;cursor:not-allowed;pointer-events:none">
+            <input type="checkbox" disabled>
+            <div class="check-box"></div>
+            <span class="check-label">Checkbox</span>
+          </label>
+          <div class="toggle-wrap" style="opacity:0.5">
+            <div class="toggle" role="switch" aria-checked="false" aria-disabled="true" tabindex="-1"></div>
+            <span class="toggle-label">Toggle</span>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <select class="glass-select" disabled><option>Aurora Violet</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BADGES ── -->
+    <div class="section">
+      <div class="section-title">Badges</div>
+      <div class="badge-row">
+        <span class="badge badge-default">Default <button class="badge-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></span>
+        <span class="badge badge-success">Success <button class="badge-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></span>
+        <span class="badge badge-warning">Warning <button class="badge-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></span>
+        <span class="badge badge-error">Error <button class="badge-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></span>
+        <span class="badge badge-info">Info <button class="badge-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button></span>
+      </div>
+    </div>
+
+    <!-- ── PROGRESS ── -->
+    <div class="section">
+      <div class="section-title">Progress</div>
+      <div class="progress-label">Determinate — 65%</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+      <div class="progress-label">Indeterminate</div>
+      <div class="progress-bar indeterminate"><div class="progress-fill"></div></div>
+    </div>
+
+    <!-- ── NEW COMPONENTS ── -->
+    <div class="section">
+      <div class="section-title">Components</div>
+      <div class="component-btns">
+        <button class="btn btn-primary" onclick="showToast()">Show Toast</button>
+        <button class="btn btn-secondary" onclick="openModal()">Open Modal</button>
+        <button class="btn btn-icon-label" onclick="toggleSkel()">✨ Toggle Skeleton</button>
+      </div>
+      <div class="skeleton-wrapper" id="skelWrap">
+        <div class="real-content">
+          <div class="sk-card">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px">Glassmorphism Card</div>
+              <p style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5">A frosted glass content card with blur and translucency.</p>
+            </div>
+          </div>
+        </div>
+        <div class="skel-content">
+          <div class="sk-card">
+            <div class="sk-block sk-avatar"></div>
+            <div class="sk-body">
+              <div class="sk-block sk-line" style="width:80%"></div>
+              <div class="sk-block sk-line" style="width:100%"></div>
+              <div class="sk-block sk-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="output" id="output"><strong>status</strong> — waiting for input</div>
   </div>
 
+  <div class="toast-container" id="toastCont"></div>
+
+  <div class="modal-backdrop" id="modalBg" onclick="closeModal()"></div>
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Confirm Action</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">Are you sure you want to proceed? This action cannot be undone.</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal();log('Action confirmed')">Confirm</button>
+    </div>
+  </div>
+
   <script>
     function log(msg) {
-      const el = document.getElementById('output');
-      el.innerHTML = '<strong>status</strong> — ' + msg;
+      document.getElementById('output').innerHTML = '<strong>status</strong> — ' + msg;
     }
+
+    document.querySelectorAll('.section').forEach((s, i) => s.style.setProperty('--delay', (i * 80) + 'ms'));
+
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.btn');
+      if (!btn || btn.disabled) return;
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+      btn.appendChild(r);
+      setTimeout(() => r.remove(), 500);
+    });
+
+    function triggerLoad(btn) {
+      btn.classList.add('is-loading');
+      btn.querySelector('.btn-text').textContent = 'Loading...';
+      setTimeout(() => { btn.classList.remove('is-loading'); btn.querySelector('.btn-text').textContent = 'Apply'; log('Load complete'); }, 2000);
+    }
+
+    const toastData = [
+      { type: 'success', msg: '✓ Settings applied successfully' },
+      { type: 'error',   msg: '✗ Failed to save changes' },
+      { type: 'warning', msg: '⚠ Unsaved changes detected' },
+      { type: 'info',    msg: 'ℹ New theme available' }
+    ];
+    let toastIdx = 0;
+    function showToast() {
+      const { type, msg } = toastData[toastIdx++ % toastData.length];
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = msg;
+      document.getElementById('toastCont').appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }, 3000);
+    }
+
+    function openModal() {
+      document.getElementById('modal').classList.add('open');
+      document.getElementById('modalBg').classList.add('open');
+      document.getElementById('modal').setAttribute('tabindex', '-1');
+      document.getElementById('modal').focus();
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+      document.getElementById('modalBg').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    function toggleSkel() { document.getElementById('skelWrap').classList.toggle('show-skel'); }
+
+    document.querySelectorAll('.toggle[role="switch"]').forEach(t => {
+      t.addEventListener('keydown', e => {
+        if ((e.key === ' ' || e.key === 'Enter') && t.getAttribute('aria-disabled') !== 'true') {
+          e.preventDefault();
+          t.setAttribute('aria-checked', t.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+        }
+      });
+    });
   </script>
 </body>
 </html>
