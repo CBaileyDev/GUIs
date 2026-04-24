@@ -175,7 +175,45 @@
       background: linear-gradient(135deg, var(--blue), var(--pink));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: light; }
+body {
+    min-height: 100dvh;
+    accent-color: #2e8bff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #2e8bff;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #2e8bff;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #2e8bff 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body { background:
+                radial-gradient(900px 500px at 20% 0%, rgba(46,139,255,0.18), transparent 60%),
+                radial-gradient(700px 500px at 90% 100%, rgba(255,124,223,0.16), transparent 60%),
+                linear-gradient(180deg, #e8edf7 0%, #c8d2e6 100%) !important; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">

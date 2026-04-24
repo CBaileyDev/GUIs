@@ -102,7 +102,46 @@
       font-size: 12px; font-weight: 700; border: 3px solid #000;
     }
     .output strong { color: #ffff00; }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: light; }
+body {
+    min-height: 100dvh;
+    accent-color: #0000ff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #0000ff;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #0000ff;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #0000ff 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body { background-image:
+                linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px) !important;
+                background-size: 24px 24px, 24px 24px !important;
+                background-color: #ffff33 !important; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">

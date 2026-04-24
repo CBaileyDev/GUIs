@@ -109,7 +109,45 @@
     }
     .cursor { display: inline-block; width: 8px; height: 14px; background: var(--green); animation: blink 1s infinite; vertical-align: middle; }
     @keyframes blink { 50% { opacity: 0; } }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: dark; }
+body {
+    min-height: 100dvh;
+    accent-color: #33ff66;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #33ff66;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #33ff66;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #33ff66 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body::before { content:''; position: fixed; inset:0; pointer-events:none; z-index: 1;
+                background: repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px); }
+            body::after { content:''; position: fixed; inset:0; pointer-events:none; z-index:1;
+                box-shadow: inset 0 0 180px rgba(0,0,0,0.85); }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">

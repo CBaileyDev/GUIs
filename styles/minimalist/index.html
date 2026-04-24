@@ -93,7 +93,44 @@
       font-size: 12px; color: var(--muted); min-height: 36px;
     }
     .output strong { color: var(--ink); font-weight: 500; }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: light; }
+body {
+    min-height: 100dvh;
+    accent-color: #111;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #111 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body { background: #fafafa !important; }
+            .card { box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 40px 80px -60px rgba(0,0,0,0.12) !important; }
+            h1 { letter-spacing: -0.9px !important; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">
