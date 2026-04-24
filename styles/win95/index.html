@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Windows 95 Menu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #008080;
+      --silver: #c0c0c0; --silver-light: #dfdfdf; --silver-dark: #808080; --silver-darker: #404040;
+      --white: #ffffff; --blue: #000080; --black: #000;
+    }
+    body {
+      font-family: "Pixelated MS Sans Serif", "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+      font-size: 12px;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: var(--teal);
+      color: var(--black);
+      -webkit-font-smoothing: none;
+    }
+
+    /* Window frame */
+    .window {
+      width: 440px;
+      background: var(--silver);
+      border-top: 2px solid var(--white);
+      border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-darker);
+      border-bottom: 2px solid var(--silver-darker);
+      box-shadow: 1px 1px 0 var(--black);
+    }
+    .inset-wrap {
+      margin: 2px;
+      border-top: 1px solid var(--silver-dark);
+      border-left: 1px solid var(--silver-dark);
+      border-right: 1px solid var(--silver-light);
+      border-bottom: 1px solid var(--silver-light);
+    }
+    .title-bar {
+      background: linear-gradient(90deg, var(--blue), #1084d0);
+      color: var(--white); font-weight: 700;
+      padding: 3px 4px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .title-bar img, .title-bar .icon {
+      width: 16px; height: 16px;
+      background: #ffcb05;
+      position: relative; flex-shrink: 0;
+    }
+    .title-bar .icon::after {
+      content: '▣'; position: absolute; inset: 0;
+      font-size: 14px; line-height: 16px; text-align: center; color: var(--black);
+    }
+    .title-bar .title { flex: 1; font-size: 12px; }
+    .title-buttons { display: flex; gap: 2px; }
+    .tb-btn {
+      width: 18px; height: 16px; font-size: 10px; font-weight: 700;
+      background: var(--silver);
+      border-top: 1px solid var(--white); border-left: 1px solid var(--white);
+      border-right: 1px solid var(--silver-darker); border-bottom: 1px solid var(--silver-darker);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      color: var(--black);
+    }
+
+    /* Menu bar */
+    .menu-bar {
+      display: flex; gap: 10px; padding: 3px 6px;
+      background: var(--silver);
+      border-bottom: 1px solid var(--silver-dark);
+    }
+    .menu-bar span { cursor: pointer; padding: 1px 4px; }
+    .menu-bar span:hover { background: var(--blue); color: var(--white); }
+    .menu-bar u { text-decoration: underline; }
+
+    /* Content */
+    .content { padding: 14px; background: var(--silver); }
+
+    .fieldset {
+      border-top: 1px solid var(--silver-dark);
+      border-left: 1px solid var(--silver-dark);
+      border-right: 1px solid var(--white);
+      border-bottom: 1px solid var(--white);
+      padding: 10px 12px 12px; margin-bottom: 12px; position: relative;
+    }
+    .fieldset::before {
+      content: attr(data-legend);
+      position: absolute; top: -7px; left: 10px;
+      background: var(--silver); padding: 0 4px;
+      font-weight: 400;
+    }
+
+    h1 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .sub { font-size: 11px; color: var(--silver-darker); margin-bottom: 12px; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+    .btn {
+      min-width: 75px; padding: 4px 12px;
+      font-family: inherit; font-size: 12px;
+      background: var(--silver); color: var(--black); cursor: pointer;
+      border-top: 2px solid var(--white); border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-darker); border-bottom: 2px solid var(--silver-darker);
+    }
+    .btn:active, .btn.pressed {
+      border-top: 2px solid var(--silver-darker); border-left: 2px solid var(--silver-darker);
+      border-right: 2px solid var(--white); border-bottom: 2px solid var(--white);
+    }
+    .btn-primary { font-weight: 700; }
+    .btn-primary::before {
+      content: ''; display: inline-block; width: 0; margin-right: -1px;
+    }
+
+    .form-group { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .form-group label { min-width: 90px; }
+
+    input[type="range"] {
+      -webkit-appearance: none; flex: 1; height: 20px;
+      background: transparent; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px; background: var(--silver-dark);
+      border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
+      border-right: 1px solid var(--white); border-bottom: 1px solid var(--white);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; margin-top: -6px;
+      width: 10px; height: 18px;
+      background: var(--silver);
+      border-top: 1px solid var(--white); border-left: 1px solid var(--white);
+      border-right: 1px solid var(--silver-darker); border-bottom: 1px solid var(--silver-darker);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; margin-bottom: 10px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 13px; height: 13px; background: var(--white);
+      border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
+      border-right: 1px solid var(--white); border-bottom: 1px solid var(--white);
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✓'; position: absolute; inset: -3px 0 0 1px;
+      font-size: 13px; font-weight: 700; color: var(--black);
+    }
+
+    select, input[type="text"] {
+      font-family: inherit; font-size: 12px;
+      padding: 2px 4px; flex: 1;
+      background: var(--white); color: var(--black);
+      border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
+      border-right: 1px solid var(--white); border-bottom: 1px solid var(--white);
+      outline: none;
+    }
+    select { padding-right: 20px; }
+    input[type="text"]:focus, select:focus { outline: 1px dotted var(--black); outline-offset: -3px; }
+
+    .status {
+      margin-top: 4px; padding: 3px 6px;
+      background: var(--white);
+      border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
+      border-right: 1px solid var(--white); border-bottom: 1px solid var(--white);
+      min-height: 20px;
+    }
+
+    /* Taskbar */
+    .taskbar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 28px;
+      background: var(--silver);
+      border-top: 1px solid var(--white);
+      display: flex; align-items: center; padding: 2px 4px; gap: 4px;
+    }
+    .start-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 2px 8px; font-weight: 700;
+      background: var(--silver);
+      border-top: 2px solid var(--white); border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-darker); border-bottom: 2px solid var(--silver-darker);
+      cursor: pointer;
+    }
+    .start-btn::before { content: '▣'; color: #008000; }
+    .clock {
+      margin-left: auto; padding: 2px 8px; font-size: 11px;
+      border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
+      border-right: 1px solid var(--white); border-bottom: 1px solid var(--white);
+    }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">
+      <span class="icon"></span>
+      <span class="title">Menu Settings</span>
+      <div class="title-buttons">
+        <div class="tb-btn">_</div><div class="tb-btn">□</div><div class="tb-btn">×</div>
+      </div>
+    </div>
+
+    <div class="menu-bar">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span>
+    </div>
+
+    <div class="content">
+      <h1>Menu Settings</h1>
+      <div class="sub">Configure your application preferences.</div>
+
+      <div class="fieldset" data-legend="General">
+        <div class="form-group">
+          <label>Volume:</label>
+          <input type="range" min="0" max="100" value="60" oninput="log('Volume: '+this.value)">
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" onchange="log('Sound effects: '+this.checked)">
+          <span class="chk"></span>
+          <span>Enable <u>s</u>ound effects</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" checked onchange="log('Show tips: '+this.checked)">
+          <span class="chk"></span>
+          <span>Show tips on startup</span>
+        </label>
+      </div>
+
+      <div class="fieldset" data-legend="Appearance">
+        <div class="form-group">
+          <label>Theme:</label>
+          <select onchange="log('Theme: '+this.value)">
+            <option>Windows Standard</option>
+            <option>High Contrast</option>
+            <option>Rainy Day</option>
+            <option>Rose (VGA)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>User name:</label>
+          <input type="text" value="USER" oninput="log('Name: '+this.value)">
+        </div>
+      </div>
+
+      <div class="btn-row" style="justify-content: flex-end;">
+        <button class="btn btn-primary" onclick="log('OK pressed')">OK</button>
+        <button class="btn" onclick="log('Cancel')">Cancel</button>
+        <button class="btn" onclick="log('Applied')">Apply</button>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+    </div>
+  </div>
+
+  <div class="taskbar">
+    <div class="start-btn">Start</div>
+    <div class="clock">10:42 AM</div>
+  </div>
+
+  <script>function log(m){document.getElementById('status').textContent=m;}</script>
+</body>
+</html>

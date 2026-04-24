@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nord Theme Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --nord0: #2e3440; --nord1: #3b4252; --nord2: #434c5e; --nord3: #4c566a;
+      --nord4: #d8dee9; --nord5: #e5e9f0; --nord6: #eceff4;
+      --frost1: #8fbcbb; --frost2: #88c0d0; --frost3: #81a1c1; --frost4: #5e81ac;
+      --aurora-red: #bf616a; --aurora-orange: #d08770; --aurora-yellow: #ebcb8b;
+      --aurora-green: #a3be8c; --aurora-purple: #b48ead;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: var(--nord0); color: var(--nord5);
+    }
+    .card {
+      width: 420px; padding: 32px;
+      background: var(--nord1); border: 1px solid var(--nord3);
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--frost2);
+      margin-bottom: 6px; letter-spacing: 1px;
+    }
+    h1 { font-size: 28px; font-weight: 700; color: var(--nord6); }
+    h1 .accent { color: var(--frost2); }
+    .sub { font-size: 13px; color: var(--nord4); opacity: 0.75; margin-top: 4px; margin-bottom: 24px; }
+
+    .section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--frost3);
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+    }
+    .section-title::before { content: '# '; color: var(--nord3); }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 11px; font-family: inherit;
+      font-size: 14px; font-weight: 600;
+      border-radius: 6px; cursor: pointer; border: 1px solid transparent;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .btn-primary { background: var(--frost4); color: var(--nord6); }
+    .btn-primary:hover { background: var(--frost3); }
+    .btn-secondary { background: var(--nord2); color: var(--nord5); border-color: var(--nord3); }
+    .btn-secondary:hover { background: var(--nord3); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: var(--nord5); margin-bottom: 8px; font-weight: 500;
+    }
+    .form-label .value {
+      font-family: 'JetBrains Mono', monospace; color: var(--frost2);
+      background: var(--nord2); padding: 1px 8px; border-radius: 4px;
+      font-size: 12px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 4px;
+      background: var(--nord2); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--frost2); border: 2px solid var(--nord1);
+      box-shadow: 0 0 0 1px var(--frost4);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 12px; border-radius: 6px; background: var(--nord2);
+      margin-bottom: 18px; border: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .checkbox-row:hover { border-color: var(--nord3); }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 18px; height: 18px; border-radius: 4px;
+      border: 1.5px solid var(--nord3); background: var(--nord0);
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk { background: var(--frost2); border-color: var(--frost2); }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: ''; position: absolute; left: 5px; top: 1px;
+      width: 5px; height: 10px; border: solid var(--nord0);
+      border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .chk-label { font-size: 14px; color: var(--nord5); }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 12px;
+      font-family: inherit; font-size: 14px;
+      color: var(--nord5); background: var(--nord0);
+      border: 1px solid var(--nord3); border-radius: 6px; outline: none;
+      transition: border-color 0.15s;
+    }
+    select option { background: var(--nord0); color: var(--nord5); }
+    select:focus, input[type="text"]:focus { border-color: var(--frost2); }
+    input[type="text"]::placeholder { color: var(--nord3); }
+
+    .output {
+      margin-top: 20px; padding: 12px 14px;
+      background: var(--nord0); border: 1px solid var(--nord3); border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: var(--nord4); min-height: 40px;
+    }
+    .output strong { color: var(--aurora-green); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="eyebrow">// theme/nord</div>
+    <h1>Nord <span class="accent">Theme</span></h1>
+    <div class="sub">Arctic, north-bluish color palette</div>
+
+    <div class="section-title">actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Contrast <span class="value" id="v">72</span></div>
+      <input type="range" min="0" max="100" value="72" oninput="document.getElementById('v').textContent=this.value;log('Contrast '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('Italic comments '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Italic comments</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Variant</div>
+      <select onchange="log('Variant '+this.value)">
+        <option>Polar Night</option><option>Snow Storm</option>
+        <option>Frost</option><option>Aurora</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Config key..." oninput="log('Key '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>ok</strong> // ready</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> // '+m;}</script>
+</body>
+</html>

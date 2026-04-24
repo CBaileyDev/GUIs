@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro Terminal Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --green: #33ff66; --dim: #1a8033; --bg: #020a04; }
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #052a0f 0%, #020a04 80%);
+      color: var(--green);
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+      animation: flicker 3s infinite;
+    }
+    @keyframes flicker { 0%,95%{opacity:1} 96%{opacity:0.85} 97%{opacity:1} 98%{opacity:0.9} }
+
+    .card {
+      width: 460px;
+      padding: 24px;
+      background: #020a04;
+      border: 2px solid var(--green);
+      box-shadow: 0 0 20px rgba(51,255,102,0.3), inset 0 0 40px rgba(51,255,102,0.08);
+      position: relative;
+      z-index: 1;
+    }
+    .ascii-title {
+      font-family: 'VT323', monospace;
+      font-size: 30px;
+      text-shadow: 0 0 8px var(--green);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 12px; color: var(--dim); margin-bottom: 16px;
+      border-bottom: 1px dashed var(--dim); padding-bottom: 10px;
+    }
+    .prompt { color: var(--green); margin-right: 6px; }
+    .section-title {
+      font-family: 'VT323', monospace; font-size: 18px; margin: 14px 0 8px;
+      text-shadow: 0 0 6px var(--green);
+    }
+
+    .btn-row { display: flex; gap: 10px; margin-bottom: 18px; }
+    .btn {
+      flex: 1; padding: 10px; font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; font-weight: 600;
+      background: transparent; color: var(--green); border: 1px solid var(--green);
+      cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+      transition: background 0.15s, text-shadow 0.15s;
+    }
+    .btn-primary { background: rgba(51,255,102,0.12); }
+    .btn:hover { background: var(--green); color: #020a04; text-shadow: none; box-shadow: 0 0 12px var(--green); }
+    .btn:active { opacity: 0.7; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; margin-bottom: 6px; color: var(--green);
+    }
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 14px;
+      background: transparent; border: 1px solid var(--green);
+      outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 8px; height: 12px;
+      background: var(--green); box-shadow: 0 0 6px var(--green);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      padding: 8px 10px; border: 1px solid var(--dim); margin-bottom: 14px;
+    }
+    .checkbox-row:hover { border-color: var(--green); }
+    .checkbox-row input { display: none; }
+    .chk {
+      font-family: 'VT323', monospace; font-size: 18px;
+      width: 20px; text-align: center; color: var(--green);
+    }
+    .chk::before { content: '[ ]'; }
+    input[type="checkbox"]:checked ~ .chk::before { content: '[X]'; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 8px 10px;
+      background: #020a04; color: var(--green);
+      border: 1px solid var(--green);
+      font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+      outline: none;
+    }
+    select option { background: #020a04; color: var(--green); }
+    input[type="text"]:focus, select:focus { box-shadow: 0 0 8px rgba(51,255,102,0.5); }
+
+    .output {
+      margin-top: 18px; padding: 10px 12px;
+      background: #020a04; border: 1px solid var(--dim);
+      font-family: 'VT323', monospace; font-size: 16px;
+      min-height: 48px;
+    }
+    .cursor { display: inline-block; width: 8px; height: 14px; background: var(--green); animation: blink 1s infinite; vertical-align: middle; }
+    @keyframes blink { 50% { opacity: 0; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="ascii-title">╔═ RETRO.TERMINAL ═╗</div>
+    <div class="subtitle">SYSTEM v3.14 · COM1 · 9600 BAUD · READY</div>
+
+    <div class="section-title"><span class="prompt">&gt;</span> COMMANDS</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('EXECUTE APPLY')">EXEC</button>
+      <button class="btn" onclick="log('RESET STATE')">RESET</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span><span class="prompt">&gt;</span> CPU_SPEED</span><span id="v">42%</span></div>
+      <input type="range" min="0" max="100" value="42" oninput="document.getElementById('v').textContent=this.value+'%';log('CPU_SPEED '+this.value+'%')">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('VERBOSE '+this.checked)">
+      <span class="chk"></span>
+      <span>ENABLE VERBOSE LOGGING</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label"><span class="prompt">&gt;</span> PROFILE</div>
+      <select onchange="log('PROFILE '+this.value)">
+        <option>DEFAULT</option><option>SAFE MODE</option>
+        <option>OVERCLOCK</option><option>DIAGNOSTIC</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="&gt; enter command..." oninput="log('CMD '+this.value)">
+    </div>
+
+    <div class="output" id="out">&gt; SYSTEM READY<br>&gt; awaiting input<span class="cursor"></span></div>
+  </div>
+  <script>
+    function log(m){document.getElementById('out').innerHTML='&gt; '+m+'<span class="cursor"></span>';}
+  </script>
+</body>
+</html>

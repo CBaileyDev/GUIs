@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaporwave Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Noto+Serif+JP:wght@400;700&family=Barlow:wght@300;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --pink: #ff77c8; --cyan: #7effff; --purple: #c77dff; --peach: #ffcad4; --ink: #3a005a; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(ellipse at top, #ffccf9 0%, #d5b0ff 40%, #7effff 90%);
+      color: var(--ink);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255,119,200,0.5) 1px, transparent 1px) 0 0 / 50px 100%,
+        linear-gradient(rgba(255,119,200,0.4) 1px, transparent 1px) 0 0 / 100% 50px;
+      mask-image: linear-gradient(180deg, transparent 60%, #000 80%);
+      -webkit-mask-image: linear-gradient(180deg, transparent 60%, #000 80%);
+    }
+
+    .card {
+      width: 440px; padding: 32px;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.8);
+      border-radius: 2px;
+      box-shadow:
+        8px 8px 0 var(--pink),
+        16px 16px 0 var(--cyan),
+        0 20px 60px rgba(120,40,180,0.25);
+      position: relative; z-index: 1;
+    }
+
+    .jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 12px; letter-spacing: 6px;
+      color: var(--ink); opacity: 0.55; margin-bottom: 4px;
+    }
+    h1 {
+      font-family: 'Major Mono Display', monospace;
+      font-size: 36px; letter-spacing: 1px;
+      background: linear-gradient(180deg, #ff77c8, #c77dff, #7effff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
+      line-height: 1;
+    }
+    .sub {
+      font-family: 'Major Mono Display', monospace;
+      font-size: 11px; letter-spacing: 4px;
+      color: var(--ink); opacity: 0.6; margin-top: 6px; margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-family: 'Major Mono Display', monospace;
+      font-size: 11px; letter-spacing: 3px; color: var(--ink); opacity: 0.7;
+      margin-bottom: 10px;
+    }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 12px;
+      font-family: 'Major Mono Display', monospace;
+      font-size: 12px; letter-spacing: 3px;
+      border: 2px solid var(--ink); border-radius: 0;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.7); color: var(--ink);
+      box-shadow: 4px 4px 0 var(--cyan);
+    }
+    .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
+    .btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-family: 'Major Mono Display', monospace;
+      font-size: 11px; letter-spacing: 2px; color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .form-label .value { color: var(--pink); }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 6px;
+      background: linear-gradient(90deg, var(--cyan), var(--pink), var(--purple));
+      border-radius: 0; outline: none; cursor: pointer;
+      border: 2px solid var(--ink);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 0;
+      background: #fff; border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--pink);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 12px; background: rgba(255,255,255,0.6);
+      border: 2px solid var(--ink); margin-bottom: 18px;
+      box-shadow: 3px 3px 0 var(--cyan);
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 18px; height: 18px; border: 2px solid var(--ink);
+      background: #fff; position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk { background: var(--pink); }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: ''; position: absolute; left: 4px; top: 0;
+      width: 6px; height: 10px; border: solid var(--ink);
+      border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .chk-label { font-size: 14px; color: var(--ink); font-weight: 500; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 12px;
+      font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 500;
+      background: rgba(255,255,255,0.8); color: var(--ink);
+      border: 2px solid var(--ink); border-radius: 0; outline: none;
+      box-shadow: 3px 3px 0 var(--pink);
+    }
+    select:focus, input[type="text"]:focus { box-shadow: 3px 3px 0 var(--cyan); }
+    input[type="text"]::placeholder { color: rgba(58,0,90,0.45); }
+
+    .output {
+      margin-top: 20px; padding: 12px 14px;
+      background: rgba(255,255,255,0.6); border: 2px solid var(--ink);
+      font-family: 'Major Mono Display', monospace;
+      font-size: 11px; letter-spacing: 2px; color: var(--ink);
+      min-height: 40px;
+      box-shadow: 3px 3px 0 var(--purple);
+    }
+    .output strong { color: var(--pink); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="jp">ヴェイパーウェイヴ</div>
+    <h1>vaporwave</h1>
+    <div class="sub">a e s t h e t i c s · 1 9 9 5</div>
+
+    <div class="section-title">// actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('apply')">apply</button>
+      <button class="btn btn-secondary" onclick="log('reset')">reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">saturation <span class="value" id="v">88</span></div>
+      <input type="range" min="0" max="100" value="88" oninput="document.getElementById('v').textContent=this.value;log('sat '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('vhs '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Enable VHS scanlines</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Scene</div>
+      <select onchange="log('scene '+this.value)">
+        <option>Bust of Helios</option><option>Palm Beach</option>
+        <option>Mall of Dreams</option><option>Tokyo 1989</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="ｔｙｐｅ ｈｅｒｅ..." oninput="log('input '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>status</strong> — dreaming...</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>status</strong> — '+m;}</script>
+</body>
+</html>
