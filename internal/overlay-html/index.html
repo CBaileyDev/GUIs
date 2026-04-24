@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>In-App Overlay Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Simulated game/app scene ── */
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #0b0f1a;
+      position: relative;
+    }
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 60%, #0d2b45 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 30%, #1a0d2e 0%, transparent 55%),
+        linear-gradient(180deg, #0b0f1a 0%, #111827 100%);
+    }
+
+    /* Fake horizon / terrain */
+    .scene::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 35%;
+      background: linear-gradient(180deg, transparent, #0d1b2a 60%, #091018 100%);
+      border-top: 1px solid rgba(99,179,237,0.08);
+    }
+
+    /* Fake stars */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      opacity: 0.7;
+      animation: twinkle var(--d, 3s) ease-in-out infinite;
+    }
+    @keyframes twinkle { 0%,100%{opacity:.7} 50%{opacity:.2} }
+
+    /* Fake HUD elements */
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+    .hud-bar {
+      position: absolute;
+      bottom: 28px; left: 28px;
+      display: flex; gap: 16px;
+    }
+    .hud-stat {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+    }
+    .hud-val { color: rgba(99,179,237,0.5); }
+
+    .hud-crosshair {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px; height: 20px;
+      opacity: 0.2;
+    }
+    .hud-crosshair::before, .hud-crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(99,179,237,0.6);
+    }
+    .hud-crosshair::before { width: 1px; height: 100%; left: 50%; }
+    .hud-crosshair::after  { height: 1px; width: 100%; top: 50%; }
+
+    /* ── Toggle button ── */
+    .toggle-btn {
+      position: fixed;
+      top: 20px; right: 20px;
+      z-index: 200;
+      padding: 9px 18px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .toggle-btn:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .toggle-btn kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.12);
+      font-family: inherit;
+      font-size: 11px;
+      margin-left: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* ── Overlay backdrop ── */
+    .overlay-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .overlay-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ── Overlay panel ── */
+    .overlay-panel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, calc(-50% + 20px));
+      z-index: 110;
+      width: 400px;
+      background: rgba(14, 18, 32, 0.92);
+      border: 1px solid rgba(99, 179, 237, 0.25);
+      border-radius: 16px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 24px 64px rgba(0,0,0,0.7),
+        0 0 40px rgba(99,179,237,0.08);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .overlay-panel.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Panel header */
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .panel-header-left .eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(99,179,237,0.6);
+      margin-bottom: 2px;
+    }
+    .panel-header-left h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .close-btn {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .close-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    /* Panel body */
+    .panel-body { padding: 20px; }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 10px; margin-bottom: 18px; }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: #3b82f6;
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover { background: #2563eb; box-shadow: 0 4px 16px rgba(59,130,246,0.5); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+      margin-bottom: 7px;
+    }
+    .form-label span { color: #63b3ed; font-weight: 600; }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.1);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #63b3ed;
+      border: 2px solid rgba(255,255,255,0.5);
+      box-shadow: 0 0 6px rgba(99,179,237,0.5);
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 16px;
+      transition: background 0.15s;
+    }
+    .checkbox-row:hover { background: rgba(255,255,255,0.07); }
+    .checkbox-row input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .check-box svg { display: none; }
+    input[type="checkbox"]:checked ~ .check-box {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+    input[type="checkbox"]:checked ~ .check-box svg { display: block; }
+    .check-label { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    .panel-select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+    .panel-select option { background: #0e1220; color: #fff; }
+    .panel-select:focus { border-color: rgba(99,179,237,0.4); }
+
+    .panel-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.85);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+    .panel-input::placeholder { color: rgba(255,255,255,0.25); }
+    .panel-input:focus { border-color: rgba(99,179,237,0.4); }
+
+    /* Output */
+    .panel-output {
+      margin-top: 14px;
+      padding: 9px 12px;
+      border-radius: 7px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      font-family: 'Inter', monospace;
+    }
+    .panel-output strong { color: #63b3ed; }
+  </style>
+</head>
+<body>
+
+  <!-- Simulated game scene -->
+  <div class="scene"></div>
+  <div class="stars" id="stars"></div>
+  <div class="hud">
+    <div class="hud-crosshair"></div>
+    <div class="hud-bar">
+      <div class="hud-stat">HP <span class="hud-val">84</span></div>
+      <div class="hud-stat">MP <span class="hud-val">63</span></div>
+      <div class="hud-stat">XP <span class="hud-val">2,480</span></div>
+      <div class="hud-stat">FPS <span class="hud-val">144</span></div>
+    </div>
+  </div>
+
+  <!-- Toggle button -->
+  <button class="toggle-btn" id="toggleBtn" onclick="toggleOverlay()">
+    Open Menu <kbd>Tab</kbd>
+  </button>
+
+  <!-- Overlay backdrop -->
+  <div class="overlay-backdrop" id="backdrop" onclick="closeOverlay()"></div>
+
+  <!-- Overlay panel -->
+  <div class="overlay-panel" id="overlay">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="eyebrow">Overlay · Internal</div>
+        <h2>Game Settings</h2>
+      </div>
+      <button class="close-btn" onclick="closeOverlay()">✕</button>
+    </div>
+    <div class="panel-body">
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="log('Apply clicked')">Apply</button>
+        <button class="btn btn-secondary" onclick="log('Reset clicked')">Reset</button>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Master Volume <span id="volVal">70%</span></div>
+        <input type="range" min="0" max="100" value="70"
+          oninput="document.getElementById('volVal').textContent=this.value+'%'; log('Volume: '+this.value+'%')">
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="vsync" onchange="log('VSync: '+this.checked)">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="check-label">Enable VSync</span>
+      </label>
+
+      <div class="form-group">
+        <div class="form-label">Quality preset</div>
+        <select class="panel-select" onchange="log('Quality: '+this.value)">
+          <option>Ultra</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <input class="panel-input" type="text" placeholder="Player alias…" oninput="log('Alias: '+this.value)">
+      </div>
+
+      <div class="panel-output" id="output"><strong>status</strong> — waiting for input</div>
+    </div>
+  </div>
+
+  <script>
+    /* Stars */
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 120; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2 + 0.5;
+      s.style.cssText = `
+        width:${size}px; height:${size}px;
+        top:${Math.random()*65}%; left:${Math.random()*100}%;
+        --d:${(Math.random()*3+2).toFixed(1)}s;
+        animation-delay:${(Math.random()*4).toFixed(1)}s;
+      `;
+      starsEl.appendChild(s);
+    }
+
+    /* Toggle */
+    let open = false;
+    function toggleOverlay() { open ? closeOverlay() : openOverlay(); }
+
+    function openOverlay() {
+      open = true;
+      document.getElementById('overlay').classList.add('visible');
+      document.getElementById('backdrop').classList.add('visible');
+      document.getElementById('toggleBtn').textContent = '';
+      document.getElementById('toggleBtn').innerHTML = 'Close Menu <kbd>Tab</kbd>';
+    }
+    function closeOverlay() {
+      open = false;
+      document.getElementById('overlay').classList.remove('visible');
+      document.getElementById('backdrop').classList.remove('visible');
+      document.getElementById('toggleBtn').innerHTML = 'Open Menu <kbd>Tab</kbd>';
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Tab') { e.preventDefault(); toggleOverlay(); } });
+
+    function log(msg) {
+      document.getElementById('output').innerHTML = '<strong>status</strong> — ' + msg;
+    }
+  </script>
+</body>
+</html>

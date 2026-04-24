@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glassmorphism Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse at 20% 50%, #7b2ff7 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, #00c6fb 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, #f857a6 0%, transparent 45%),
+        linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 100%);
+      overflow: hidden;
+    }
+
+    /* Floating orb accents */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    body::before {
+      width: 420px; height: 420px;
+      background: #7b2ff7;
+      top: -100px; left: -100px;
+    }
+    body::after {
+      width: 380px; height: 380px;
+      background: #00c6fb;
+      bottom: -80px; right: -80px;
+    }
+
+    .card {
+      width: 400px;
+      padding: 36px 32px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .card-header .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+    }
+    .card-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .card-header h1 span {
+      background: linear-gradient(90deg, #a78bfa, #60c8f8, #f9a8d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      margin: 20px 0;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #a78bfa, #60c8f8);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(167, 139, 250, 0.4);
+    }
+    .btn-primary:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(167,139,250,0.55); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.16); }
+
+    /* Form rows */
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+    }
+    .form-label span { color: #a78bfa; font-weight: 600; }
+
+    /* Slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.12);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa, #60c8f8);
+      border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 2px 8px rgba(167,139,250,0.5);
+      transition: transform 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    /* Checkbox */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.15s;
+      margin-bottom: 20px;
+    }
+    .checkbox-row:hover { background: rgba(255,255,255,0.09); }
+    .checkbox-row input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 20px; height: 20px;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .check-box svg { display: none; width: 12px; height: 12px; }
+    input[type="checkbox"]:checked ~ .check-box {
+      background: linear-gradient(135deg, #a78bfa, #60c8f8);
+      border-color: transparent;
+    }
+    input[type="checkbox"]:checked ~ .check-box svg { display: block; }
+    .check-label { font-size: 14px; color: rgba(255,255,255,0.8); font-weight: 500; }
+
+    /* Select / combo */
+    .glass-select {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .glass-select option { background: #1a0a2e; color: #fff; }
+    .glass-select:focus { border-color: rgba(167,139,250,0.5); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+
+    /* Text input */
+    .glass-input {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+    .glass-input::placeholder { color: rgba(255,255,255,0.3); }
+    .glass-input:focus { border-color: rgba(167,139,250,0.5); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+
+    /* Output */
+    .output {
+      margin-top: 20px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inter', monospace;
+      min-height: 40px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .output strong { color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <div class="badge">Style Showcase</div>
+      <h1><span>Glassmorphism</span> Menu</h1>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('Primary clicked')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('Secondary clicked')">Reset</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <div class="form-label">Opacity <span id="opacityVal">72%</span></div>
+      <input type="range" min="0" max="100" value="72" id="opacitySlider"
+        oninput="document.getElementById('opacityVal').textContent=this.value+'%'; log('Opacity: '+this.value+'%')">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="blurToggle" onchange="log('Blur enabled: '+this.checked)">
+      <div class="check-box">
+        <svg viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="check-label">Enable blur backdrop</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Theme preset</div>
+      <select class="glass-select" onchange="log('Theme: '+this.value)">
+        <option>Aurora Violet</option>
+        <option>Ocean Cyan</option>
+        <option>Sunset Rose</option>
+        <option>Emerald Mist</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input class="glass-input" type="text" placeholder="Enter overlay title…" oninput="log('Title: '+this.value)">
+    </div>
+
+    <div class="output" id="output"><strong>status</strong> — waiting for input</div>
+  </div>
+
+  <script>
+    function log(msg) {
+      const el = document.getElementById('output');
+      el.innerHTML = '<strong>status</strong> — ' + msg;
+    }
+  </script>
+</body>
+</html>

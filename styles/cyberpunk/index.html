@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyberpunk Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cyan: #00fff5;
+      --magenta: #ff00c8;
+      --lime: #a8ff3e;
+      --yellow: #ffe600;
+      --dark: #050510;
+      --panel: #0a0a1a;
+      --panel-border: #1a1a3a;
+      --text: #c8d8e8;
+      --dim: #4a5a7a;
+    }
+
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--dark);
+      overflow: hidden;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,245,0.015) 2px,
+        rgba(0,255,245,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Grid background */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,245,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,245,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .card {
+      width: 420px;
+      background: var(--panel);
+      border: 1px solid var(--cyan);
+      box-shadow:
+        0 0 20px rgba(0,255,245,0.15),
+        0 0 60px rgba(0,255,245,0.05),
+        inset 0 0 30px rgba(0,255,245,0.03);
+      position: relative;
+      z-index: 1;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+
+    /* Corner accents */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      border-color: var(--magenta);
+      border-style: solid;
+    }
+    .card::before { top: 5px; left: 5px; border-width: 2px 0 0 2px; }
+    .card::after  { bottom: 5px; right: 5px; border-width: 0 2px 2px 0; }
+
+    /* Header */
+    .card-header {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--panel-border);
+      position: relative;
+    }
+    .card-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 24px; right: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+    }
+    .header-sys {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .card-header h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan), 0 0 30px rgba(0,255,245,0.4);
+    }
+    .card-header h1 em {
+      color: var(--magenta);
+      text-shadow: 0 0 10px var(--magenta), 0 0 30px rgba(255,0,200,0.4);
+      font-style: normal;
+    }
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--lime);
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 6px var(--lime);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .card-body { padding: 22px 24px 24px; }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1;
+      padding: 11px 16px;
+      border: none;
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .btn:hover::before { opacity: 0.12; }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--cyan);
+      color: var(--dark);
+      box-shadow: 0 0 15px rgba(0,255,245,0.4);
+    }
+    .btn-primary:hover { box-shadow: 0 0 25px rgba(0,255,245,0.6); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--magenta);
+      border: 1px solid var(--magenta);
+      box-shadow: 0 0 10px rgba(255,0,200,0.2), inset 0 0 10px rgba(255,0,200,0.05);
+    }
+    .btn-secondary:hover { box-shadow: 0 0 20px rgba(255,0,200,0.4), inset 0 0 10px rgba(255,0,200,0.1); }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--cyan), var(--magenta), transparent);
+      margin: 18px 0;
+      opacity: 0.4;
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .form-label span { color: var(--lime); letter-spacing: 0; }
+
+    /* Slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 3px;
+      background: var(--panel-border);
+      outline: none;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      background: var(--cyan);
+      border: 2px solid var(--dark);
+      box-shadow: 0 0 8px var(--cyan);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      cursor: pointer;
+    }
+
+    /* Checkbox */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      padding: 10px 14px;
+      border: 1px solid var(--panel-border);
+      margin-bottom: 18px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .checkbox-row:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 8px rgba(0,255,245,0.1);
+    }
+    .checkbox-row input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 18px; height: 18px;
+      border: 1px solid var(--dim);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    }
+    .check-box svg { display: none; }
+    input[type="checkbox"]:checked ~ .check-box {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+    input[type="checkbox"]:checked ~ .check-box svg { display: block; }
+    .check-label { font-size: 12px; color: var(--text); letter-spacing: 1px; }
+
+    /* Select */
+    .cyber-select {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%2300fff5' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      transition: border-color 0.15s;
+    }
+    .cyber-select:focus { border-color: var(--cyan); box-shadow: 0 0 8px rgba(0,255,245,0.15); }
+    .cyber-select option { background: #0a0a1a; }
+
+    /* Text input */
+    .cyber-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      border-radius: 0;
+    }
+    .cyber-input::placeholder { color: var(--dim); }
+    .cyber-input:focus { border-color: var(--cyan); box-shadow: 0 0 8px rgba(0,255,245,0.15); }
+
+    /* Output */
+    .output {
+      margin-top: 18px;
+      padding: 10px 12px;
+      background: rgba(0,255,245,0.03);
+      border: 1px solid var(--panel-border);
+      border-left: 3px solid var(--cyan);
+      font-size: 12px;
+      color: var(--dim);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 38px;
+    }
+    .output .tag { color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <div class="header-sys">SYS://INTERFACE_v2.1.0</div>
+      <h1>CYBER<em>PUNK</em></h1>
+      <div class="status-bar">
+        <div class="status-dot"></div>
+        NEURAL LINK ESTABLISHED
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="log('EXEC: apply_config')">Execute</button>
+        <button class="btn btn-secondary" onclick="log('EXEC: reset_config')">Purge</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <div class="form-label">Signal Gain <span id="gainVal">68%</span></div>
+        <input type="range" min="0" max="100" value="68"
+          oninput="document.getElementById('gainVal').textContent=this.value+'%'; log('gain_set: '+this.value)">
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="neonToggle" onchange="log('neon_fx: '+(this.checked?'ON':'OFF'))">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4l2.5 2.5L9 1" stroke="#050510" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="check-label">ENABLE_NEON_FX</span>
+      </label>
+
+      <div class="form-group">
+        <div class="form-label">Protocol</div>
+        <select class="cyber-select" onchange="log('protocol: '+this.value)">
+          <option>SHADOW_NET</option>
+          <option>GHOST_LINK</option>
+          <option>VOID_MESH</option>
+          <option>CHROME_RELAY</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <input class="cyber-input" type="text" placeholder="> enter_callsign_" oninput="log('callsign: '+this.value)">
+      </div>
+
+      <div class="output" id="output"><span class="tag">&gt;</span> awaiting_input...</div>
+    </div>
+  </div>
+
+  <script>
+    function log(msg) {
+      document.getElementById('output').innerHTML = '<span class="tag">&gt;</span> ' + msg;
+    }
+  </script>
+</body>
+</html>
