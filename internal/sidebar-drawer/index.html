@@ -189,9 +189,9 @@
 
   <button class="open-btn" onclick="open_drawer()">Menu</button>
 
-  <div class="backdrop" id="bg" onclick="close_drawer()"></div>
+  <div class="backdrop open" id="bg" onclick="close_drawer()"></div>
 
-  <aside class="drawer" id="drawer" aria-label="Navigation drawer">
+  <aside class="drawer open" id="drawer" aria-label="Navigation drawer">
     <div class="drawer-header">
       <div>
         <div class="drawer-title">Workspace</div>
@@ -258,8 +258,6 @@
     function close_drawer(){ drawer.classList.remove('open'); bg.classList.remove('open'); }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') close_drawer(); });
     function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong>';}
-    // Open initially so visitors see it without clicking.
-    requestAnimationFrame(open_drawer);
   </script>
 </body>
 </html>
