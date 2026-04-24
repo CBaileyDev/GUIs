@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skeuomorphic Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        repeating-linear-gradient(45deg, #654321 0px, #6b4924 2px, #5c3b1f 2px, #6b4924 4px),
+        #5c3b1f;
+      color: #2b1d0e;
+    }
+    .card {
+      width: 440px; padding: 32px;
+      background: linear-gradient(180deg, #f3ead0 0%, #e8d9a8 100%);
+      border-radius: 14px;
+      border: 1px solid #8a6d32;
+      box-shadow:
+        0 2px 0 #f8f1d8 inset,
+        0 -3px 0 rgba(138,109,50,0.4) inset,
+        0 0 0 6px #6b4924,
+        0 0 0 8px #8a6d32,
+        0 24px 40px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    .card::before {
+      content: ''; position: absolute; inset: 14px; border-radius: 8px;
+      border: 1px dashed rgba(107,73,36,0.4); pointer-events: none;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif; font-weight: 900;
+      font-size: 32px; color: #3b2410; text-align: center;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.7), 0 -1px 0 rgba(0,0,0,0.15);
+    }
+    .sub {
+      font-size: 13px; font-style: italic; text-align: center;
+      color: #8a6d32; border-bottom: 1px solid rgba(107,73,36,0.3);
+      padding-bottom: 12px; margin-bottom: 20px; margin-top: 2px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700;
+      color: #6b4924; text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 12px; font-family: inherit;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      border-radius: 10px;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .btn-primary {
+      color: #fff; text-shadow: 0 -1px 0 rgba(0,0,0,0.4);
+      background: linear-gradient(180deg, #ff9a3c 0%, #d86a0c 50%, #b55408 100%);
+      border: 1px solid #8a3a04;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.5) inset,
+        0 -2px 0 rgba(0,0,0,0.2) inset,
+        0 4px 0 #8a3a04, 0 6px 10px rgba(0,0,0,0.3);
+    }
+    .btn-primary:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 -2px 0 rgba(0,0,0,0.2) inset, 0 1px 0 #8a3a04, 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .btn-secondary {
+      color: #3b2410; text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+      background: linear-gradient(180deg, #faf1d5 0%, #e5d3a3 50%, #d8c38c 100%);
+      border: 1px solid #8a6d32;
+      box-shadow:
+        0 1px 0 #fff8e0 inset,
+        0 -2px 0 rgba(138,109,50,0.25) inset,
+        0 4px 0 #a38a50, 0 6px 10px rgba(0,0,0,0.25);
+    }
+    .btn-secondary:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #fff8e0 inset, 0 -2px 0 rgba(138,109,50,0.2) inset, 0 1px 0 #a38a50;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; font-weight: 600; color: #3b2410; margin-bottom: 8px;
+    }
+    .form-label .value {
+      color: #fff; background: #6b4924; padding: 1px 8px; border-radius: 8px;
+      font-size: 12px; text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 14px; cursor: pointer;
+      background: linear-gradient(180deg, #c0ad7e 0%, #e0cc97 100%);
+      border-radius: 12px; outline: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.5);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff9c8, #ffb74d 40%, #c0781a 90%);
+      border: 1px solid #6b4010;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border-radius: 10px;
+      background: linear-gradient(180deg, #f3ead0 0%, #dcc88f 100%);
+      border: 1px solid #8a6d32;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 2px 4px rgba(0,0,0,0.15);
+      margin-bottom: 18px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: linear-gradient(180deg, #c0ad7e, #e5d3a3);
+      border: 1px solid #6b4924;
+      box-shadow: inset 0 2px 3px rgba(0,0,0,0.25);
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk {
+      background: linear-gradient(180deg, #4caf50, #2e7d32);
+      border-color: #1b5e20;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 1px #1b5e20;
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✓'; color: #fff; font-size: 14px; font-weight: 900;
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      text-shadow: 0 -1px 0 rgba(0,0,0,0.4);
+    }
+    .chk-label { font-size: 14px; font-weight: 600; color: #3b2410; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 14px;
+      font-family: inherit; font-size: 14px; font-weight: 500;
+      color: #3b2410;
+      background: linear-gradient(180deg, #fff8e0 0%, #f3ead0 100%);
+      border: 1px solid #8a6d32; border-radius: 10px;
+      box-shadow: inset 0 2px 3px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.6);
+      outline: none;
+    }
+    input[type="text"]::placeholder { color: #8a6d32; }
+    select:focus, input[type="text"]:focus { border-color: #c0781a; }
+
+    .output {
+      margin-top: 22px; padding: 12px 14px;
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: 14px; color: #3b2410;
+      background: linear-gradient(180deg, #fff8e0 0%, #f3ead0 100%);
+      border: 1px solid #8a6d32; border-radius: 8px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);
+      min-height: 44px;
+    }
+    .output strong { color: #b55408; font-style: normal; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Skeuomorphism</h1>
+    <div class="sub">~ Leather, wood, brass — as it once was ~</div>
+
+    <div class="section-title">Controls</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('Applied')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Volume <span class="value" id="v">55</span></div>
+      <input type="range" min="0" max="100" value="55" oninput="document.getElementById('v').textContent=this.value;log('Volume '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('Glossy '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Enable glossy finish</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Material</div>
+      <select onchange="log('Material '+this.value)">
+        <option>Leather</option><option>Oak Wood</option>
+        <option>Brushed Brass</option><option>Felt</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Engrave name..." oninput="log('Name '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>Status —</strong> ready for your input</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>Status —</strong> '+m;}</script>
+</body>
+</html>

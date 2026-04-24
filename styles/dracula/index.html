@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dracula Theme Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #282a36; --cur: #44475a; --fg: #f8f8f2; --com: #6272a4;
+      --cyan: #8be9fd; --green: #50fa7b; --orange: #ffb86c;
+      --pink: #ff79c6; --purple: #bd93f9; --red: #ff5555; --yellow: #f1fa8c;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: var(--bg); color: var(--fg);
+    }
+    .card {
+      width: 420px; padding: 32px;
+      background: linear-gradient(180deg, #2a2c39 0%, #282a36 100%);
+      border: 1px solid var(--cur);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+    }
+    .eyebrow {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px; color: var(--pink); margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(90deg, var(--purple), var(--pink), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .sub { font-size: 13px; color: var(--com); margin-top: 4px; margin-bottom: 24px; }
+
+    .section-title {
+      font-family: 'Fira Code', monospace; font-size: 11px;
+      color: var(--cyan); text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+    .section-title::before { content: '// '; color: var(--com); }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 11px; font-family: inherit;
+      font-size: 14px; font-weight: 600;
+      border-radius: 6px; cursor: pointer; border: none;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: var(--bg);
+      box-shadow: 0 4px 14px rgba(255,121,198,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 18px rgba(255,121,198,0.5); }
+    .btn-secondary {
+      background: var(--cur); color: var(--fg); border: 1px solid var(--com);
+    }
+    .btn-secondary:hover { background: #4e5166; }
+    .btn:active { transform: translateY(1px); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; margin-bottom: 8px; font-weight: 500;
+    }
+    .form-label .value {
+      font-family: 'Fira Code', monospace; color: var(--green);
+      background: var(--cur); padding: 1px 8px; border-radius: 4px; font-size: 12px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 4px;
+      background: var(--cur); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--pink); border: 2px solid var(--bg);
+      box-shadow: 0 0 8px rgba(255,121,198,0.4);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 12px; border-radius: 6px; background: var(--cur);
+      margin-bottom: 18px;
+      transition: background 0.15s;
+    }
+    .checkbox-row:hover { background: #4e5166; }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 18px; height: 18px; border-radius: 4px;
+      border: 1.5px solid var(--com); background: var(--bg);
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk { background: var(--purple); border-color: var(--purple); }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: ''; position: absolute; left: 5px; top: 1px;
+      width: 5px; height: 10px; border: solid var(--bg);
+      border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .chk-label { font-size: 14px; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 12px;
+      font-family: inherit; font-size: 14px;
+      color: var(--fg); background: var(--bg);
+      border: 1px solid var(--cur); border-radius: 6px; outline: none;
+    }
+    select option { background: var(--bg); }
+    select:focus, input[type="text"]:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(189,147,249,0.2); }
+    input[type="text"]::placeholder { color: var(--com); }
+
+    .output {
+      margin-top: 20px; padding: 12px 14px;
+      background: var(--bg); border: 1px solid var(--cur); border-radius: 6px;
+      font-family: 'Fira Code', monospace; font-size: 12px;
+      color: var(--com); min-height: 40px;
+    }
+    .output strong { color: var(--green); }
+    .output em { color: var(--yellow); font-style: normal; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="eyebrow">@theme/dracula</div>
+    <h1>Dracula</h1>
+    <div class="sub">A dark theme for 300+ apps</div>
+
+    <div class="section-title">actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Saturation <span class="value" id="v">80</span></div>
+      <input type="range" min="0" max="100" value="80" oninput="document.getElementById('v').textContent=this.value;log('Saturation '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('Ligatures '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Font ligatures</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Accent color</div>
+      <select onchange="log('Accent '+this.value)">
+        <option>Pink</option><option>Purple</option>
+        <option>Cyan</option><option>Green</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Search theme..." oninput="log('Search '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>ready</strong> <em>v2.0</em></div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> '+m;}</script>
+</body>
+</html>

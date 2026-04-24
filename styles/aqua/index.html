@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aqua Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lucida+Sans+Unicode&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Arial, sans-serif;
+      font-size: 12px;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(circle at top, #d2e6f3 0%, #8bb8d8 80%),
+        linear-gradient(#d2e6f3, #8bb8d8);
+      color: #222;
+    }
+
+    .window {
+      width: 440px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0) 25%),
+        linear-gradient(180deg, #e7eef5 0%, #c2d0de 100%);
+      border: 1px solid #5a7794;
+      border-radius: 8px;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.7);
+      overflow: hidden;
+    }
+
+    .title-bar {
+      background:
+        linear-gradient(180deg, #f1f3f6 0%, #cdd4dd 100%);
+      border-bottom: 1px solid #8799ac;
+      padding: 5px 10px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: inset 0 1px 0 #fff;
+    }
+    .traffic { display: flex; gap: 6px; }
+    .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      box-shadow: inset 0 -1px 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5);
+      border: 1px solid rgba(0,0,0,0.35);
+    }
+    .dot.r { background: radial-gradient(circle at 30% 30%, #ff9d9d, #c32222); }
+    .dot.y { background: radial-gradient(circle at 30% 30%, #ffe48f, #c08a00); }
+    .dot.g { background: radial-gradient(circle at 30% 30%, #9bec8a, #1f8a18); }
+    .title { flex: 1; text-align: center; font-weight: 700; font-size: 13px; color: #333; text-shadow: 0 1px 0 #fff; }
+
+    .content { padding: 20px 22px; background: linear-gradient(180deg, #f2f5f9, #d7dee8); }
+
+    h1 {
+      font-size: 20px; font-weight: 700; color: #1a2430;
+      text-shadow: 0 1px 0 #fff; margin-bottom: 2px;
+    }
+    .sub { font-size: 12px; color: #4a5a70; margin-bottom: 18px; }
+
+    hr { border: none; height: 1px;
+      background: linear-gradient(90deg, transparent, #97a4b5, transparent);
+      margin: 14px 0; box-shadow: 0 1px 0 #fff;
+    }
+
+    .section-title {
+      font-size: 11px; font-weight: 700; color: #4a5a70;
+      letter-spacing: 0.5px; margin-bottom: 8px;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .btn-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn {
+      flex: 1; padding: 6px 14px;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      border-radius: 100px; cursor: pointer; border: 1px solid #5a7794;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+      transition: filter 0.1s;
+    }
+    .btn-primary {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0) 50%),
+        linear-gradient(180deg, #7fbdff 0%, #2a7dd5 100%);
+      color: #fff;
+      border-color: #1a5c9c;
+      text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .btn-secondary {
+      background:
+        linear-gradient(180deg, #ffffff 0%, #d4dce7 50%, #bcc5d3 100%);
+      color: #1a2430;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .btn:active { filter: brightness(0.92); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; font-weight: 600; color: #2d3a4d; margin-bottom: 5px;
+      text-shadow: 0 1px 0 #fff;
+    }
+    .form-label .value { color: #1a5c9c; }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 8px;
+      background: linear-gradient(180deg, #a9b6c7, #dde3ec);
+      border: 1px solid #7d8d9f; border-radius: 6px;
+      outline: none; cursor: pointer;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0) 50%),
+        linear-gradient(180deg, #ffffff, #c0cad8);
+      border: 1px solid #5a7794;
+      box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 15px; height: 15px; border-radius: 4px;
+      background: linear-gradient(180deg, #fff, #d5dce7);
+      border: 1px solid #7d8d9f;
+      box-shadow: inset 0 1px 0 #fff;
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk {
+      background: linear-gradient(180deg, #7fbdff, #2a7dd5);
+      border-color: #1a5c9c;
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✓'; position: absolute; inset: -2px 0 0 0;
+      color: #fff; font-size: 13px; font-weight: 900;
+      text-align: center; text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+    }
+    .chk-label { font-size: 13px; color: #1a2430; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 5px 8px; font-family: inherit; font-size: 13px;
+      color: #1a2430;
+      background: linear-gradient(180deg, #fff, #ebeef3);
+      border: 1px solid #7d8d9f; border-radius: 5px; outline: none;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+    }
+    select { appearance: none; -webkit-appearance: none;
+      background-image:
+        linear-gradient(180deg, #7fbdff, #2a7dd5),
+        linear-gradient(180deg, #fff, #ebeef3);
+      background-position: right 0 center, left 0 center;
+      background-size: 22px 100%, 100% 100%;
+      background-repeat: no-repeat, no-repeat;
+      padding-right: 28px;
+    }
+    select:focus, input[type="text"]:focus { border-color: #2a7dd5; box-shadow: 0 0 0 3px rgba(42,125,213,0.25); }
+
+    .status {
+      margin-top: 16px; padding: 8px 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+      border: 1px solid #a9b6c7; border-radius: 6px;
+      font-size: 12px; color: #2d3a4d;
+      box-shadow: inset 0 1px 0 #fff;
+    }
+    .status strong { color: #1a5c9c; }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">
+      <div class="traffic"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+      <div class="title">Menu Preferences</div>
+      <div style="width:42px"></div>
+    </div>
+
+    <div class="content">
+      <h1>Aqua Menu</h1>
+      <div class="sub">A glossy, early-OS-X inspired control panel.</div>
+
+      <hr>
+
+      <div class="section-title">Actions</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
+        <button class="btn btn-secondary" onclick="log('Cancel')">Cancel</button>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><span>Volume</span><span class="value" id="v">60%</span></div>
+        <input type="range" min="0" max="100" value="60" oninput="document.getElementById('v').textContent=this.value+'%';log('Volume '+this.value+'%')">
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" checked onchange="log('Genie effect '+this.checked)">
+        <span class="chk"></span>
+        <span class="chk-label">Enable Genie window effect</span>
+      </label>
+
+      <div class="form-group">
+        <div class="form-label"><span>Appearance</span></div>
+        <select onchange="log('Appearance '+this.value)">
+          <option>Aqua Blue</option><option>Graphite</option>
+          <option>Ocean Surface</option><option>Sunset</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><span>Computer name</span></div>
+        <input type="text" placeholder="Macintosh" oninput="log('Name '+this.value)">
+      </div>
+
+      <div class="status" id="status"><strong>Status —</strong> ready.</div>
+    </div>
+  </div>
+  <script>function log(m){document.getElementById('status').innerHTML='<strong>Status —</strong> '+m;}</script>
+</body>
+</html>

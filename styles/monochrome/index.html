@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monochrome Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #000; --paper: #fff; --g1: #f4f4f4; --g2: #e0e0e0; --g3: #a8a8a8; --g4: #525252; }
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: var(--paper); color: var(--ink);
+    }
+    .card {
+      width: 420px; padding: 32px;
+      background: var(--paper); border: 2px solid var(--ink);
+    }
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; color: var(--g4); margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+    .sub { font-size: 14px; color: var(--g4); margin-top: 4px; margin-bottom: 24px; }
+
+    .section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 12px; font-family: inherit;
+      font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; border: 2px solid var(--ink);
+      transition: background 0.12s, color 0.12s;
+    }
+    .btn-primary { background: var(--ink); color: var(--paper); }
+    .btn-primary:hover { background: var(--paper); color: var(--ink); }
+    .btn-secondary { background: var(--paper); color: var(--ink); }
+    .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .form-label .value { color: var(--g4); }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 2px;
+      background: var(--ink); outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      background: var(--ink); border-radius: 0;
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 12px; border: 1.5px solid var(--ink); margin-bottom: 18px;
+      background: var(--paper);
+      transition: background 0.12s, color 0.12s;
+    }
+    .checkbox-row:hover { background: var(--ink); color: var(--paper); }
+    .checkbox-row:hover .chk { border-color: var(--paper); }
+    .checkbox-row input { display: none; }
+    .chk { width: 16px; height: 16px; border: 1.5px solid currentColor; flex-shrink: 0; position: relative; }
+    input[type="checkbox"]:checked ~ .chk { background: currentColor; }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: ''; position: absolute; inset: 2px;
+      background:
+        linear-gradient(45deg, transparent 45%, var(--paper) 45%, var(--paper) 55%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, var(--paper) 45%, var(--paper) 55%, transparent 55%);
+    }
+    .checkbox-row:hover input[type="checkbox"]:checked ~ .chk::after {
+      background:
+        linear-gradient(45deg, transparent 45%, var(--ink) 45%, var(--ink) 55%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, var(--ink) 45%, var(--ink) 55%, transparent 55%);
+    }
+    .chk-label { font-size: 14px; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 12px;
+      font-family: inherit; font-size: 14px;
+      color: var(--ink); background: var(--paper);
+      border: 1.5px solid var(--ink); outline: none;
+    }
+    select { appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23000' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+    }
+    input[type="text"]::placeholder { color: var(--g3); }
+    select:focus, input[type="text"]:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+    .output {
+      margin-top: 22px; padding: 12px 14px;
+      background: var(--ink); color: var(--paper);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; min-height: 40px;
+    }
+    .output strong { background: var(--paper); color: var(--ink); padding: 1px 6px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="eyebrow">NO. 09 / MONOCHROME</div>
+    <h1>Monochrome</h1>
+    <div class="sub">Black. White. Nothing else.</div>
+
+    <div class="section-title">actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('apply')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Contrast</span><span class="value" id="v">100</span></div>
+      <input type="range" min="0" max="100" value="100" oninput="document.getElementById('v').textContent=this.value;log('contrast '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('dither '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Enable dithering</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label"><span>Variant</span></div>
+      <select onchange="log('variant '+this.value)">
+        <option>Pure BW</option><option>Halftone</option>
+        <option>Riso Black</option><option>Charcoal</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Label..." oninput="log('label '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>READY</strong> awaiting input</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>OK</strong> '+m;}</script>
+</body>
+</html>

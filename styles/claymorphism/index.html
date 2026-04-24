@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claymorphism Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #eef1fb;
+      --clay: #f2f4fe;
+      --accent: #8a5cf5;
+      --accent-2: #f46ab2;
+      --green: #4cd190;
+      --orange: #ff9a62;
+      --text: #3a3a5c;
+      --text-soft: #7b83a6;
+      --inner-light: rgba(255,255,255,0.9);
+      --inner-dark: rgba(140,145,195,0.35);
+    }
+    body {
+      font-family: 'Baloo 2', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: linear-gradient(135deg, #dfe5f7 0%, #f3deff 50%, #ffe5ef 100%);
+      color: var(--text);
+    }
+    .card {
+      width: 420px; padding: 32px;
+      background: var(--clay); border-radius: 36px;
+      box-shadow:
+        inset 6px 6px 14px var(--inner-light),
+        inset -6px -6px 14px var(--inner-dark),
+        12px 14px 30px rgba(140,145,195,0.35);
+    }
+    h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+    h1 span {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .sub { font-size: 14px; color: var(--text-soft); font-weight: 500; margin-bottom: 20px; }
+
+    .section-title { font-size: 13px; font-weight: 700; color: var(--text-soft); margin-bottom: 10px; }
+
+    .btn-row { display: flex; gap: 14px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 14px; border: none;
+      font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 700;
+      border-radius: 18px; cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow:
+        inset 2px 2px 6px rgba(255,255,255,0.5),
+        inset -2px -2px 6px rgba(0,0,0,0.18),
+        6px 6px 16px rgba(138,92,245,0.45);
+    }
+    .btn-secondary {
+      color: var(--text); background: var(--clay);
+      box-shadow:
+        inset 2px 2px 6px var(--inner-light),
+        inset -2px -2px 6px var(--inner-dark),
+        6px 6px 14px rgba(140,145,195,0.3);
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(1px); box-shadow: inset 4px 4px 10px rgba(0,0,0,0.15); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px;
+    }
+    .form-label span { color: var(--accent); }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 14px;
+      background: var(--clay); border-radius: 10px;
+      box-shadow: inset 3px 3px 7px var(--inner-dark), inset -3px -3px 7px var(--inner-light);
+      outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 3px 3px 8px rgba(138,92,245,0.55), inset 1px 1px 3px rgba(255,255,255,0.4);
+      border: none;
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 14px; cursor: pointer;
+      padding: 12px 16px; border-radius: 18px; background: var(--clay);
+      box-shadow: inset 2px 2px 6px var(--inner-light), inset -2px -2px 6px var(--inner-dark);
+      margin-bottom: 18px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 26px; height: 26px; border-radius: 10px; background: var(--clay);
+      box-shadow:
+        inset 2px 2px 5px var(--inner-dark),
+        inset -2px -2px 5px var(--inner-light);
+      position: relative; flex-shrink: 0;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    input[type="checkbox"]:checked ~ .chk {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 2px 2px 6px rgba(138,92,245,0.45), inset 1px 1px 2px rgba(255,255,255,0.3);
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✓'; position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;
+    }
+    .chk-label { font-size: 14px; font-weight: 600; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 12px 16px;
+      font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 600;
+      color: var(--text);
+      background: var(--clay); border: none; border-radius: 18px;
+      box-shadow: inset 3px 3px 8px var(--inner-dark), inset -3px -3px 8px var(--inner-light);
+      outline: none;
+    }
+    select:focus, input[type="text"]:focus {
+      box-shadow: inset 3px 3px 8px var(--inner-dark), inset -3px -3px 8px var(--inner-light), 0 0 0 3px rgba(138,92,245,0.25);
+    }
+    input[type="text"]::placeholder { color: var(--text-soft); }
+
+    .output {
+      margin-top: 20px; padding: 14px 18px;
+      background: var(--clay); border-radius: 18px;
+      box-shadow: inset 3px 3px 8px var(--inner-dark), inset -3px -3px 8px var(--inner-light);
+      font-size: 13px; color: var(--text-soft); font-weight: 600;
+    }
+    .output strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1><span>Claymorphism</span></h1>
+    <div class="sub">Soft, squishy, three-dimensional</div>
+
+    <div class="section-title">Actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('Applied')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Softness <span id="v">68%</span></div>
+      <input type="range" min="0" max="100" value="68" oninput="document.getElementById('v').textContent=this.value+'%';log('Softness '+this.value+'%')">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('Bounce '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Enable bounce animation</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Palette</div>
+      <select onchange="log('Palette '+this.value)">
+        <option>Lavender Bliss</option><option>Coral Dream</option>
+        <option>Mint Cloud</option><option>Peach Bubble</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Name your creation..." oninput="log('Name '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>status</strong> — ready to squish</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>status</strong> — '+m;}</script>
+</body>
+</html>

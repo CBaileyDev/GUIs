@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Palette Overlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0d1117; --fg: #e6edf3; --muted: #7d8590; --accent: #58a6ff; --line: #30363d; --panel: #161b22; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: var(--fg); }
+    /* Simulated editor background */
+    body {
+      background: var(--bg);
+      position: relative;
+    }
+    .fake-editor {
+      position: fixed; inset: 0; padding: 60px 40px;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
+      color: var(--muted); opacity: 0.6; pointer-events: none; user-select: none;
+    }
+    .kw { color: #ff7b72; } .fn { color: #d2a8ff; } .str { color: #a5d6ff; } .cmt { color: #8b949e; }
+
+    /* Backdrop */
+    .backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    }
+
+    /* Palette */
+    .palette {
+      position: fixed; top: 12%; left: 50%; transform: translateX(-50%);
+      width: 560px; max-width: 92vw;
+      background: var(--panel);
+      border: 1px solid var(--line); border-radius: 12px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(88,166,255,0.15);
+      overflow: hidden;
+    }
+    .palette-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .palette-header .prefix { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+    .palette-header input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--fg); font-family: inherit; font-size: 15px; padding: 2px 0;
+    }
+    .palette-header input::placeholder { color: var(--muted); }
+    .kbd {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      padding: 2px 6px; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line); border-radius: 4px;
+      color: var(--muted);
+    }
+
+    /* Section toggle row */
+    .section-row {
+      display: flex; gap: 8px; padding: 10px 16px;
+      border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.015);
+    }
+    .tag {
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+      background: rgba(88,166,255,0.12); color: var(--accent);
+      border: 1px solid rgba(88,166,255,0.3); cursor: pointer;
+    }
+    .tag.muted { background: transparent; color: var(--muted); border-color: var(--line); }
+    .tag:hover { filter: brightness(1.2); }
+
+    /* Body controls */
+    .body { padding: 16px; max-height: 520px; overflow-y: auto; }
+    .group-title {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin: 8px 2px;
+    }
+    .btn-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .btn {
+      flex: 1; padding: 9px; font-family: inherit;
+      font-size: 13px; font-weight: 600; border-radius: 7px;
+      cursor: pointer; border: 1px solid transparent;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #01111f; }
+    .btn-primary:hover { background: #79b8ff; }
+    .btn-secondary { background: rgba(255,255,255,0.04); color: var(--fg); border-color: var(--line); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--muted); margin-bottom: 6px;
+    }
+    .form-label .value { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 3px;
+      background: var(--line); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--panel);
+    }
+
+    .chkrow {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      padding: 8px 10px; border-radius: 6px;
+      background: rgba(255,255,255,0.025); margin-bottom: 14px;
+    }
+    .chkrow input { display: none; }
+    .chkrow .chk {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid var(--line); background: var(--bg);
+      position: relative; flex-shrink: 0;
+    }
+    .chkrow input:checked ~ .chk { background: var(--accent); border-color: var(--accent); }
+    .chkrow input:checked ~ .chk::after {
+      content: ''; position: absolute; left: 4px; top: 0.5px;
+      width: 5px; height: 10px; border: solid var(--bg);
+      border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .chkrow span { font-size: 13px; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 8px 10px; font-family: inherit; font-size: 13px;
+      background: var(--bg); color: var(--fg);
+      border: 1px solid var(--line); border-radius: 6px; outline: none;
+    }
+    select option { background: var(--bg); }
+    select:focus, input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,0.18); }
+
+    .palette-footer {
+      border-top: 1px solid var(--line); padding: 10px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--muted); background: rgba(0,0,0,0.15);
+    }
+    .footer-keys { display: flex; gap: 10px; }
+    .footer-keys span { display: flex; align-items: center; gap: 4px; }
+
+    .output {
+      margin-top: 6px; padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      background: var(--bg); border: 1px solid var(--line);
+      border-radius: 6px; color: var(--muted); min-height: 38px;
+    }
+    .output strong { color: #7ee787; }
+  </style>
+</head>
+<body>
+  <div class="fake-editor">
+    <span class="cmt">// src/app.ts</span><br>
+    <span class="kw">import</span> { <span class="fn">createApp</span> } <span class="kw">from</span> <span class="str">'./core'</span>;<br>
+    <span class="kw">import</span> config <span class="kw">from</span> <span class="str">'./config.json'</span>;<br><br>
+    <span class="kw">const</span> app = <span class="fn">createApp</span>({<br>
+    &nbsp;&nbsp;name: <span class="str">'overlay-palette'</span>,<br>
+    &nbsp;&nbsp;hotkey: <span class="str">'cmd+k'</span>,<br>
+    &nbsp;&nbsp;theme: config.theme,<br>
+    });<br><br>
+    app.<span class="fn">start</span>();<br>
+    <span class="cmt">// press ⌘K to open the palette</span>
+  </div>
+
+  <div class="backdrop"></div>
+
+  <div class="palette" role="dialog" aria-modal="true">
+    <div class="palette-header">
+      <span class="prefix">&gt;</span>
+      <input type="text" placeholder="Type a command or search…" oninput="log('query '+this.value)" autofocus>
+      <span class="kbd">ESC</span>
+    </div>
+
+    <div class="section-row">
+      <span class="tag">Settings</span>
+      <span class="tag muted">Files</span>
+      <span class="tag muted">Symbols</span>
+      <span class="tag muted">Git</span>
+    </div>
+
+    <div class="body">
+      <div class="group-title">Quick actions</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="log('applied settings')">Apply changes</button>
+        <button class="btn btn-secondary" onclick="log('reset')">Reset</button>
+      </div>
+
+      <div class="group-title">Preferences</div>
+      <div class="form-group">
+        <div class="form-label"><span>Font size</span><span class="value" id="v">14px</span></div>
+        <input type="range" min="10" max="24" value="14" oninput="document.getElementById('v').textContent=this.value+'px';log('font '+this.value+'px')">
+      </div>
+
+      <label class="chkrow">
+        <input type="checkbox" checked onchange="log('auto-save '+this.checked)">
+        <span class="chk"></span>
+        <span>Auto-save on blur</span>
+      </label>
+
+      <div class="form-group">
+        <div class="form-label"><span>Theme</span></div>
+        <select onchange="log('theme '+this.value)">
+          <option>Dark+ (default)</option><option>Monokai</option>
+          <option>One Dark</option><option>GitHub Light</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><span>Workspace name</span></div>
+        <input type="text" placeholder="my-project" oninput="log('workspace '+this.value)">
+      </div>
+
+      <div class="output" id="out"><strong>ok</strong> ready · use ↑↓ to navigate</div>
+    </div>
+
+    <div class="palette-footer">
+      <div class="footer-keys">
+        <span><span class="kbd">↑↓</span> navigate</span>
+        <span><span class="kbd">↵</span> select</span>
+      </div>
+      <div class="footer-keys"><span><span class="kbd">⌘K</span> toggle</span></div>
+    </div>
+  </div>
+
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> '+m;}</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Floating Toolbar Overlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --accent: #8b5cf6; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #fff; }
+    body {
+      background:
+        radial-gradient(circle at 20% 10%, #a78bfa33 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, #22d3ee33 0%, transparent 40%),
+        #0b0f1e;
+    }
+    /* Fake canvas */
+    .canvas {
+      position: fixed; inset: 40px 40px 120px 40px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 40px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 40px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.3); font-size: 14px; letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Floating toolbar */
+    .toolbar {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; align-items: center;
+      padding: 10px;
+      background: rgba(20, 22, 38, 0.85);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+      z-index: 10;
+    }
+    .tool-btn {
+      width: 38px; height: 38px;
+      border: none; border-radius: 10px;
+      background: transparent; color: rgba(255,255,255,0.8);
+      cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s, transform 0.12s;
+      position: relative;
+    }
+    .tool-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .tool-btn.active { background: rgba(139,92,246,0.3); color: var(--accent); }
+    .tool-btn[data-tip]:hover::after {
+      content: attr(data-tip); position: absolute; bottom: 100%; left: 50%;
+      transform: translateX(-50%) translateY(-6px);
+      background: #1a1d30; color: #fff; font-size: 11px; font-weight: 500;
+      padding: 4px 8px; border-radius: 6px; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.15); pointer-events: none;
+    }
+    .divider { width: 1px; height: 24px; background: rgba(255,255,255,0.1); margin: 0 4px; }
+    .tool-btn.primary {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(139,92,246,0.4);
+    }
+    .tool-btn.primary:hover { filter: brightness(1.1); }
+
+    /* Settings popover */
+    .popover {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(8px);
+      width: 320px; padding: 18px;
+      background: rgba(20, 22, 38, 0.92);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.55);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+      z-index: 9;
+    }
+    .popover.open { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    .popover::after {
+      content: ''; position: absolute; bottom: -6px; left: 50%;
+      width: 12px; height: 12px; transform: translateX(-50%) rotate(45deg);
+      background: rgba(20, 22, 38, 0.92);
+      border-right: 1px solid rgba(255,255,255,0.12);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .pop-title {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); margin-bottom: 12px;
+    }
+
+    .btn-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .btn {
+      flex: 1; padding: 8px; font-family: inherit;
+      font-size: 12px; font-weight: 600; border-radius: 7px;
+      cursor: pointer; border: 1px solid transparent;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06); color: #fff;
+      border-color: rgba(255,255,255,0.12);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    .form-group { margin-bottom: 12px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: rgba(255,255,255,0.65); margin-bottom: 6px;
+    }
+    .form-label .value { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 3px;
+      background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; border: 2px solid var(--accent);
+      box-shadow: 0 0 8px rgba(139,92,246,0.5);
+    }
+
+    .chkrow {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      font-size: 12px; margin-bottom: 12px;
+      padding: 6px 8px; border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+    }
+    .chkrow input { display: none; }
+    .chkrow .chk {
+      width: 14px; height: 14px; border-radius: 3px;
+      border: 1.5px solid rgba(255,255,255,0.3); background: transparent;
+      position: relative; flex-shrink: 0;
+    }
+    .chkrow input:checked ~ .chk { background: var(--accent); border-color: var(--accent); }
+    .chkrow input:checked ~ .chk::after {
+      content: ''; position: absolute; left: 3.5px; top: 0;
+      width: 4px; height: 8px; border: solid #fff;
+      border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+    }
+
+    select, input[type="text"] {
+      width: 100%; padding: 7px 10px;
+      font-family: inherit; font-size: 12px; color: #fff;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px; outline: none;
+    }
+    select option { background: #1a1d30; }
+    select:focus, input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,92,246,0.2); }
+
+    .output {
+      margin-top: 8px; padding: 8px 10px;
+      background: rgba(0,0,0,0.3); border-radius: 6px;
+      font-size: 11px; color: rgba(255,255,255,0.55); min-height: 32px;
+      font-family: 'SF Mono', Menlo, monospace;
+    }
+    .output strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="canvas">CANVAS · 1280 × 720</div>
+
+  <!-- Settings popover -->
+  <div class="popover" id="pop">
+    <div class="pop-title">Quick settings</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Brush size <span class="value" id="v">18px</span></div>
+      <input type="range" min="1" max="60" value="18" oninput="document.getElementById('v').textContent=this.value+'px';log('Brush '+this.value+'px')">
+    </div>
+
+    <label class="chkrow">
+      <input type="checkbox" checked onchange="log('Snap '+this.checked)">
+      <span class="chk"></span>
+      <span>Snap to grid</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Tool</div>
+      <select onchange="log('Tool '+this.value)">
+        <option>Brush</option><option>Eraser</option>
+        <option>Lasso</option><option>Shape</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Layer name</div>
+      <input type="text" placeholder="Layer 1" oninput="log('Layer '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>ready</strong> — pick a tool</div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="tool-btn active" data-tip="Select" aria-label="Select">▢</button>
+    <button class="tool-btn" data-tip="Brush" aria-label="Brush">✎</button>
+    <button class="tool-btn" data-tip="Eraser" aria-label="Eraser">⌫</button>
+    <button class="tool-btn" data-tip="Shapes" aria-label="Shapes">◇</button>
+    <div class="divider"></div>
+    <button class="tool-btn" data-tip="Undo" aria-label="Undo">↶</button>
+    <button class="tool-btn" data-tip="Redo" aria-label="Redo">↷</button>
+    <div class="divider"></div>
+    <button class="tool-btn" data-tip="Settings" aria-label="Settings" onclick="togglePop()">⚙</button>
+    <button class="tool-btn primary" data-tip="Export" aria-label="Export" onclick="log('Exported')">↑</button>
+  </div>
+
+  <script>
+    function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> — '+m;}
+    function togglePop(){document.getElementById('pop').classList.toggle('open');}
+    document.querySelectorAll('.tool-btn').forEach(b => {
+      if (b.classList.contains('primary')) return;
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.tool-btn').forEach(x => { if (!x.classList.contains('primary')) x.classList.remove('active'); });
+        b.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
