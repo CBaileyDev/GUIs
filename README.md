@@ -23,38 +23,51 @@ Every menu in this collection includes:
 GUIs/
 ├── README.md
 │
-├── internal/                      # In-process / overlay-style menus
-│   ├── overlay-html/index.html    # Fixed overlay panel over a simulated scene
-│   ├── game-hud/index.html        # Full-screen game HUD with radar & panel
-│   ├── command-palette/index.html # ⌘K-style searchable command modal
-│   └── floating-toolbar/index.html# Canvas toolbar + settings popover
+├── internal/                         # In-process / overlay-style menus
+│   ├── overlay-html/index.html       # Fixed overlay panel over a simulated scene
+│   ├── game-hud/index.html           # Full-screen game HUD with radar & panel
+│   ├── command-palette/index.html    # ⌘K-style searchable command modal
+│   ├── floating-toolbar/index.html   # Canvas toolbar + settings popover
+│   ├── sidebar-drawer/index.html     # Slide-in navigation drawer
+│   └── notification-stack/index.html # Toast/notification stack demo
 │
-├── external/                      # Standalone window menus
-│   ├── tkinter-menu/menu.py       # Native OS window via Python tkinter/ttk
-│   ├── pyqt-menu/menu.py          # PyQt6 dark-themed Qt window
-│   └── customtkinter/menu.py      # CustomTkinter — modern rounded tkinter
+├── external/                         # Standalone window menus
+│   ├── tkinter-menu/menu.py          # Native OS window via Python tkinter/ttk
+│   ├── pyqt-menu/menu.py             # PyQt6 dark-themed Qt window
+│   ├── customtkinter/menu.py         # CustomTkinter — modern rounded tkinter
+│   └── wxpython/menu.py              # wxPython — native widgets per OS
 │
-└── styles/                        # Visual style libraries and themes
-    ├── imgui-style/main.py        # Dear PyGui — ImGui flat dark aesthetic
-    ├── glassmorphism/index.html   # Frosted glass panels, blur backdrop
-    ├── neumorphism/index.html     # Soft extruded shadow on light grey
-    ├── material/index.html        # Material Design 3 elevated cards
-    ├── cyberpunk/index.html       # Neon / scanline dark aesthetic
-    ├── brutalism/index.html       # Raw borders, hard shadows, acid yellow
-    ├── retro-terminal/index.html  # Green-phosphor CRT terminal
-    ├── synthwave/index.html       # Neon pink/cyan grid — 80s future
-    ├── claymorphism/index.html    # Soft squishy pastel "clay" shapes
-    ├── minimalist/index.html      # Typographic, hairline, near-bare
-    ├── nord/index.html            # Arctic north-bluish palette
-    ├── dracula/index.html         # Classic dark dev theme
-    ├── skeuomorphic/index.html    # Leather, brass, beveled buttons
-    ├── paper-sketch/index.html    # Hand-drawn pencil-on-paper look
-    ├── vaporwave/index.html       # 90s aesthetic, pastel neon, Japanese serif
-    ├── monochrome/index.html      # Pure black-and-white, Swiss grid
-    ├── solarized/index.html       # Precision Solarized light palette
-    ├── win95/index.html           # Classic Chicago-era Windows chrome
-    ├── aqua/index.html            # Glossy early-OSX pinstripe & lozenge
-    └── bauhaus/index.html         # Primary colors, geometric shapes
+└── styles/                           # Visual style libraries and themes
+    ├── imgui-style/main.py           # Dear PyGui — ImGui flat dark aesthetic
+    ├── glassmorphism/index.html      # Frosted glass panels, blur backdrop
+    ├── neumorphism/index.html        # Soft extruded shadow on light grey
+    ├── material/index.html           # Material Design 3 elevated cards
+    ├── cyberpunk/index.html          # Neon / scanline dark aesthetic
+    ├── brutalism/index.html          # Raw borders, hard shadows, acid yellow
+    ├── retro-terminal/index.html     # Green-phosphor CRT terminal
+    ├── synthwave/index.html          # Neon pink/cyan grid — 80s future
+    ├── claymorphism/index.html       # Soft squishy pastel "clay" shapes
+    ├── minimalist/index.html         # Typographic, hairline, near-bare
+    ├── nord/index.html               # Arctic north-bluish palette
+    ├── dracula/index.html            # Classic dark dev theme
+    ├── skeuomorphic/index.html       # Leather, brass, beveled buttons
+    ├── paper-sketch/index.html       # Hand-drawn pencil-on-paper look
+    ├── vaporwave/index.html          # 90s aesthetic, pastel neon, Japanese serif
+    ├── monochrome/index.html         # Pure black-and-white, Swiss grid
+    ├── solarized/index.html          # Precision Solarized light palette
+    ├── win95/index.html              # Classic Chicago-era Windows chrome
+    ├── aqua/index.html               # Glossy early-OSX pinstripe & lozenge
+    ├── bauhaus/index.html            # Primary colors, geometric shapes
+    ├── memphis/index.html            # Squiggles, confetti, 1980s pop
+    ├── art-deco/index.html           # Gold, symmetry, 1925 elegance
+    ├── gameboy/index.html            # 8-bit LCD green pixel console
+    ├── steampunk/index.html          # Brass gears, parchment, Victorian
+    ├── y2k/index.html                # Chrome pills, gloss, bubble glow
+    ├── tron/index.html               # Cyan grid, glow, derezzed chrome
+    ├── comic/index.html              # Halftone, speech bubbles, KA-POW
+    ├── linear/index.html             # Modern dark SaaS dashboard
+    ├── ios/index.html                # iOS grouped list with switches
+    └── swiss/index.html              # Swiss International grid typography
 ```
 
 ## How to Run Each Demo
@@ -93,6 +106,12 @@ python external/pyqt-menu/menu.py
 ```bash
 pip install customtkinter
 python external/customtkinter/menu.py
+```
+
+### Python — wxPython (`external/wxpython/`)
+```bash
+pip install wxPython
+python external/wxpython/menu.py
 ```
 
 ## Adding a New Demo

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comic Book Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Nunito:wght@600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #0a0a0a; --paper: #fff9e6; --red: #ff2b2b; --yellow: #ffd400; --blue: #1d7bff; --halftone: 8px; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(circle at center, rgba(0,0,0,0.08) 1.5px, transparent 2px) 0 0 / var(--halftone) var(--halftone),
+        var(--yellow);
+      color: var(--ink);
+    }
+
+    .card {
+      position: relative;
+      width: 460px; padding: 30px 28px;
+      background: var(--paper);
+      border: 4px solid var(--ink);
+      box-shadow: 10px 10px 0 var(--ink);
+    }
+    .card::before {
+      content: ''; position: absolute; inset: 8px;
+      border: 2px solid var(--ink); pointer-events: none;
+    }
+
+    .burst {
+      position: absolute; top: -18px; right: -18px;
+      width: 80px; height: 80px;
+      background:
+        conic-gradient(from 0deg, var(--red) 0 15deg, transparent 15deg 30deg, var(--red) 30deg 45deg, transparent 45deg 60deg, var(--red) 60deg 75deg, transparent 75deg 90deg, var(--red) 90deg 105deg, transparent 105deg 120deg, var(--red) 120deg 135deg, transparent 135deg 150deg, var(--red) 150deg 165deg, transparent 165deg 180deg, var(--red) 180deg 195deg, transparent 195deg 210deg, var(--red) 210deg 225deg, transparent 225deg 240deg, var(--red) 240deg 255deg, transparent 255deg 270deg, var(--red) 270deg 285deg, transparent 285deg 300deg, var(--red) 300deg 315deg, transparent 315deg 330deg, var(--red) 330deg 345deg, transparent 345deg 360deg);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bangers', cursive; color: #fff; font-size: 18px;
+      text-shadow: 2px 2px 0 var(--ink);
+      transform: rotate(-12deg);
+      box-shadow: 4px 4px 0 var(--ink);
+      z-index: 2;
+    }
+
+    h1 {
+      font-family: 'Bangers', cursive; font-weight: 400;
+      font-size: 52px; line-height: 1; letter-spacing: 2px;
+      color: var(--red);
+      text-shadow:
+        2px 2px 0 var(--ink), 4px 4px 0 var(--yellow), 4px 4px 0 var(--ink);
+      transform: rotate(-1deg);
+    }
+    .sub {
+      font-family: 'Permanent Marker', cursive; font-size: 18px;
+      color: var(--ink); margin-top: 8px; margin-bottom: 22px;
+      transform: rotate(0.5deg);
+    }
+
+    .section-title {
+      font-family: 'Bangers', cursive; font-size: 20px;
+      letter-spacing: 2px; color: var(--blue);
+      -webkit-text-stroke: 1px var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .btn-row { display: flex; gap: 14px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 12px;
+      font-family: 'Bangers', cursive; font-size: 22px; letter-spacing: 2px;
+      border: 4px solid var(--ink); cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s;
+      -webkit-text-stroke: 1px var(--ink);
+    }
+    .btn-primary {
+      background: var(--red); color: var(--yellow);
+      box-shadow: 5px 5px 0 var(--ink);
+      transform: rotate(-1deg);
+    }
+    .btn-secondary {
+      background: var(--blue); color: #fff;
+      box-shadow: 5px 5px 0 var(--ink);
+      transform: rotate(1deg);
+    }
+    .btn:hover { transform: translate(-2px,-2px) rotate(0deg); box-shadow: 7px 7px 0 var(--ink); }
+    .btn:active { transform: translate(3px,3px); box-shadow: 0 0 0 var(--ink); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Bangers', cursive; font-size: 20px; letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .form-label .value {
+      background: var(--yellow); padding: 0 8px; border: 3px solid var(--ink);
+      -webkit-text-stroke: 0;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 14px;
+      background:
+        radial-gradient(circle, var(--ink) 1px, transparent 1.5px) 0 0 / 6px 6px,
+        var(--paper);
+      border: 3px solid var(--ink); outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--red); border: 3px solid var(--ink);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border: 3px solid var(--ink); background: var(--paper);
+      margin-bottom: 18px; box-shadow: 4px 4px 0 var(--ink);
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 24px; height: 24px; border: 3px solid var(--ink);
+      background: #fff; position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk { background: var(--red); }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✓'; position: absolute; inset: -4px 0 0 1px;
+      font-family: 'Permanent Marker', cursive; color: var(--yellow);
+      font-size: 22px; font-weight: 900;
+      -webkit-text-stroke: 1px var(--ink);
+    }
+    .chk-label {
+      font-family: 'Permanent Marker', cursive; font-size: 16px; color: var(--ink);
+    }
+
+    select, input[type="text"] {
+      width: 100%; padding: 12px 14px;
+      font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+      color: var(--ink); background: var(--paper);
+      border: 3px solid var(--ink); outline: none;
+    }
+    select:focus, input[type="text"]:focus { background: var(--yellow); }
+
+    .bubble {
+      position: relative;
+      margin-top: 22px; padding: 16px 20px;
+      background: #fff; border: 3px solid var(--ink); border-radius: 18px;
+      font-family: 'Permanent Marker', cursive; font-size: 16px; color: var(--ink);
+      box-shadow: 4px 4px 0 var(--ink);
+      min-height: 48px;
+    }
+    .bubble::before {
+      content: ''; position: absolute; bottom: -18px; left: 40px;
+      width: 22px; height: 22px;
+      background: #fff; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+      transform: rotate(45deg);
+    }
+    .bubble strong { color: var(--red); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="burst">POW!</div>
+    <h1>KA-POW!!</h1>
+    <div class="sub">A menu of <u>heroic</u> proportions.</div>
+
+    <div class="section-title">// ACTIONS</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('BAM! you hit APPLY')">ZAP!</button>
+      <button class="btn btn-secondary" onclick="log('WHOOSH - reset')">WHOOSH</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>POWER</span><span class="value" id="v">88%</span></div>
+      <input type="range" min="0" max="100" value="88" oninput="document.getElementById('v').textContent=this.value+'%';log('POWER '+this.value+'%')">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" checked onchange="log('CAPE '+(this.checked?'ON':'OFF'))">
+      <span class="chk"></span>
+      <span class="chk-label">cape flapping enabled</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label"><span>SIDEKICK</span></div>
+      <select onchange="log('SIDEKICK '+this.value)">
+        <option>Boy Wonder</option><option>Sassy Robot</option>
+        <option>Talking Dog</option><option>Tiny Dragon</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Hero name..." oninput="log('HERO '+this.value)">
+    </div>
+
+    <div class="bubble" id="out"><strong>SUPER!</strong> Ready for action, chief!</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>HOLY COW!</strong> '+m;}</script>
+</body>
+</html>

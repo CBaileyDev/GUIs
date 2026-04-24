@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Boy Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --lcd-0: #0f380f;
+      --lcd-1: #306230;
+      --lcd-2: #8bac0f;
+      --lcd-3: #9bbc0f;
+      --case: #c8c4b4;
+    }
+    body {
+      font-family: 'Press Start 2P', monospace; font-size: 10px; line-height: 1.6;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(circle at 50% 30%, #ddd6c0 0%, #a89c7c 80%);
+      color: var(--lcd-0);
+    }
+
+    .console {
+      width: 440px; padding: 28px 28px 44px;
+      background: var(--case);
+      border-radius: 14px 14px 14px 48px;
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.5),
+        inset 0 -6px 0 rgba(0,0,0,0.15),
+        0 18px 30px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .console::before {
+      content: 'DOT MATRIX WITH STEREO SOUND';
+      position: absolute; bottom: 14px; left: 0; right: 0;
+      text-align: center; font-size: 8px; letter-spacing: 1px;
+      color: rgba(0,0,0,0.45); font-style: italic;
+    }
+
+    .screen-bezel {
+      background: #3a3a3a;
+      border-radius: 6px;
+      padding: 22px 20px 30px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    .screen-bezel::before {
+      content: 'POWER'; position: absolute; top: 6px; left: 12px;
+      font-size: 7px; color: #b2a200; letter-spacing: 1px;
+    }
+    .screen-bezel::after {
+      content: ''; position: absolute; top: 8px; left: 46px;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #ff3030; box-shadow: 0 0 4px #ff3030;
+    }
+
+    .lcd {
+      background: var(--lcd-3); padding: 14px 16px;
+      border-radius: 2px;
+      position: relative;
+      image-rendering: pixelated;
+    }
+    .lcd::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
+      background-size: 4px 4px; pointer-events: none;
+    }
+
+    .lcd-content { position: relative; z-index: 1; }
+
+    h1 {
+      font-size: 14px; color: var(--lcd-0);
+      text-align: center; padding: 4px 0;
+      border: 2px solid var(--lcd-0); margin-bottom: 10px;
+      background: var(--lcd-2);
+    }
+    .sub { text-align: center; font-size: 8px; color: var(--lcd-1); margin-bottom: 12px; letter-spacing: 1px; }
+
+    .section-title { font-size: 9px; margin-bottom: 6px; color: var(--lcd-1); }
+
+    .btn-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn {
+      flex: 1; padding: 7px 6px;
+      font-family: 'Press Start 2P', monospace; font-size: 9px;
+      background: var(--lcd-2); color: var(--lcd-0);
+      border: 2px solid var(--lcd-0); cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .btn-primary { background: var(--lcd-0); color: var(--lcd-3); }
+    .btn:active { transform: translateY(1px); }
+    .btn::before { content: '▶ '; }
+
+    .form-group { margin-bottom: 10px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 9px; margin-bottom: 4px; color: var(--lcd-1);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 10px;
+      background: var(--lcd-2);
+      border: 2px solid var(--lcd-0); outline: none; cursor: pointer;
+      border-radius: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 8px; height: 10px;
+      background: var(--lcd-0); border-radius: 0;
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+      padding: 6px; border: 2px solid var(--lcd-0);
+      background: var(--lcd-2); margin-bottom: 10px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 12px; height: 12px; background: var(--lcd-3);
+      border: 2px solid var(--lcd-0); position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: ''; position: absolute; inset: 1px;
+      background: var(--lcd-0);
+    }
+    .chk-label { font-size: 9px; color: var(--lcd-0); }
+
+    select, input[type="text"] {
+      width: 100%; padding: 6px;
+      font-family: 'Press Start 2P', monospace; font-size: 9px;
+      background: var(--lcd-3); color: var(--lcd-0);
+      border: 2px solid var(--lcd-0); outline: none;
+    }
+    select { appearance: none; -webkit-appearance: none; padding-right: 22px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6'%3E%3Cpath d='M0 0h8L4 6z' fill='%230f380f'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; }
+    input[type="text"]::placeholder { color: var(--lcd-1); }
+
+    .status {
+      margin-top: 12px; padding: 6px 8px;
+      border: 2px solid var(--lcd-0); background: var(--lcd-3);
+      font-size: 9px; color: var(--lcd-0); min-height: 28px;
+    }
+
+    /* D-pad and buttons */
+    .controls {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 22px; padding: 0 6px;
+    }
+    .dpad { position: relative; width: 68px; height: 68px; }
+    .dpad::before, .dpad::after {
+      content: ''; position: absolute; background: #3a3a3a; border-radius: 4px;
+    }
+    .dpad::before { top: 0; left: 24px; width: 20px; height: 68px; }
+    .dpad::after { top: 24px; left: 0; width: 68px; height: 20px; }
+    .ab { display: flex; gap: 10px; }
+    .ab-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #b24e73, #8a1040);
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.3);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; transform: rotate(-20deg);
+    }
+    .se-row {
+      display: flex; justify-content: center; gap: 14px; margin-top: 16px;
+    }
+    .se-btn {
+      background: #3a3a3a; color: #c8c4b4;
+      font-size: 7px; padding: 3px 10px; border-radius: 8px;
+      transform: skewX(-20deg); letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="console">
+    <div class="screen-bezel">
+      <div class="lcd">
+        <div class="lcd-content">
+          <h1>PIXEL MENU</h1>
+          <div class="sub">8-BIT · GREEN LCD</div>
+
+          <div class="section-title">▶ ACTIONS</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="log('APPLY!')">APPLY</button>
+            <button class="btn" onclick="log('RESET')">RESET</button>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label"><span>SOUND</span><span id="v">06/10</span></div>
+            <input type="range" min="0" max="10" value="6" oninput="document.getElementById('v').textContent=this.value.padStart(2,'0')+'/10';log('SND '+this.value)">
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" onchange="log('MUSIC '+(this.checked?'ON':'OFF'))">
+            <span class="chk"></span>
+            <span class="chk-label">MUSIC ON</span>
+          </label>
+
+          <div class="form-group">
+            <div class="form-label"><span>MODE</span></div>
+            <select onchange="log('MODE '+this.value)">
+              <option>STORY</option><option>ARCADE</option>
+              <option>BATTLE</option><option>CHEAT</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="NAME: ASH_" maxlength="10" oninput="log('NAME '+this.value)">
+          </div>
+
+          <div class="status" id="out">&gt; READY PLAYER 1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="dpad"></div>
+      <div class="ab">
+        <div class="ab-btn">B</div>
+        <div class="ab-btn">A</div>
+      </div>
+    </div>
+    <div class="se-row">
+      <div class="se-btn">SELECT</div>
+      <div class="se-btn">START</div>
+    </div>
+  </div>
+  <script>function log(m){document.getElementById('out').textContent='> '+m;}</script>
+</body>
+</html>

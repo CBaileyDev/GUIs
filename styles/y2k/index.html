@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Y2K Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --chrome-0: #cfd5e4; --chrome-1: #8894b2; --ink: #0a0a22; --blue: #2e8bff; --pink: #ff7cdf; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(circle at 20% 20%, #a2d6ff, transparent 45%),
+        radial-gradient(circle at 80% 80%, #ffd9f4, transparent 50%),
+        linear-gradient(180deg, #dfeafe, #fdd8f1);
+      color: var(--ink);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.55) 2px, transparent 3px);
+      background-size: 22px 22px;
+      opacity: 0.5;
+    }
+
+    .card {
+      position: relative; z-index: 1;
+      width: 440px; padding: 30px 28px;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.45));
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255,255,255,0.8);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.8),
+        inset 0 -1px 0 rgba(10,10,34,0.08),
+        0 20px 40px rgba(46,139,255,0.18),
+        0 4px 12px rgba(255,124,223,0.18);
+      overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: -80px; left: -40px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(255,255,255,0.7), transparent 60%);
+      pointer-events: none;
+    }
+
+    .pill {
+      display: inline-block;
+      background: linear-gradient(180deg, #fff, var(--chrome-0));
+      border: 1px solid #fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(136,148,178,0.4);
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--ink);
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 44px; line-height: 1;
+      background: linear-gradient(180deg, #2e8bff 0%, #c84ab5 50%, #ff7cdf 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8));
+      letter-spacing: -1px;
+    }
+    .sub { font-size: 13px; color: #4a4a7a; margin-top: 4px; margin-bottom: 22px; font-weight: 500; }
+
+    .section-title {
+      font-family: 'Syne', sans-serif; font-size: 11px;
+      font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+      color: #2e8bff; margin-bottom: 10px;
+    }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 12px; cursor: pointer;
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      border: 1.5px solid #fff; border-radius: 100px;
+      transition: filter 0.15s, transform 0.1s;
+    }
+    .btn-primary {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0) 40%),
+        linear-gradient(180deg, #7ab4ff, #2e8bff 70%, #1a5cd6);
+      color: #fff;
+      text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 6px 14px rgba(46,139,255,0.45);
+    }
+    .btn-secondary {
+      background:
+        linear-gradient(180deg, #fff, var(--chrome-0) 70%, var(--chrome-1));
+      color: var(--ink);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 10px rgba(136,148,178,0.4);
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; font-weight: 700; color: #2e3350;
+      margin-bottom: 8px;
+    }
+    .form-label .value {
+      color: #fff; background: linear-gradient(135deg, var(--blue), var(--pink));
+      padding: 1px 10px; border-radius: 100px; font-size: 11px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 10px;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0));
+      border: 1px solid rgba(255,255,255,0.8); border-radius: 100px;
+      outline: none; cursor: pointer;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, #fff 0%, #e0ebff 40%, #6aa3ff 80%);
+      border: 1.5px solid #fff;
+      box-shadow: 0 2px 6px rgba(46,139,255,0.5);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border-radius: 100px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+      margin-bottom: 18px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--chrome-0) 80%);
+      border: 1.5px solid var(--chrome-1);
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk {
+      background: radial-gradient(circle at 30% 30%, #fff 0%, var(--pink) 60%, #c84ab5 100%);
+      border-color: var(--pink);
+      box-shadow: 0 0 8px var(--pink);
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✿'; position: absolute; inset: -2px 0 0 0;
+      text-align: center; color: #fff; font-size: 11px; font-weight: 900;
+    }
+    .chk-label { font-size: 14px; font-weight: 600; color: #2e3350; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 11px 16px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.5));
+      border: 1.5px solid rgba(255,255,255,0.8);
+      border-radius: 100px; outline: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.05);
+    }
+    select:focus, input[type="text"]:focus { box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 0 0 3px rgba(255,124,223,0.35); }
+    input[type="text"]::placeholder { color: rgba(10,10,34,0.35); }
+
+    .output {
+      margin-top: 20px; padding: 12px 16px; border-radius: 100px;
+      background: linear-gradient(180deg, #fff 0%, var(--chrome-0) 100%);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 3px 8px rgba(136,148,178,0.3);
+      font-size: 12px; color: #2e3350; font-weight: 600;
+    }
+    .output strong {
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="pill">★ Y2K · 1999 ★</span>
+    <h1>Cyber Bubble</h1>
+    <div class="sub">Chrome, gloss, and a generous helping of sparkles.</div>
+
+    <div class="section-title">☆ Actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('applied!')">Go</button>
+      <button class="btn btn-secondary" onclick="log('reset')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Shine</span><span class="value" id="v">70</span></div>
+      <input type="range" min="0" max="100" value="70" oninput="document.getElementById('v').textContent=this.value;log('shine '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" checked onchange="log('sparkle '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Extra sparkle</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Buddy icon</div>
+      <select onchange="log('buddy '+this.value)">
+        <option>✨ Star</option><option>🫧 Bubble</option>
+        <option>💎 Gem</option><option>🦋 Butterfly</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="ur screen name..." oninput="log('name '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>status</strong> · ready 2 glow</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>status</strong> · '+m;}</script>
+</body>
+</html>
