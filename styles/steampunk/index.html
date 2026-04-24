@@ -198,7 +198,44 @@
       background: var(--ink); color: var(--brass-hi); padding: 1px 6px;
       font-family: 'Cinzel Decorative', serif;
     }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: dark; }
+body {
+    min-height: 100dvh;
+    accent-color: #c9962a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #c9962a;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #c9962a;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #c9962a 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body { background:
+                radial-gradient(800px 500px at 50% 0%, rgba(201,150,42,0.20), transparent 60%),
+                linear-gradient(180deg, #2a1c0e 0%, #181008 100%) !important; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="gear a"></div>

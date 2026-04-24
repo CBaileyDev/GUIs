@@ -142,7 +142,42 @@
       font-family: 'Bungee', sans-serif; font-size: 12px; letter-spacing: 2px;
     }
     .output strong { color: var(--yellow); }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: light; }
+body {
+    min-height: 100dvh;
+    accent-color: #ff2fa0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #ff2fa0;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #ff2fa0;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #ff2fa0 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">

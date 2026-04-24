@@ -148,7 +148,45 @@
       font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
     }
     .output strong { color: var(--red); }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: light; }
+body {
+    min-height: 100dvh;
+    accent-color: #1e88e5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #1e88e5;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #1e88e5;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #1e88e5 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body { background:
+                radial-gradient(600px 400px at 85% 15%, rgba(253,216,53,0.35), transparent 60%),
+                radial-gradient(700px 500px at 10% 90%, rgba(30,136,229,0.18), transparent 60%),
+                #f2ecdc !important; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">

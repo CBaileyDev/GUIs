@@ -519,7 +519,44 @@
       input[type="range"]::-webkit-slider-thumb { transition: none; }
       .card { transition: none; }
     }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: dark; }
+body {
+    min-height: 100dvh;
+    accent-color: #ff00ff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #ff00ff;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #ff00ff;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #ff00ff 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body::after { content: ''; position: fixed; inset: 0;
+                background: radial-gradient(1000px 500px at 50% 0%, rgba(255,0,255,0.12), transparent 60%);
+                pointer-events: none; z-index: 0; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">

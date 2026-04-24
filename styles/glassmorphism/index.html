@@ -412,7 +412,47 @@
       input[type="range"]::-webkit-slider-thumb { transition: none; }
       .card { transition: none; }
     }
-  </style>
+  
+
+/* @@MODERNIZED-v1-start @@ */
+html { color-scheme: dark; }
+body {
+    min-height: 100dvh;
+    accent-color: #a78bfa;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+}
+:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, #a78bfa 30%, transparent); color: inherit; }
+img { image-rendering: auto; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+body { background:
+                conic-gradient(from 180deg at 30% 30%, #7b2ff7 0deg, #00c6fb 140deg, #f857a6 260deg, #7b2ff7 360deg) !important;
+                background-attachment: fixed !important; }
+            body::before { width: 520px !important; height: 520px !important; filter: blur(110px) !important; opacity: 0.45 !important; }
+            body::after  { width: 480px !important; height: 480px !important; filter: blur(110px) !important; opacity: 0.45 !important; }
+            .card { border-radius: 28px !important; }
+/* @@MODERNIZED-v1-end @@ */
+</style>
 </head>
 <body>
   <div class="card">
