@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memphis Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #111; --paper: #fdfdfb;
+      --pink: #ff3e8f; --teal: #1de9b6; --yellow: #ffd92e; --blue: #2d6cff; --red: #ff4040;
+    }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(circle at 12% 18%, var(--yellow) 0 14px, transparent 15px),
+        radial-gradient(circle at 88% 28%, var(--teal) 0 14px, transparent 15px),
+        radial-gradient(circle at 75% 80%, var(--pink) 0 14px, transparent 15px),
+        radial-gradient(circle at 20% 85%, var(--blue) 0 14px, transparent 15px),
+        repeating-linear-gradient(45deg, transparent 0 30px, rgba(0,0,0,0.03) 30px 31px),
+        var(--paper);
+      color: var(--ink); overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; top: 40px; right: 40px;
+      width: 80px; height: 80px;
+      background: conic-gradient(from 0deg, var(--pink), var(--teal), var(--yellow), var(--pink));
+      border: 3px solid var(--ink); border-radius: 50%;
+    }
+    body::after {
+      content: ''; position: fixed; bottom: 40px; left: 30px;
+      width: 90px; height: 90px;
+      background:
+        repeating-linear-gradient(135deg, var(--ink) 0 3px, transparent 3px 9px);
+      border: 3px solid var(--ink);
+      clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    }
+
+    .card {
+      position: relative; z-index: 1;
+      width: 460px; padding: 30px;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      box-shadow: 9px 9px 0 var(--pink), 18px 18px 0 var(--teal);
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--yellow);
+      font-family: 'Bungee', sans-serif; font-size: 11px;
+      letter-spacing: 3px; padding: 4px 10px;
+      border: 2px solid var(--ink); margin-bottom: 10px;
+    }
+    h1 {
+      font-family: 'Bungee', sans-serif;
+      font-size: 44px; line-height: 0.95;
+      letter-spacing: -1px;
+    }
+    h1 span.m1 { color: var(--pink); }
+    h1 span.m2 { color: var(--blue); }
+    h1 span.m3 { color: var(--teal); }
+    .sub { font-size: 13px; font-weight: 700; margin-top: 6px; margin-bottom: 22px; }
+
+    .section-title {
+      font-family: 'Bungee', sans-serif;
+      font-size: 13px; letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 13px;
+      font-family: 'Bungee', sans-serif; font-size: 14px; letter-spacing: 1.5px;
+      border: 3px solid var(--ink); cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-primary { background: var(--pink); color: var(--paper); box-shadow: 5px 5px 0 var(--ink); }
+    .btn-secondary { background: var(--teal); color: var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+    .btn:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink); }
+    .btn:active { transform: translate(3px,3px); box-shadow: 0 0 0 var(--ink); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Bungee', sans-serif;
+      font-size: 11px; letter-spacing: 2px; margin-bottom: 8px;
+    }
+    .form-label .value {
+      background: var(--yellow); padding: 2px 8px;
+      border: 2px solid var(--ink); font-size: 12px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 14px;
+      background:
+        repeating-linear-gradient(45deg, var(--ink) 0 4px, var(--paper) 4px 8px);
+      border: 3px solid var(--ink); outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--blue); border: 3px solid var(--ink);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border: 3px solid var(--ink);
+      background: var(--yellow); margin-bottom: 20px;
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 22px; height: 22px; border: 3px solid var(--ink);
+      background: var(--paper); position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk { background: var(--teal); }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✕'; position: absolute; inset: -4px 0 0 0;
+      text-align: center; font-size: 18px; font-weight: 900; color: var(--ink);
+    }
+    .chk-label { font-family: 'Bungee', sans-serif; font-size: 12px; letter-spacing: 1.5px; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 12px 14px;
+      font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700;
+      background: var(--paper); color: var(--ink);
+      border: 3px solid var(--ink); outline: none;
+    }
+    select { appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23111' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px;
+    }
+    input[type="text"]:focus { background: var(--yellow); }
+
+    .output {
+      margin-top: 22px; padding: 14px;
+      background: var(--blue); color: var(--paper);
+      border: 3px solid var(--ink);
+      font-family: 'Bungee', sans-serif; font-size: 12px; letter-spacing: 2px;
+    }
+    .output strong { color: var(--yellow); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">POP · 1985</div>
+    <h1><span class="m1">MEM</span><span class="m2">PHIS</span> <span class="m3">!!</span></h1>
+    <div class="sub">Squiggles, confetti, and very loud colors.</div>
+
+    <div class="section-title">// actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('APPLY')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('RESET')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Confetti</span><span class="value" id="v">40</span></div>
+      <input type="range" min="0" max="100" value="40" oninput="document.getElementById('v').textContent=this.value;log('CONFETTI '+this.value)">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('SQUIGGLES '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Enable squiggles</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label"><span>Vibe</span></div>
+      <select onchange="log('VIBE '+this.value)">
+        <option>Totally Rad</option><option>Pastel Pop</option>
+        <option>Gridlocked</option><option>Zigzag</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="yell something here..." oninput="log('INPUT '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>STATUS</strong> — READY TO PARTY</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>STATUS</strong> — '+m;}</script>
+</body>
+</html>

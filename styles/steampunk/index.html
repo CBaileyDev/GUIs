@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steampunk Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brass: #c08a30; --brass-hi: #f3d27a; --brass-lo: #6a4818;
+      --copper: #b87333; --ink: #2a1a08; --parchment: #e6d4a5;
+    }
+    body {
+      font-family: 'IM Fell English', serif;
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(ellipse at center, #3a2a14 0%, #1a0f06 80%),
+        #1a0f06;
+      color: var(--parchment);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(192,138,48,0.12), transparent 30%),
+        radial-gradient(circle at 90% 90%, rgba(184,115,51,0.12), transparent 30%);
+    }
+
+    /* Gears */
+    .gear {
+      position: fixed; border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, var(--brass-hi), var(--brass) 50%, var(--brass-lo)),
+        var(--brass);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,0,0,0.6);
+      z-index: 0;
+    }
+    .gear::before {
+      content: ''; position: absolute; inset: 14%;
+      border-radius: 50%; background: #1a0f06;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
+    }
+    .gear::after {
+      content: ''; position: absolute; inset: -8%;
+      background:
+        conic-gradient(from 0deg,
+          var(--brass) 0 10deg, transparent 10deg 20deg,
+          var(--brass) 20deg 30deg, transparent 30deg 40deg,
+          var(--brass) 40deg 50deg, transparent 50deg 60deg,
+          var(--brass) 60deg 70deg, transparent 70deg 80deg,
+          var(--brass) 80deg 90deg, transparent 90deg 100deg,
+          var(--brass) 100deg 110deg, transparent 110deg 120deg);
+      border-radius: 50%;
+      mask: radial-gradient(circle, transparent 58%, #000 58%, #000 70%, transparent 70%);
+      -webkit-mask: radial-gradient(circle, transparent 58%, #000 58%, #000 70%, transparent 70%);
+      animation: spin 20s linear infinite;
+    }
+    .gear.a { top: 40px; left: 40px; width: 120px; height: 120px; }
+    .gear.b { bottom: 40px; right: 60px; width: 160px; height: 160px; animation-duration: 30s; }
+    .gear.a::after { animation-direction: reverse; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .card {
+      position: relative; z-index: 1;
+      width: 460px; padding: 34px 32px;
+      background:
+        linear-gradient(180deg, #3a2511 0%, #26170a 100%);
+      border: 3px solid var(--brass);
+      border-radius: 4px;
+      box-shadow:
+        0 0 0 3px #1a0f06,
+        0 0 0 5px var(--brass-lo),
+        0 24px 40px rgba(0,0,0,0.7),
+        inset 0 0 50px rgba(0,0,0,0.4);
+    }
+    /* Brass rivets in corners */
+    .rivet {
+      position: absolute; width: 16px; height: 16px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--brass-hi), var(--brass) 40%, var(--brass-lo));
+      box-shadow: 0 0 0 1px #1a0f06, inset 0 -2px 3px rgba(0,0,0,0.4);
+    }
+    .rivet.tl { top: 8px; left: 8px; } .rivet.tr { top: 8px; right: 8px; }
+    .rivet.bl { bottom: 8px; left: 8px; } .rivet.br { bottom: 8px; right: 8px; }
+
+    h1 {
+      font-family: 'Cinzel Decorative', serif; font-weight: 900;
+      font-size: 32px; text-align: center; color: var(--brass-hi);
+      text-shadow: 0 2px 0 var(--brass-lo), 0 3px 6px rgba(0,0,0,0.8);
+      letter-spacing: 2px; line-height: 1;
+    }
+    .ornament { text-align: center; color: var(--brass); font-size: 14px; margin: 4px 0 4px; }
+    .sub {
+      text-align: center; font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: 13px; color: var(--parchment); opacity: 0.8;
+      padding-bottom: 14px; margin-bottom: 18px;
+      border-bottom: 1px solid var(--brass-lo);
+    }
+
+    .section-title {
+      font-family: 'Special Elite', serif;
+      font-size: 12px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--brass); margin-bottom: 10px;
+    }
+
+    .btn-row { display: flex; gap: 14px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 12px;
+      font-family: 'Cinzel Decorative', serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+      border: 2px solid var(--brass-lo);
+      transition: filter 0.1s, transform 0.08s;
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, var(--brass-hi) 0%, var(--brass) 50%, var(--brass-lo) 100%);
+      color: var(--ink);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 0 var(--brass-lo);
+    }
+    .btn-secondary {
+      background: linear-gradient(180deg, #4a3218, #2a1a08);
+      color: var(--brass-hi); border-color: var(--brass);
+      box-shadow: inset 0 1px 0 rgba(192,138,48,0.3), 0 4px 0 var(--brass-lo);
+    }
+    .btn:active { transform: translateY(3px); box-shadow: none; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-family: 'Special Elite', serif; font-size: 12px;
+      color: var(--parchment); margin-bottom: 8px; letter-spacing: 1px;
+    }
+    .form-label .value {
+      font-family: 'Cinzel Decorative', serif; color: var(--brass-hi);
+      background: var(--ink); padding: 1px 8px;
+      border: 1px solid var(--brass-lo);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 8px;
+      background: linear-gradient(180deg, #1a0f06, #2a1a08);
+      border: 1px solid var(--brass-lo); outline: none; cursor: pointer;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.7);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--brass-hi), var(--brass) 50%, var(--brass-lo));
+      border: 1px solid var(--ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border: 1px solid var(--brass-lo);
+      background: rgba(192,138,48,0.06); margin-bottom: 18px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #2a1a08, #1a0f06);
+      border: 2px solid var(--brass-lo);
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk {
+      background: radial-gradient(circle at 30% 30%, var(--brass-hi), var(--brass) 50%, var(--brass-lo));
+      border-color: var(--brass);
+      box-shadow: 0 0 8px var(--brass);
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✦'; position: absolute; inset: -3px 0 0 0;
+      text-align: center; color: var(--ink); font-size: 14px; font-weight: 900;
+    }
+    .chk-label {
+      font-family: 'Special Elite', serif; font-size: 13px; color: var(--parchment);
+    }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 14px;
+      font-family: 'IM Fell English', serif; font-size: 14px; font-style: italic;
+      color: var(--parchment);
+      background: linear-gradient(180deg, #1a0f06, #2a1a08);
+      border: 2px solid var(--brass-lo); outline: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    select option { background: #2a1a08; font-style: normal; }
+    select:focus, input[type="text"]:focus { border-color: var(--brass); }
+    input[type="text"]::placeholder { color: rgba(230,212,165,0.4); }
+
+    .output {
+      margin-top: 20px; padding: 12px 16px;
+      font-family: 'Special Elite', serif; font-size: 12px;
+      background: var(--parchment); color: var(--ink);
+      border: 2px solid var(--brass-lo);
+      box-shadow: inset 0 0 20px rgba(42,26,8,0.15);
+      min-height: 42px; letter-spacing: 0.5px;
+    }
+    .output strong {
+      background: var(--ink); color: var(--brass-hi); padding: 1px 6px;
+      font-family: 'Cinzel Decorative', serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="gear a"></div>
+  <div class="gear b"></div>
+
+  <div class="card">
+    <div class="rivet tl"></div><div class="rivet tr"></div>
+    <div class="rivet bl"></div><div class="rivet br"></div>
+
+    <h1>ETHEREAL ENGINE</h1>
+    <div class="ornament">⚙ ✦ ⚙</div>
+    <div class="sub">A Most Peculiar Control Apparatus</div>
+
+    <div class="section-title">Directives</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('engaged the machine')">Engage</button>
+      <button class="btn btn-secondary" onclick="log('vented the steam')">Vent</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Boiler pressure</span><span class="value" id="v">140 PSI</span></div>
+      <input type="range" min="0" max="200" value="140" oninput="document.getElementById('v').textContent=this.value+' PSI';log('Pressure '+this.value+' PSI')">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" checked onchange="log('Automaton '+(this.checked?'online':'offline'))">
+      <span class="chk"></span>
+      <span class="chk-label">Automaton assistant</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label"><span>Mechanism</span></div>
+      <select onchange="log('Mechanism: '+this.value)">
+        <option>Difference Engine</option><option>Tesla Coil</option>
+        <option>Aether Condenser</option><option>Babbage Array</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Engraved upon the plate..." oninput="log('Plate: '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>log</strong>&nbsp;&nbsp;The apparatus hums quietly in standby.</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>log</strong>&nbsp;&nbsp;'+m;}</script>
+</body>
+</html>

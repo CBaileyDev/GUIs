@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notification Stack Overlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1420; --panel: rgba(24, 28, 44, 0.85); --line: rgba(255,255,255,0.1);
+      --fg: #e6e8ef; --muted: #98a0b3;
+      --success: #22c55e; --warning: #f59e0b; --error: #ef4444; --info: #3b82f6;
+    }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; color: var(--fg); overflow: hidden; }
+    body {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15), transparent 45%),
+        var(--bg);
+    }
+    /* Background scene */
+    .scene {
+      position: fixed; inset: 60px;
+      border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.15); font-size: 13px; letter-spacing: 3px;
+    }
+
+    /* Control panel (left) */
+    .panel {
+      position: fixed; top: 24px; left: 24px;
+      width: 320px; padding: 22px;
+      background: var(--panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      z-index: 5;
+    }
+    h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
+    .sub { font-size: 12px; color: var(--muted); margin-top: 4px; margin-bottom: 16px; }
+
+    .section-title {
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px; font-weight: 600;
+    }
+
+    .trigger-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .trigger {
+      padding: 8px; font-family: inherit; font-size: 12px; font-weight: 600;
+      border-radius: 8px; cursor: pointer; border: 1px solid transparent;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: transform 0.08s, filter 0.12s;
+    }
+    .trigger:active { transform: scale(0.97); }
+    .t-success { background: rgba(34,197,94,0.18); color: var(--success); border-color: rgba(34,197,94,0.35); }
+    .t-success:hover { background: rgba(34,197,94,0.28); }
+    .t-error   { background: rgba(239,68,68,0.18); color: var(--error); border-color: rgba(239,68,68,0.35); }
+    .t-error:hover { background: rgba(239,68,68,0.28); }
+    .t-warning { background: rgba(245,158,11,0.18); color: var(--warning); border-color: rgba(245,158,11,0.35); }
+    .t-warning:hover { background: rgba(245,158,11,0.28); }
+    .t-info    { background: rgba(59,130,246,0.18); color: var(--info); border-color: rgba(59,130,246,0.35); }
+    .t-info:hover { background: rgba(59,130,246,0.28); }
+
+    .btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .btn {
+      flex: 1; padding: 9px; font-family: inherit;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border-radius: 8px; border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--info); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary { background: rgba(255,255,255,0.06); color: var(--fg); border-color: var(--line); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    .form-group { margin-bottom: 12px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--muted); margin-bottom: 5px;
+    }
+    .form-label .value { color: var(--info); font-variant-numeric: tabular-nums; }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 3px;
+      background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: var(--info);
+    }
+
+    .chkrow {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      font-size: 13px; margin-bottom: 12px;
+    }
+    .chkrow input { display: none; }
+    .chkrow .chk {
+      width: 14px; height: 14px; border-radius: 3px;
+      border: 1.5px solid rgba(255,255,255,0.3); position: relative; flex-shrink: 0;
+    }
+    .chkrow input:checked ~ .chk { background: var(--info); border-color: var(--info); }
+    .chkrow input:checked ~ .chk::after {
+      content: ''; position: absolute; left: 3px; top: 0;
+      width: 4px; height: 8px; border: solid #fff;
+      border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+    }
+
+    select, input[type="text"] {
+      width: 100%; padding: 7px 10px;
+      font-family: inherit; font-size: 13px; color: var(--fg);
+      background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+      border-radius: 6px; outline: none;
+    }
+    select option { background: var(--bg); }
+    select:focus, input[type="text"]:focus { border-color: var(--info); }
+
+    .status {
+      margin-top: 12px; padding: 9px 11px;
+      background: rgba(0,0,0,0.3); border-radius: 6px;
+      font-family: "SF Mono", Menlo, monospace; font-size: 11px;
+      color: var(--muted); min-height: 36px;
+    }
+    .status strong { color: var(--success); }
+
+    /* Toast stack */
+    .toast-stack {
+      position: fixed; top: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      z-index: 10; pointer-events: none;
+    }
+    .toast {
+      display: flex; gap: 12px; align-items: flex-start;
+      width: 340px; padding: 14px 16px;
+      background: rgba(24, 28, 44, 0.95);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--line); border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+      pointer-events: auto;
+      transform: translateX(120%);
+      animation: in 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      position: relative; overflow: hidden;
+    }
+    @keyframes in { to { transform: translateX(0); } }
+    @keyframes out { to { transform: translateX(120%); opacity: 0; } }
+    .toast.leaving { animation: out 0.25s ease forwards; }
+
+    .toast-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+    }
+    .toast-body { flex: 1; min-width: 0; }
+    .toast-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .toast-msg { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .toast-close {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 14px; line-height: 1;
+      padding: 0; margin-left: 4px;
+    }
+    .toast-close:hover { color: var(--fg); }
+    .toast::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: currentColor; opacity: 0.6;
+      animation: progress 4s linear forwards;
+    }
+    @keyframes progress { from { width: 100%; } to { width: 0; } }
+
+    .toast.success { color: var(--success); }
+    .toast.success .toast-icon { background: rgba(34,197,94,0.2); color: var(--success); }
+    .toast.error   { color: var(--error); }
+    .toast.error .toast-icon { background: rgba(239,68,68,0.2); color: var(--error); }
+    .toast.warning { color: var(--warning); }
+    .toast.warning .toast-icon { background: rgba(245,158,11,0.2); color: var(--warning); }
+    .toast.info    { color: var(--info); }
+    .toast.info .toast-icon { background: rgba(59,130,246,0.2); color: var(--info); }
+
+    .toast-title, .toast-msg { color: var(--fg); }
+    .toast-msg { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="scene">CONTENT AREA</div>
+
+  <div class="panel">
+    <h1>Notifications</h1>
+    <div class="sub">Fire toasts from the stack. Auto-dismiss after 4s.</div>
+
+    <div class="section-title">Trigger</div>
+    <div class="trigger-row">
+      <button class="trigger t-success" onclick="spawn('success','Saved','Changes saved successfully.')">✓ Success</button>
+      <button class="trigger t-error" onclick="spawn('error','Failed','Network request failed.')">✕ Error</button>
+      <button class="trigger t-warning" onclick="spawn('warning','Heads up','Unsaved changes detected.')">⚠ Warning</button>
+      <button class="trigger t-info" onclick="spawn('info','New release','v2.1.0 is available.')">ℹ Info</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="spawn('info','Custom',msg||'Custom message sent.')">Send custom</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Dismiss all</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Duration</span><span class="value" id="v">4s</span></div>
+      <input type="range" min="1" max="10" value="4" oninput="document.getElementById('v').textContent=this.value+'s';log('Duration '+this.value+'s')">
+    </div>
+
+    <label class="chkrow">
+      <input type="checkbox" checked id="sound" onchange="log('Sound '+this.checked)">
+      <span class="chk"></span>
+      <span>Play notification sound</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label">Position</div>
+      <select onchange="changePos(this.value)">
+        <option value="tr">Top right</option><option value="tl">Top left</option>
+        <option value="br">Bottom right</option><option value="bl">Bottom left</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Custom message</div>
+      <input type="text" placeholder="Type a message..." oninput="msg=this.value;log('Msg: '+this.value)">
+    </div>
+
+    <div class="status" id="out"><strong>ok</strong> — waiting for input</div>
+  </div>
+
+  <div class="toast-stack" id="stack"></div>
+
+  <script>
+    let msg = '';
+    const stack = document.getElementById('stack');
+
+    const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+
+    function spawn(type, title, body) {
+      const t = document.createElement('div');
+      t.className = 'toast ' + type;
+      t.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <div class="toast-body">
+          <div class="toast-title">${title}</div>
+          <div class="toast-msg">${body}</div>
+        </div>
+        <button class="toast-close" aria-label="Close">✕</button>
+      `;
+      t.querySelector('.toast-close').addEventListener('click', () => dismiss(t));
+      stack.appendChild(t);
+      setTimeout(() => dismiss(t), 4000);
+      log(`${type} toast — ${title}`);
+    }
+    function dismiss(el) {
+      el.classList.add('leaving');
+      setTimeout(() => el.remove(), 250);
+    }
+    function clearAll() {
+      [...stack.children].forEach(dismiss);
+      log('dismissed all');
+    }
+    function changePos(v) {
+      const map = { tr: ['24px', 'auto', 'auto', '24px'], tl: ['24px', 'auto', '24px', 'auto'], br: ['auto', '24px', 'auto', '24px'], bl: ['auto', '24px', '24px', 'auto'] };
+      const [top, bottom, left, right] = map[v];
+      stack.style.top = top; stack.style.bottom = bottom; stack.style.left = left; stack.style.right = right;
+      log('Position ' + v);
+    }
+    function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> — '+m;}
+
+    // Spawn a greeting on load
+    setTimeout(() => spawn('info', 'Welcome', 'Click the buttons to trigger toasts.'), 300);
+  </script>
+</body>
+</html>

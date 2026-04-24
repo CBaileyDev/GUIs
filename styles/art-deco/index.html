@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Art Deco Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Poiret+One&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold: #d4a944; --gold-hi: #f5d277; --gold-lo: #8a6d20; --ink: #0c0a07; --cream: #f5ecd6; --dark: #14110b; }
+    body {
+      font-family: 'Lato', sans-serif;
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        radial-gradient(ellipse at center top, #26201a 0%, #0c0a07 70%),
+        #0c0a07;
+      color: var(--cream);
+    }
+
+    .card {
+      width: 460px; padding: 38px 34px;
+      background:
+        linear-gradient(180deg, #1c1710 0%, #0c0a07 100%);
+      border: 2px solid var(--gold);
+      position: relative;
+      box-shadow:
+        0 0 0 6px var(--dark),
+        0 0 0 8px var(--gold),
+        0 30px 60px rgba(0,0,0,0.8);
+    }
+    .card::before, .card::after {
+      content: ''; position: absolute;
+      width: 40px; height: 40px;
+      border: 2px solid var(--gold);
+    }
+    .card::before { top: -10px; left: -10px; border-right: none; border-bottom: none; }
+    .card::after  { bottom: -10px; right: -10px; border-left: none; border-top: none; }
+
+    .ornament {
+      text-align: center; color: var(--gold);
+      font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 10px;
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-family: 'Poiret One', sans-serif; font-weight: 400;
+      font-size: 44px; text-align: center; letter-spacing: 8px;
+      color: var(--cream);
+      text-shadow: 0 2px 0 var(--gold-lo);
+      line-height: 1;
+    }
+    .sub {
+      text-align: center; font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 6px; color: var(--gold); margin-top: 8px;
+      padding-bottom: 18px; margin-bottom: 18px;
+      background-image: linear-gradient(90deg, transparent, var(--gold), transparent);
+      background-repeat: no-repeat; background-position: bottom center;
+      background-size: 80% 1px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif; font-size: 11px;
+      letter-spacing: 4px; text-align: center;
+      color: var(--gold); margin-bottom: 12px;
+    }
+    .section-title::before, .section-title::after {
+      content: '◆'; color: var(--gold); margin: 0 8px; font-size: 8px;
+      vertical-align: middle;
+    }
+
+    .btn-row { display: flex; gap: 14px; margin-bottom: 24px; }
+    .btn {
+      flex: 1; padding: 12px;
+      font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 3px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-lo));
+      color: var(--dark); border: 1px solid var(--gold);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(212,169,68,0.4);
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary {
+      background: transparent; color: var(--gold);
+      border: 1px solid var(--gold);
+    }
+    .btn-secondary:hover { background: rgba(212,169,68,0.1); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px;
+      color: var(--gold); margin-bottom: 8px;
+    }
+    .form-label .value { color: var(--cream); font-family: 'Lato', sans-serif; letter-spacing: 1px; }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 2px;
+      background: var(--gold); outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      background: var(--gold-hi); transform: rotate(45deg);
+      border: 1px solid var(--gold-lo);
+      box-shadow: 0 0 6px var(--gold);
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 10px 14px; border: 1px solid var(--gold);
+      background: rgba(212,169,68,0.05); margin-bottom: 18px;
+    }
+    .checkbox-row input { display: none; }
+    .chk {
+      width: 16px; height: 16px; transform: rotate(45deg);
+      border: 1.5px solid var(--gold); background: transparent;
+      position: relative; flex-shrink: 0;
+    }
+    input[type="checkbox"]:checked ~ .chk {
+      background: var(--gold-hi);
+    }
+    input[type="checkbox"]:checked ~ .chk::after {
+      content: '✦'; position: absolute; inset: -6px 0 0 0;
+      transform: rotate(-45deg);
+      color: var(--dark); font-size: 12px; text-align: center;
+    }
+    .chk-label {
+      font-family: 'Cinzel', serif; font-size: 12px;
+      letter-spacing: 2px; color: var(--cream);
+    }
+
+    select, input[type="text"] {
+      width: 100%; padding: 10px 14px;
+      font-family: 'Lato', sans-serif; font-size: 14px;
+      color: var(--cream); background: rgba(212,169,68,0.05);
+      border: 1px solid var(--gold); outline: none;
+      letter-spacing: 1px;
+    }
+    select option { background: var(--dark); }
+    input[type="text"]::placeholder { color: rgba(245,236,214,0.3); }
+    select:focus, input[type="text"]:focus { box-shadow: 0 0 0 2px rgba(212,169,68,0.2); }
+
+    .output {
+      margin-top: 22px; padding: 12px 14px;
+      background: rgba(0,0,0,0.5); border: 1px solid var(--gold);
+      font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px;
+      color: var(--cream); min-height: 42px; text-align: center;
+    }
+    .output strong { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="ornament">≺ ◆ ≻</div>
+    <h1>ART DECO</h1>
+    <div class="sub">EST · MCMXXV</div>
+
+    <div class="section-title">Controls</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="log('APPLIED')">Apply</button>
+      <button class="btn btn-secondary" onclick="log('RESET')">Reset</button>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Elegance</span><span class="value" id="v">72%</span></div>
+      <input type="range" min="0" max="100" value="72" oninput="document.getElementById('v').textContent=this.value+'%';log('ELEGANCE '+this.value+'%')">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" onchange="log('SYMMETRY '+this.checked)">
+      <span class="chk"></span>
+      <span class="chk-label">Enforce Symmetry</span>
+    </label>
+
+    <div class="form-group">
+      <div class="form-label"><span>Motif</span></div>
+      <select onchange="log('MOTIF '+this.value)">
+        <option>Sunburst</option><option>Chevron</option>
+        <option>Fan</option><option>Zigzag</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="text" placeholder="Monogram..." oninput="log('MONOGRAM '+this.value)">
+    </div>
+
+    <div class="output" id="out"><strong>Status</strong> · Awaiting your decision</div>
+  </div>
+  <script>function log(m){document.getElementById('out').innerHTML='<strong>Status</strong> · '+m;}</script>
+</body>
+</html>

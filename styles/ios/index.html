@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iOS Menu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #f2f2f7; --ink: #000; --muted: #8e8e93; --panel: #ffffff; --sep: #c6c6c8; --accent: #007aff; --red: #ff3b30; --green: #34c759; --orange: #ff9500; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background:
+        linear-gradient(135deg, #e9e9ef 0%, #eef2f7 100%),
+        var(--bg);
+      color: var(--ink); font-size: 17px; letter-spacing: -0.24px;
+    }
+
+    .phone {
+      width: 420px;
+      background: var(--bg);
+      border-radius: 44px;
+      padding: 50px 18px 34px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2), 0 0 0 6px #101010, 0 0 0 7px #2c2c2e;
+      position: relative;
+    }
+    .phone::before {
+      content: ''; position: absolute; top: 18px; left: 50%;
+      transform: translateX(-50%);
+      width: 110px; height: 28px; border-radius: 20px;
+      background: #101010;
+    }
+
+    .nav-title {
+      font-size: 34px; font-weight: 700; letter-spacing: -0.5px;
+      padding: 8px 8px 14px;
+    }
+
+    /* iOS grouped list */
+    .group-header {
+      font-size: 13px; color: var(--muted); text-transform: uppercase;
+      padding: 10px 16px 6px;
+      letter-spacing: 0.4px; font-weight: 500;
+    }
+    .group {
+      background: var(--panel);
+      border-radius: 12px;
+      overflow: hidden; margin-bottom: 22px;
+    }
+    .row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 16px;
+      border-bottom: 0.5px solid var(--sep);
+    }
+    .row:last-child { border-bottom: none; }
+    .row-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .row-label { flex: 1; font-size: 17px; }
+    .row-accessory { color: var(--muted); font-size: 16px; }
+
+    /* Buttons */
+    .btn-group { padding: 0 4px; display: flex; gap: 10px; margin-bottom: 22px; }
+    .btn {
+      flex: 1; padding: 14px;
+      font-family: inherit; font-size: 17px; font-weight: 600;
+      border: none; border-radius: 14px; cursor: pointer;
+      transition: filter 0.1s, transform 0.08s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:active { filter: brightness(0.92); transform: scale(0.985); }
+    .btn-secondary { background: rgba(120,120,128,0.12); color: var(--accent); }
+    .btn-secondary:active { background: rgba(120,120,128,0.2); }
+
+    /* Slider row */
+    .slider-row {
+      padding: 12px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .slider-label {
+      display: flex; justify-content: space-between;
+      font-size: 15px;
+    }
+    .slider-label .value { color: var(--muted); }
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 4px;
+      background: rgba(120,120,128,0.2); border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 27px; height: 27px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.04);
+    }
+
+    /* Toggle switch */
+    .switch {
+      width: 51px; height: 31px; border-radius: 31px;
+      background: rgba(120,120,128,0.2);
+      position: relative; cursor: pointer;
+      transition: background 0.25s;
+    }
+    .switch::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 27px; height: 27px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.04);
+      transition: transform 0.25s;
+    }
+    .switch.on { background: var(--green); }
+    .switch.on::after { transform: translateX(20px); }
+
+    /* Picker button */
+    .picker {
+      background: none; border: none; font-size: 17px; color: var(--muted);
+      display: flex; align-items: center; gap: 4px; cursor: pointer;
+      font-family: inherit;
+    }
+    .picker::after { content: '›'; color: rgba(60,60,67,0.3); font-weight: 600; }
+
+    /* Text input (search style) */
+    .search-wrap {
+      padding: 4px 16px;
+    }
+    .search {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; background: rgba(120,120,128,0.12);
+      border-radius: 10px;
+    }
+    .search::before {
+      content: '⌕'; color: var(--muted); font-size: 18px;
+    }
+    .search input {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-family: inherit; font-size: 17px; color: var(--ink);
+    }
+    .search input::placeholder { color: rgba(60,60,67,0.6); }
+
+    /* Status footer */
+    .footer-hint {
+      padding: 14px 16px; font-size: 13px; color: var(--muted);
+      text-align: center; line-height: 1.4;
+    }
+    .footer-hint strong { color: var(--accent); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="nav-title">Settings</div>
+
+    <div class="search-wrap">
+      <div class="search">
+        <input type="text" placeholder="Search" oninput="log('Search: '+this.value)">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="log('Done')">Done</button>
+      <button class="btn btn-secondary" onclick="log('Cancel')">Cancel</button>
+    </div>
+
+    <div class="group-header">Display &amp; Brightness</div>
+    <div class="group">
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Brightness</span><span class="value" id="v">70%</span>
+        </div>
+        <input type="range" min="0" max="100" value="70" oninput="document.getElementById('v').textContent=this.value+'%';log('Brightness '+this.value+'%')">
+      </div>
+    </div>
+
+    <div class="group-header">General</div>
+    <div class="group">
+      <div class="row">
+        <div class="row-icon" style="background: var(--green);">●</div>
+        <div class="row-label">Automatic updates</div>
+        <div class="switch on" onclick="toggle(this,'Auto updates')"></div>
+      </div>
+      <div class="row">
+        <div class="row-icon" style="background: var(--accent);">☁︎</div>
+        <div class="row-label">iCloud sync</div>
+        <div class="switch" onclick="toggle(this,'iCloud sync')"></div>
+      </div>
+      <div class="row">
+        <div class="row-icon" style="background: var(--orange);">⚙</div>
+        <div class="row-label">Appearance</div>
+        <select class="picker" onchange="log('Appearance '+this.value)">
+          <option>Automatic</option><option>Light</option><option>Dark</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group-header">Account</div>
+    <div class="group">
+      <div class="row">
+        <div class="row-icon" style="background: var(--accent);">A</div>
+        <div class="row-label">Display name</div>
+        <input type="text" placeholder="Optional" style="flex:0 1 140px;text-align:right;border:none;background:transparent;outline:none;font-family:inherit;font-size:17px;color:var(--muted);" oninput="log('Name '+this.value)">
+      </div>
+    </div>
+
+    <div class="footer-hint" id="out"><strong>All set</strong> · tap any row to change</div>
+  </div>
+  <script>
+    function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong>';}
+    function toggle(el,label){el.classList.toggle('on');log(label+' '+el.classList.contains('on'));}
+  </script>
+</body>
+</html>
