@@ -219,7 +219,16 @@
       color: rgba(255,255,255,0.85);
       font-size: 14px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+    .checkbox-row input:focus-visible ~ .chk {
+      outline: 2px solid #63b3ed;
+      outline-offset: 2px;
+    }
     .chk {
       width: 18px;
       height: 18px;
@@ -285,9 +294,9 @@
     </div>
   </div>
 
-  <button class="toggle-btn" onclick="openPanel()">Settings <kbd>O</kbd></button>
+  <button class="toggle-btn" id="openBtn" aria-controls="panel" aria-expanded="false">Settings <kbd>O</kbd></button>
 
-  <div class="overlay-backdrop" id="backdrop" onclick="closePanel()"></div>
+  <div class="overlay-backdrop" id="backdrop"></div>
 
   <div class="overlay-panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle">
     <div class="panel-header">
@@ -295,31 +304,30 @@
         <div class="eyebrow">In-app overlay</div>
         <h2 id="panelTitle">Scene settings</h2>
       </div>
-      <button class="close-btn" onclick="closePanel()" aria-label="Close">✕</button>
+      <button class="close-btn" id="closeBtn" aria-label="Close">✕</button>
     </div>
 
     <div class="panel-body">
       <div class="section-title">Actions</div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-        <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+        <button class="btn btn-primary" id="apply">Apply</button>
+        <button class="btn btn-secondary" id="reset">Reset</button>
       </div>
 
       <div class="form-group">
-        <div class="form-label">Exposure <span class="value" id="v">68%</span></div>
-        <input type="range" min="0" max="100" value="68"
-          oninput="document.getElementById('v').textContent=this.value+'%';log('Exposure '+this.value+'%')">
+        <div class="form-label"><label for="exposure">Exposure</label> <span class="value" id="v">68%</span></div>
+        <input type="range" id="exposure" min="0" max="100" value="68">
       </div>
 
       <label class="checkbox-row">
-        <input type="checkbox" checked onchange="log('Vignette '+this.checked)">
+        <input type="checkbox" id="vignette" checked>
         <span class="chk"></span>
         <span>Vignette</span>
       </label>
 
       <div class="form-group">
-        <div class="form-label">Quality preset</div>
-        <select onchange="log('Quality '+this.value)">
+        <label class="form-label" for="quality">Quality preset</label>
+        <select id="quality">
           <option>Ultra</option>
           <option>High</option>
           <option>Medium</option>
@@ -328,35 +336,54 @@
       </div>
 
       <div class="form-group">
-        <input type="text" placeholder="Save slot name…" oninput="log('Slot '+this.value)">
+        <input type="text" id="slotName" placeholder="Save slot name…" aria-label="Save slot name">
       </div>
 
-      <div class="panel-output" id="out"><strong>Ready</strong> — scene running</div>
+      <div class="panel-output" id="out" aria-live="polite"><strong>Ready</strong> — scene running</div>
     </div>
   </div>
 
   <script>
-    const panel = document.getElementById('panel');
-    const backdrop = document.getElementById('backdrop');
+    (() => {
+      const panel = document.getElementById('panel');
+      const backdrop = document.getElementById('backdrop');
+      const openBtn = document.getElementById('openBtn');
+      const out = document.getElementById('out');
+      const exposureValue = document.getElementById('v');
 
-    function openPanel() {
-      panel.classList.add('visible');
-      backdrop.classList.add('visible');
-    }
-    function closePanel() {
-      panel.classList.remove('visible');
-      backdrop.classList.remove('visible');
-    }
-    function log(m) {
-      document.getElementById('out').innerHTML = '<strong>' + m + '</strong>';
-    }
+      function setOpen(open) {
+        panel.classList.toggle('visible', open);
+        backdrop.classList.toggle('visible', open);
+        openBtn.setAttribute('aria-expanded', String(open));
+      }
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'o' || e.key === 'O') openPanel();
-      if (e.key === 'Escape') closePanel();
-    });
+      function log(message) {
+        const strong = document.createElement('strong');
+        strong.textContent = message;
+        out.replaceChildren(strong);
+      }
 
-    openPanel();
+      openBtn.addEventListener('click', () => setOpen(true));
+      backdrop.addEventListener('click', () => setOpen(false));
+      document.getElementById('closeBtn').addEventListener('click', () => setOpen(false));
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+      document.getElementById('exposure').addEventListener('input', e => {
+        exposureValue.textContent = `${e.target.value}%`;
+        log(`Exposure ${e.target.value}%`);
+      });
+      document.getElementById('vignette').addEventListener('change', e => log(`Vignette ${e.target.checked}`));
+      document.getElementById('quality').addEventListener('change', e => log(`Quality ${e.target.value}`));
+      document.getElementById('slotName').addEventListener('input', e => log(`Slot ${e.target.value}`));
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'o' || e.key === 'O') setOpen(true);
+        if (e.key === 'Escape') setOpen(false);
+      });
+
+      setOpen(true);
+    })();
   </script>
 </body>
 </html>

@@ -92,7 +92,8 @@
       display: flex; align-items: center; gap: 10px; cursor: pointer;
       font-size: 13px; margin-bottom: 12px;
     }
-    .chkrow input { display: none; }
+    .chkrow input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chkrow input:focus-visible ~ .chk { outline: 2px solid var(--info); outline-offset: 2px; }
     .chkrow .chk {
       width: 14px; height: 14px; border-radius: 3px;
       border: 1.5px solid rgba(255,255,255,0.3); position: relative; flex-shrink: 0;
@@ -175,6 +176,14 @@
 
     .toast-title, .toast-msg { color: var(--fg); }
     .toast-msg { color: var(--muted); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -186,86 +195,123 @@
 
     <div class="section-title">Trigger</div>
     <div class="trigger-row">
-      <button class="trigger t-success" onclick="spawn('success','Saved','Changes saved successfully.')">✓ Success</button>
-      <button class="trigger t-error" onclick="spawn('error','Failed','Network request failed.')">✕ Error</button>
-      <button class="trigger t-warning" onclick="spawn('warning','Heads up','Unsaved changes detected.')">⚠ Warning</button>
-      <button class="trigger t-info" onclick="spawn('info','New release','v2.1.0 is available.')">ℹ Info</button>
+      <button class="trigger t-success" data-type="success" data-title="Saved" data-body="Changes saved successfully.">✓ Success</button>
+      <button class="trigger t-error" data-type="error" data-title="Failed" data-body="Network request failed.">✕ Error</button>
+      <button class="trigger t-warning" data-type="warning" data-title="Heads up" data-body="Unsaved changes detected.">⚠ Warning</button>
+      <button class="trigger t-info" data-type="info" data-title="New release" data-body="v2.1.0 is available.">ℹ Info</button>
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="spawn('info','Custom',msg||'Custom message sent.')">Send custom</button>
-      <button class="btn btn-secondary" onclick="clearAll()">Dismiss all</button>
+      <button class="btn btn-primary" id="sendCustom">Send custom</button>
+      <button class="btn btn-secondary" id="dismissAll">Dismiss all</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Duration</span><span class="value" id="v">4s</span></div>
-      <input type="range" min="1" max="10" value="4" oninput="document.getElementById('v').textContent=this.value+'s';log('Duration '+this.value+'s')">
+      <div class="form-label"><label for="duration">Duration</label><span class="value" id="v">4s</span></div>
+      <input type="range" id="duration" min="1" max="10" value="4">
     </div>
 
     <label class="chkrow">
-      <input type="checkbox" checked id="sound" onchange="log('Sound '+this.checked)">
+      <input type="checkbox" checked id="sound">
       <span class="chk"></span>
       <span>Play notification sound</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Position</div>
-      <select onchange="changePos(this.value)">
+      <label class="form-label" for="position">Position</label>
+      <select id="position">
         <option value="tr">Top right</option><option value="tl">Top left</option>
         <option value="br">Bottom right</option><option value="bl">Bottom left</option>
       </select>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Custom message</div>
-      <input type="text" placeholder="Type a message..." oninput="msg=this.value;log('Msg: '+this.value)">
+      <label class="form-label" for="customMsg">Custom message</label>
+      <input type="text" id="customMsg" placeholder="Type a message...">
     </div>
 
-    <div class="status" id="out"><strong>Ready</strong> — trigger a toast</div>
+    <div class="status" id="out" aria-live="polite"><strong>Ready</strong> — trigger a toast</div>
   </div>
 
-  <div class="toast-stack" id="stack"></div>
+  <div class="toast-stack" id="stack" aria-live="polite"></div>
 
   <script>
-    let msg = '';
-    const stack = document.getElementById('stack');
+    (() => {
+      let msg = '';
+      const stack = document.getElementById('stack');
+      const out = document.getElementById('out');
+      const durationValue = document.getElementById('v');
 
-    const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+      const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
 
-    function spawn(type, title, body) {
-      const t = document.createElement('div');
-      t.className = 'toast ' + type;
-      t.innerHTML = `
-        <div class="toast-icon">${icons[type]}</div>
-        <div class="toast-body">
-          <div class="toast-title">${title}</div>
-          <div class="toast-msg">${body}</div>
-        </div>
-        <button class="toast-close" aria-label="Close">✕</button>
-      `;
-      t.querySelector('.toast-close').addEventListener('click', () => dismiss(t));
-      stack.appendChild(t);
-      setTimeout(() => dismiss(t), 4000);
-      log(`${type} toast — ${title}`);
-    }
-    function dismiss(el) {
-      el.classList.add('leaving');
-      setTimeout(() => el.remove(), 250);
-    }
-    function clearAll() {
-      [...stack.children].forEach(dismiss);
-      log('dismissed all');
-    }
-    function changePos(v) {
-      const map = { tr: ['24px', 'auto', 'auto', '24px'], tl: ['24px', 'auto', '24px', 'auto'], br: ['auto', '24px', 'auto', '24px'], bl: ['auto', '24px', '24px', 'auto'] };
-      const [top, bottom, left, right] = map[v];
-      stack.style.top = top; stack.style.bottom = bottom; stack.style.left = left; stack.style.right = right;
-      log('Position ' + v);
-    }
-    function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> — '+m;}
+      function spawn(type, title, body) {
+        const toast = document.createElement('div');
+        toast.className = 'toast ' + type;
 
-    // Spawn a greeting on load
-    setTimeout(() => spawn('info', 'Welcome', 'Click the buttons to trigger toasts.'), 300);
+        const icon = document.createElement('div');
+        icon.className = 'toast-icon';
+        icon.textContent = icons[type];
+
+        const content = document.createElement('div');
+        content.className = 'toast-body';
+        const titleEl = document.createElement('div');
+        titleEl.className = 'toast-title';
+        titleEl.textContent = title;
+        const msgEl = document.createElement('div');
+        msgEl.className = 'toast-msg';
+        msgEl.textContent = body;
+        content.append(titleEl, msgEl);
+
+        const close = document.createElement('button');
+        close.className = 'toast-close';
+        close.setAttribute('aria-label', 'Close');
+        close.textContent = '✕';
+        close.addEventListener('click', () => dismiss(toast));
+
+        toast.append(icon, content, close);
+        stack.appendChild(toast);
+        setTimeout(() => dismiss(toast), 4000);
+        log(`${type} toast — ${title}`);
+      }
+      function dismiss(el) {
+        el.classList.add('leaving');
+        setTimeout(() => el.remove(), 250);
+      }
+      function clearAll() {
+        [...stack.children].forEach(dismiss);
+        log('dismissed all');
+      }
+      function changePos(v) {
+        const map = { tr: ['24px', 'auto', 'auto', '24px'], tl: ['24px', 'auto', '24px', 'auto'], br: ['auto', '24px', 'auto', '24px'], bl: ['auto', '24px', '24px', 'auto'] };
+        const [top, bottom, left, right] = map[v];
+        stack.style.top = top; stack.style.bottom = bottom; stack.style.left = left; stack.style.right = right;
+        log('Position ' + v);
+      }
+      function log(message) {
+        const status = document.createElement('strong');
+        status.textContent = 'ok';
+        out.replaceChildren(status, ` — ${message}`);
+      }
+
+      document.querySelectorAll('.trigger').forEach(btn => {
+        btn.addEventListener('click', () => spawn(btn.dataset.type, btn.dataset.title, btn.dataset.body));
+      });
+      document.getElementById('sendCustom').addEventListener('click', () => spawn('info', 'Custom', msg || 'Custom message sent.'));
+      document.getElementById('dismissAll').addEventListener('click', clearAll);
+      document.getElementById('duration').addEventListener('input', e => {
+        durationValue.textContent = `${e.target.value}s`;
+        log(`Duration ${e.target.value}s`);
+      });
+      document.getElementById('sound').addEventListener('change', e => log(`Sound ${e.target.checked}`));
+      document.getElementById('position').addEventListener('change', e => changePos(e.target.value));
+      document.getElementById('customMsg').addEventListener('input', e => {
+        msg = e.target.value;
+        log(`Msg: ${e.target.value}`);
+      });
+
+      // Spawn a greeting on load
+      setTimeout(() => spawn('info', 'Welcome', 'Click the buttons to trigger toasts.'), 300);
+    })();
   </script>
 </body>
 </html>

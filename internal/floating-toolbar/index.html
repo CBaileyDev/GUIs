@@ -128,7 +128,8 @@
       padding: 6px 8px; border-radius: 6px;
       background: rgba(255,255,255,0.03);
     }
-    .chkrow input { display: none; }
+    .chkrow input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chkrow input:focus-visible ~ .chk { outline: 2px solid var(--accent); outline-offset: 2px; }
     .chkrow .chk {
       width: 14px; height: 14px; border-radius: 3px;
       border: 1.5px solid rgba(255,255,255,0.3); background: transparent;
@@ -157,45 +158,53 @@
       font-family: 'SF Mono', Menlo, monospace;
     }
     .output strong { color: var(--accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="canvas">CANVAS · 1280 × 720</div>
 
   <!-- Settings popover -->
-  <div class="popover" id="pop">
+  <div class="popover" id="pop" role="dialog" aria-label="Quick settings">
     <div class="pop-title">Quick settings</div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Brush size <span class="value" id="v">18px</span></div>
-      <input type="range" min="1" max="60" value="18" oninput="document.getElementById('v').textContent=this.value+'px';log('Brush '+this.value+'px')">
+      <div class="form-label"><label for="brushSize">Brush size</label> <span class="value" id="v">18px</span></div>
+      <input type="range" id="brushSize" min="1" max="60" value="18">
     </div>
 
     <label class="chkrow">
-      <input type="checkbox" checked onchange="log('Snap '+this.checked)">
+      <input type="checkbox" id="snap" checked>
       <span class="chk"></span>
       <span>Snap to grid</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Tool</div>
-      <select onchange="log('Tool '+this.value)">
+      <label class="form-label" for="tool">Tool</label>
+      <select id="tool">
         <option>Brush</option><option>Eraser</option>
         <option>Lasso</option><option>Shape</option>
       </select>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Layer name</div>
-      <input type="text" placeholder="Layer 1" oninput="log('Layer '+this.value)">
+      <label class="form-label" for="layerName">Layer name</label>
+      <input type="text" id="layerName" placeholder="Layer 1">
     </div>
 
-    <div class="output" id="out"><strong>ready</strong> — pick a tool</div>
+    <div class="output" id="out" aria-live="polite"><strong>ready</strong> — pick a tool</div>
   </div>
 
   <!-- Toolbar -->
@@ -208,20 +217,49 @@
     <button class="tool-btn" data-tip="Undo" aria-label="Undo">↶</button>
     <button class="tool-btn" data-tip="Redo" aria-label="Redo">↷</button>
     <div class="divider"></div>
-    <button class="tool-btn" data-tip="Settings" aria-label="Settings" onclick="togglePop()">⚙</button>
-    <button class="tool-btn primary" data-tip="Export" aria-label="Export" onclick="log('Exported')">↑</button>
+    <button class="tool-btn" id="settingsBtn" data-tip="Settings" aria-label="Settings" aria-controls="pop" aria-expanded="false">⚙</button>
+    <button class="tool-btn primary" id="exportBtn" data-tip="Export" aria-label="Export">↑</button>
   </div>
 
   <script>
-    function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> — '+m;}
-    function togglePop(){document.getElementById('pop').classList.toggle('open');}
-    document.querySelectorAll('.tool-btn').forEach(b => {
-      if (b.classList.contains('primary')) return;
-      b.addEventListener('click', () => {
-        document.querySelectorAll('.tool-btn').forEach(x => { if (!x.classList.contains('primary')) x.classList.remove('active'); });
-        b.classList.add('active');
+    (() => {
+      const out = document.getElementById('out');
+      const pop = document.getElementById('pop');
+      const settingsBtn = document.getElementById('settingsBtn');
+      const brushValue = document.getElementById('v');
+
+      function log(message) {
+        const status = document.createElement('strong');
+        status.textContent = 'ok';
+        out.replaceChildren(status, ` — ${message}`);
+      }
+
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        if (btn.classList.contains('primary')) return;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tool-btn').forEach(other => {
+            if (!other.classList.contains('primary')) other.classList.remove('active');
+          });
+          btn.classList.add('active');
+        });
       });
-    });
+
+      settingsBtn.addEventListener('click', () => {
+        const open = pop.classList.toggle('open');
+        settingsBtn.setAttribute('aria-expanded', String(open));
+      });
+      document.getElementById('exportBtn').addEventListener('click', () => log('Exported'));
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+      document.getElementById('brushSize').addEventListener('input', e => {
+        brushValue.textContent = `${e.target.value}px`;
+        log(`Brush ${e.target.value}px`);
+      });
+      document.getElementById('snap').addEventListener('change', e => log(`Snap ${e.target.checked}`));
+      document.getElementById('tool').addEventListener('change', e => log(`Tool ${e.target.value}`));
+      document.getElementById('layerName').addEventListener('input', e => log(`Layer ${e.target.value}`));
+    })();
   </script>
 </body>
 </html>
