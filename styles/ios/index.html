@@ -7,14 +7,14 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --bg: #f2f2f7; --ink: #000; --muted: #8e8e93; --panel: #ffffff; --sep: #c6c6c8; --accent: #007aff; --red: #ff3b30; --green: #34c759; --orange: #ff9500; }
+    html { color-scheme: light; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
-      background:
-        linear-gradient(135deg, #e9e9ef 0%, #eef2f7 100%),
-        var(--bg);
+      background: linear-gradient(180deg, #f2f2f7 0%, #e8eaf0 100%);
       color: var(--ink); font-size: 17px; letter-spacing: -0.24px;
+      accent-color: var(--accent);
     }
 
     .phone {
@@ -61,6 +61,11 @@
     }
     .row-label { flex: 1; font-size: 17px; }
     .row-accessory { color: var(--muted); font-size: 16px; }
+    .row input[type="text"] {
+      flex: 0 1 140px; text-align: right;
+      border: none; background: transparent; outline: none;
+      font-family: inherit; font-size: 17px; color: var(--muted);
+    }
 
     /* Buttons */
     .btn-group { padding: 0 4px; display: flex; gap: 10px; margin-bottom: 22px; }
@@ -99,6 +104,7 @@
     .switch {
       width: 51px; height: 31px; border-radius: 31px;
       background: rgba(120,120,128,0.2);
+      border: none; padding: 0; flex-shrink: 0;
       position: relative; cursor: pointer;
       transition: background 0.25s;
     }
@@ -144,42 +150,18 @@
       text-align: center; line-height: 1.4;
     }
     .footer-hint strong { color: var(--accent); font-weight: 500; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #007aff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #007aff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #007aff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #007aff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+    ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background: linear-gradient(180deg, #f2f2f7 0%, #e8eaf0 100%) !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="phone">
@@ -187,22 +169,22 @@ body { background: linear-gradient(180deg, #f2f2f7 0%, #e8eaf0 100%) !important;
 
     <div class="search-wrap">
       <div class="search">
-        <input type="text" placeholder="Search" oninput="log('Search: '+this.value)">
+        <input type="text" id="search" placeholder="Search" aria-label="Search">
       </div>
     </div>
 
     <div class="btn-group">
-      <button class="btn btn-primary" onclick="log('Done')">Done</button>
-      <button class="btn btn-secondary" onclick="log('Cancel')">Cancel</button>
+      <button class="btn btn-primary" id="done">Done</button>
+      <button class="btn btn-secondary" id="cancel">Cancel</button>
     </div>
 
     <div class="group-header">Display &amp; Brightness</div>
     <div class="group">
       <div class="slider-row">
         <div class="slider-label">
-          <span>Brightness</span><span class="value" id="v">70%</span>
+          <label for="brightness">Brightness</label><span class="value" id="v">70%</span>
         </div>
-        <input type="range" min="0" max="100" value="70" oninput="document.getElementById('v').textContent=this.value+'%';log('Brightness '+this.value+'%')">
+        <input type="range" id="brightness" min="0" max="100" value="70">
       </div>
     </div>
 
@@ -211,17 +193,17 @@ body { background: linear-gradient(180deg, #f2f2f7 0%, #e8eaf0 100%) !important;
       <div class="row">
         <div class="row-icon" style="background: var(--green);">●</div>
         <div class="row-label">Automatic updates</div>
-        <div class="switch on" onclick="toggle(this,'Auto updates')"></div>
+        <button type="button" class="switch on" id="sw-auto" role="switch" aria-checked="true" aria-label="Automatic updates"></button>
       </div>
       <div class="row">
         <div class="row-icon" style="background: var(--accent);">☁︎</div>
         <div class="row-label">iCloud sync</div>
-        <div class="switch" onclick="toggle(this,'iCloud sync')"></div>
+        <button type="button" class="switch" id="sw-icloud" role="switch" aria-checked="false" aria-label="iCloud sync"></button>
       </div>
       <div class="row">
         <div class="row-icon" style="background: var(--orange);">⚙</div>
-        <div class="row-label">Appearance</div>
-        <select class="picker" onchange="log('Appearance '+this.value)">
+        <label class="row-label" for="appearance">Appearance</label>
+        <select class="picker" id="appearance">
           <option>Automatic</option><option>Light</option><option>Dark</option>
         </select>
       </div>
@@ -231,16 +213,47 @@ body { background: linear-gradient(180deg, #f2f2f7 0%, #e8eaf0 100%) !important;
     <div class="group">
       <div class="row">
         <div class="row-icon" style="background: var(--accent);">A</div>
-        <div class="row-label">Display name</div>
-        <input type="text" placeholder="Optional" style="flex:0 1 140px;text-align:right;border:none;background:transparent;outline:none;font-family:inherit;font-size:17px;color:var(--muted);" oninput="log('Name '+this.value)">
+        <label class="row-label" for="display-name">Display name</label>
+        <input type="text" id="display-name" placeholder="Optional">
       </div>
     </div>
 
-    <div class="footer-hint" id="out"><strong>All set</strong> · tap any row to change</div>
+    <div class="footer-hint" id="out" role="status" aria-live="polite"><strong id="out-msg">All set</strong><span id="out-detail"> · tap any row to change</span></div>
   </div>
   <script>
-    function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong>';}
-    function toggle(el,label){el.classList.toggle('on');log(label+' '+el.classList.contains('on'));}
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const log = (m) => {
+        msg.textContent = m;
+        detail.textContent = '';
+      };
+
+      document.getElementById('search').addEventListener('input', (e) => log(`Search: ${e.target.value}`));
+      document.getElementById('done').addEventListener('click', () => log('Done'));
+      document.getElementById('cancel').addEventListener('click', () => log('Cancel'));
+
+      const brightness = document.getElementById('brightness');
+      const brightnessValue = document.getElementById('v');
+      brightness.addEventListener('input', () => {
+        brightnessValue.textContent = `${brightness.value}%`;
+        log(`Brightness ${brightness.value}%`);
+      });
+
+      const wireSwitch = (id, label) => {
+        const el = document.getElementById(id);
+        el.addEventListener('click', () => {
+          const on = el.classList.toggle('on');
+          el.setAttribute('aria-checked', String(on));
+          log(`${label} ${on}`);
+        });
+      };
+      wireSwitch('sw-auto', 'Auto updates');
+      wireSwitch('sw-icloud', 'iCloud sync');
+
+      document.getElementById('appearance').addEventListener('change', (e) => log(`Appearance ${e.target.value}`));
+      document.getElementById('display-name').addEventListener('input', (e) => log(`Name ${e.target.value}`));
+    })();
   </script>
 </body>
 </html>

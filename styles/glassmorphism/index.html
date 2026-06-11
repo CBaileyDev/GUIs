@@ -7,9 +7,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
     body {
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex;
       align-items: flex-start;
@@ -19,6 +20,7 @@
         radial-gradient(ellipse at 80% 20%, #00c6fb 0%, transparent 45%),
         radial-gradient(ellipse at 60% 80%, #f857a6 0%, transparent 45%),
         linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 100%);
+      accent-color: #a78bfa;
     }
     body::before, body::after {
       content: '';
@@ -60,12 +62,6 @@
       line-height: 1.2;
       text-align: center;
       margin-bottom: 6px;
-    }
-    h1 span {
-      background: linear-gradient(90deg, #a78bfa, #60c8f8, #f9a8d4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
     .sub {
       font-size: 13px;
@@ -149,7 +145,12 @@
       margin-bottom: 18px;
       color: rgba(255,255,255,0.85);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
     .chk {
       width: 18px;
       height: 18px;
@@ -158,6 +159,10 @@
       background: rgba(255,255,255,0.06);
       position: relative;
       flex-shrink: 0;
+    }
+    input[type="checkbox"]:focus-visible ~ .chk {
+      outline: 2px solid #a78bfa;
+      outline-offset: 2px;
     }
     input[type="checkbox"]:checked ~ .chk {
       background: linear-gradient(135deg, #a78bfa, #60c8f8);
@@ -202,8 +207,6 @@
     }
     .output strong { color: #a78bfa; }
 
-    html { color-scheme: dark; }
-    body { min-height: 100dvh; accent-color: #a78bfa; }
     :focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; border-radius: 6px; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.001ms !important; }
@@ -213,30 +216,29 @@
 <body>
   <div class="card">
     <div class="eyebrow">Frosted panel</div>
-    <h1><span>Glass</span>morphism</h1>
+    <h1>Glassmorphism</h1>
     <div class="sub">Translucent surfaces over a vivid backdrop</div>
 
     <div class="section-title">Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Opacity <span class="value" id="v">72%</span></div>
-      <input type="range" min="0" max="100" value="72"
-        oninput="document.getElementById('v').textContent=this.value+'%';log('Opacity '+this.value+'%')">
+      <label class="form-label" for="opacity">Opacity <span class="value" id="v">72%</span></label>
+      <input type="range" id="opacity" min="0" max="100" value="72">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Backdrop blur '+this.checked)">
+      <input type="checkbox" id="blur">
       <span class="chk"></span>
       <span>Backdrop blur</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Tint</div>
-      <select onchange="log('Tint '+this.value)">
+      <label class="form-label" for="tint">Tint</label>
+      <select id="tint">
         <option>Aurora Violet</option>
         <option>Ocean Cyan</option>
         <option>Sunset Rose</option>
@@ -245,11 +247,34 @@
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Panel title…" oninput="log('Title '+this.value)">
+      <input type="text" id="title" placeholder="Panel title…" aria-label="Panel title">
     </div>
 
-    <div class="output" id="out"><strong>Ready</strong> — adjust the panel</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong id="out-msg">Ready</strong><span id="out-detail"> — adjust the panel</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong>';}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const log = (m) => {
+        msg.textContent = m;
+        detail.textContent = '';
+      };
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+
+      const opacity = document.getElementById('opacity');
+      const opacityValue = document.getElementById('v');
+      opacity.addEventListener('input', () => {
+        opacityValue.textContent = `${opacity.value}%`;
+        log(`Opacity ${opacity.value}%`);
+      });
+
+      document.getElementById('blur').addEventListener('change', (e) => log(`Backdrop blur ${e.target.checked}`));
+      document.getElementById('tint').addEventListener('change', (e) => log(`Tint ${e.target.value}`));
+      document.getElementById('title').addEventListener('input', (e) => log(`Title ${e.target.value}`));
+    })();
+  </script>
 </body>
 </html>

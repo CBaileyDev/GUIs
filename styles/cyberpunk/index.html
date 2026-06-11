@@ -17,10 +17,12 @@
       --text: #c8d8e8;
       --dim: #4a5a7a;
     }
+    html { color-scheme: dark; }
     body {
       font-family: 'Share Tech Mono', monospace;
-      min-height: 100vh;
+      min-height: 100dvh;
       background: var(--dark);
+      accent-color: var(--cyan);
       padding: 40px 20px;
       display: flex;
       align-items: flex-start;
@@ -162,13 +164,22 @@
       margin-bottom: 16px;
       color: var(--text);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
     .chk {
       width: 16px;
       height: 16px;
       border: 1px solid var(--cyan);
       position: relative;
       flex-shrink: 0;
+    }
+    input[type="checkbox"]:focus-visible ~ .chk {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
     }
     input[type="checkbox"]:checked ~ .chk {
       background: rgba(0,255,245,0.15);
@@ -213,8 +224,6 @@
     }
     .output strong { color: var(--lime); }
 
-    html { color-scheme: dark; }
-    body { min-height: 100dvh; accent-color: var(--cyan); }
     :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.001ms !important; }
@@ -229,25 +238,24 @@
 
     <div class="section-title">// Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('JACK IN')">Jack in</button>
-      <button class="btn btn-secondary" onclick="log('ABORT')">Abort</button>
+      <button class="btn btn-primary" id="jack-in">Jack in</button>
+      <button class="btn btn-secondary" id="abort">Abort</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Signal <span class="value" id="v">84%</span></div>
-      <input type="range" min="0" max="100" value="84"
-        oninput="document.getElementById('v').textContent=this.value+'%';log('Signal '+this.value+'%')">
+      <label class="form-label" for="signal">Signal <span class="value" id="v">84%</span></label>
+      <input type="range" id="signal" min="0" max="100" value="84">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('ICE breaker '+this.checked)">
+      <input type="checkbox" id="ice">
       <span class="chk"></span>
       <span>ICE breaker active</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Deck profile</div>
-      <select onchange="log('Profile '+this.value)">
+      <label class="form-label" for="profile">Deck profile</label>
+      <select id="profile">
         <option>Street Samurai</option>
         <option>Netrunner</option>
         <option>Corpo</option>
@@ -256,11 +264,30 @@
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Handle…" oninput="log('Handle '+this.value)">
+      <input type="text" id="handle" placeholder="Handle…" aria-label="Handle">
     </div>
 
-    <div class="output" id="out"><strong>LINK</strong> — standby</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>LINK</strong><span id="out-detail"> — standby</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>LINK</strong> — '+m;}</script>
+  <script>
+    (function () {
+      const detail = document.getElementById('out-detail');
+      const log = (m) => { detail.textContent = ` — ${m}`; };
+
+      document.getElementById('jack-in').addEventListener('click', () => log('JACK IN'));
+      document.getElementById('abort').addEventListener('click', () => log('ABORT'));
+
+      const signal = document.getElementById('signal');
+      const signalValue = document.getElementById('v');
+      signal.addEventListener('input', () => {
+        signalValue.textContent = `${signal.value}%`;
+        log(`Signal ${signal.value}%`);
+      });
+
+      document.getElementById('ice').addEventListener('change', (e) => log(`ICE breaker ${e.target.checked}`));
+      document.getElementById('profile').addEventListener('change', (e) => log(`Profile ${e.target.value}`));
+      document.getElementById('handle').addEventListener('input', (e) => log(`Handle ${e.target.value}`));
+    })();
+  </script>
 </body>
 </html>
