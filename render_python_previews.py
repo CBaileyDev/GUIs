@@ -18,6 +18,7 @@ W, H = 600, 640
 
 
 def pick_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
+    """Return a truetype font or fallback."""
     candidates = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold
         else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -31,6 +32,7 @@ def pick_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
 
 
 def pick_mono(size: int) -> ImageFont.ImageFont:
+    """Return a monospace font or fallback."""
     for path in [
         "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
@@ -40,7 +42,10 @@ def pick_mono(size: int) -> ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
-def draw_chrome(d: ImageDraw.ImageDraw, title: str, bg: str, fg: str, dots_style: str = "mac") -> None:
+def draw_chrome(
+    d: ImageDraw.ImageDraw, title: str, bg: str, fg: str, dots_style: str = "mac"
+) -> None:
+    """Draw window chrome (title bar + traffic lights or windows buttons)."""
     d.rectangle((0, 0, W, 32), fill=bg)
     if dots_style == "mac":
         for i, color in enumerate(("#ff5f57", "#febc2e", "#28c840")):
@@ -52,7 +57,17 @@ def draw_chrome(d: ImageDraw.ImageDraw, title: str, bg: str, fg: str, dots_style
     d.text((W / 2, 16), title, fill=fg, font=pick_font(12), anchor="mm")
 
 
-def draw_slider(d, y: int, label: str, value: int, fg: str, track: str, thumb: str, font) -> None:
+def draw_slider(
+    d: ImageDraw.ImageDraw,
+    y: int,
+    label: str,
+    value: int,
+    fg: str,
+    track: str,
+    thumb: str,
+    font: ImageFont.ImageFont,
+) -> None:
+    """Draw a labeled slider with fill and thumb."""
     d.text((32, y), label, fill=fg, font=font)
     tw = pick_font(12).getlength(f"{value}%")
     d.text((W - 32 - tw, y), f"{value}%", fill=thumb, font=pick_font(12))
@@ -62,16 +77,38 @@ def draw_slider(d, y: int, label: str, value: int, fg: str, track: str, thumb: s
     d.ellipse((cx - 8, y + 20, cx + 8, y + 36), fill=thumb, outline="white", width=2)
 
 
-def draw_check(d, x: int, y: int, checked: bool, fg: str, accent: str, label: str, font) -> None:
+def draw_check(
+    d: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    checked: bool,
+    fg: str,
+    accent: str,
+    label: str,
+    font: ImageFont.ImageFont,
+) -> None:
+    """Draw checkbox + label."""
     d.rounded_rectangle((x, y, x + 18, y + 18), radius=4, fill=accent if checked else "#222", outline=fg, width=1)
     if checked:
         d.line([(x + 4, y + 9), (x + 8, y + 13), (x + 14, y + 5)], fill="white", width=2)
     d.text((x + 30, y + 2), label, fill=fg, font=font)
 
 
-def draw_btn(d, box, text, bg, fg, font, outline=None) -> None:
+def draw_btn(
+    d: ImageDraw.ImageDraw,
+    box: tuple[int, int, int, int],
+    text: str,
+    bg: str,
+    fg: str,
+    font: ImageFont.ImageFont,
+    outline: str | None = None,
+) -> None:
+    """Draw rounded button with centered text."""
     d.rounded_rectangle(box, radius=8, fill=bg, outline=outline, width=1 if outline else 0)
     d.text(((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), text, fill=fg, font=font, anchor="mm")
+
+
+# --- Theme mockups (data-driven where possible; kept explicit for visual fidelity) ---
 
 
 def tkinter_mock(out: Path) -> None:
@@ -152,7 +189,7 @@ def wxpython_mock(out: Path) -> None:
     d = ImageDraw.Draw(img)
     draw_chrome(d, "wxPython Menu", "#e9e9ed", "#222")
     d.rectangle((0, 32, W, H), fill="#f5f5f8")
-    d.text((32, 56), "wxPython Menu", fill="#141e", font=pick_font(22, bold=True))
+    d.text((32, 56), "wxPython Menu", fill="#222", font=pick_font(22, bold=True))  # fixed incomplete hex
     d.text((32, 90), "Native widgets via wxWidgets on your OS", fill="#6e7382", font=pick_font(13))
     d.line((32, 124, W - 32, 124), fill="#cacad2", width=1)
     d.text((32, 140), "ACTIONS", fill="#6e7382", font=pick_font(11, bold=True))
@@ -182,7 +219,7 @@ def imgui_mock(out: Path) -> None:
     d.text((22, 124), "ACTIONS", fill="#e7b53c", font=pick_mono(10))
     draw_btn(d, (22, 144, 285, 178), "Apply", "#4a8cf0", "white", pick_font(13, bold=True))
     draw_btn(d, (300, 144, W - 22, 178), "Reset", "#3a3a4a", "#dcdce0", pick_font(13, bold=True))
-    d.text((22, 200), f"Opacity", fill="#dcdce0", font=pick_font(12))
+    d.text((22, 200), "Opacity", fill="#dcdce0", font=pick_font(12))
     d.text((W - 22, 200), "72%", fill="#e7b53c", font=pick_mono(12), anchor="rt")
     d.rectangle((22, 222, W - 22, 238), fill="#0f0f18", outline="#333344", width=1)
     d.rectangle((22, 222, 22 + (W - 44) * 0.72, 238), fill="#4a8cf0")
@@ -201,7 +238,7 @@ def imgui_mock(out: Path) -> None:
     img.save(out, "PNG", optimize=True)
 
 
-TARGETS = {
+TARGETS: dict[str, callable[[Path], None]] = {
     "external/tkinter-menu": tkinter_mock,
     "external/pyqt-menu": pyqt_mock,
     "external/customtkinter": customtkinter_mock,
@@ -211,6 +248,7 @@ TARGETS = {
 
 
 def main() -> int:
+    """Generate all Python mock previews."""
     for rel, fn in TARGETS.items():
         folder = ROOT / rel
         folder.mkdir(exist_ok=True)
