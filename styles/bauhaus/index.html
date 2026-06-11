@@ -7,14 +7,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --red: #e53935; --blue: #1e88e5; --yellow: #fdd835; --ink: #0c0c0c; --bg: #f0e8d8; }
+    :root { --red: #e53935; --blue: #1e88e5; --yellow: #fdd835; --ink: #0c0c0c; --bg: #f2ecdc; }
+    html { color-scheme: light; }
     body {
       font-family: 'Archivo', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
-      background: var(--bg);
+      background:
+        radial-gradient(600px 400px at 85% 15%, rgba(253,216,53,0.35), transparent 60%),
+        radial-gradient(700px 500px at 10% 90%, rgba(30,136,229,0.18), transparent 60%),
+        var(--bg);
       color: var(--ink);
+      accent-color: #1e88e5;
       position: relative; overflow-x: hidden;
     }
     /* Decorative shapes */
@@ -112,11 +117,12 @@
       background: #fff; margin-bottom: 20px;
       box-shadow: 5px 5px 0 var(--ink);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 22px; height: 22px; border: 3px solid var(--ink);
       background: #fff; position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #1e88e5; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--blue); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: ''; position: absolute; inset: 0;
@@ -148,45 +154,22 @@
       font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
     }
     .output strong { color: var(--red); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #1e88e5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #1e88e5;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #1e88e5;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #1e88e5 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #1e88e5;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #1e88e5 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(600px 400px at 85% 15%, rgba(253,216,53,0.35), transparent 60%),
-                radial-gradient(700px 500px at 10% 90%, rgba(30,136,229,0.18), transparent 60%),
-                #f2ecdc !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -196,35 +179,59 @@ body { background:
 
     <div class="section-title">Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Radius</span><span class="value" id="v">50</span></div>
-      <input type="range" min="0" max="100" value="50" oninput="document.getElementById('v').textContent=this.value;log('Radius '+this.value)">
+      <label class="form-label" for="radius"><span>Radius</span><span class="value" id="v">50</span></label>
+      <input type="range" id="radius" min="0" max="100" value="50">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Primaries '+this.checked)">
+      <input type="checkbox" id="primaries">
       <span class="chk"></span>
       <span class="chk-label">Use primaries only</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span>Shape</span></div>
-      <select onchange="log('Shape '+this.value)">
+      <label class="form-label" for="shape"><span>Shape</span></label>
+      <select id="shape">
         <option>Circle</option><option>Square</option>
         <option>Triangle</option><option>Composition</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="LABEL..." oninput="log('Label '+this.value)">
+      <input type="text" id="label-input" placeholder="LABEL..." aria-label="Label">
     </div>
 
-    <div class="output" id="out"><strong>STATUS</strong> — READY</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>STATUS</strong> — <span id="out-msg">READY</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>STATUS</strong> — '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+
+      const radius = document.getElementById('radius');
+      const value = document.getElementById('v');
+      radius.addEventListener('input', () => {
+        value.textContent = radius.value;
+        log('Radius ' + radius.value);
+      });
+
+      const primaries = document.getElementById('primaries');
+      primaries.addEventListener('change', () => log('Primaries ' + primaries.checked));
+
+      const shape = document.getElementById('shape');
+      shape.addEventListener('change', () => log('Shape ' + shape.value));
+
+      const labelInput = document.getElementById('label-input');
+      labelInput.addEventListener('input', () => log('Label ' + labelInput.value));
+    })();
+  </script>
 </body>
 </html>

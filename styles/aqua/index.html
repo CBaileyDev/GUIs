@@ -7,16 +7,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Lucida+Sans+Unicode&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     body {
       font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Arial, sans-serif;
       font-size: 12px;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        radial-gradient(circle at top, #d2e6f3 0%, #8bb8d8 80%),
-        linear-gradient(#d2e6f3, #8bb8d8);
+        radial-gradient(1000px 500px at 50% -10%, rgba(150,200,255,0.55), transparent 60%),
+        linear-gradient(180deg, #eaf3ff 0%, #cfe1f5 100%);
       color: #222;
+      accent-color: #0a84ff;
     }
 
     .window {
@@ -123,7 +125,7 @@
       display: flex; align-items: center; gap: 10px; cursor: pointer;
       margin-bottom: 12px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 15px; height: 15px; border-radius: 4px;
       background: linear-gradient(180deg, #fff, #d5dce7);
@@ -131,6 +133,7 @@
       box-shadow: inset 0 1px 0 #fff;
       position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #0a84ff; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk {
       background: linear-gradient(180deg, #7fbdff, #2a7dd5);
       border-color: #1a5c9c;
@@ -168,49 +171,22 @@
       box-shadow: inset 0 1px 0 #fff;
     }
     .status strong { color: #1a5c9c; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #0a84ff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #0a84ff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #0a84ff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #0a84ff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #0a84ff;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #0a84ff 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-html { color-scheme: light; }
-            body { background:
-                radial-gradient(1000px 500px at 50% -10%, rgba(150,200,255,0.55), transparent 60%),
-                linear-gradient(180deg, #eaf3ff 0%, #cfe1f5 100%) !important; }
-            .card { border-radius: 18px !important;
-                box-shadow: 0 30px 60px -20px rgba(8,40,80,0.35),
-                            0 2px 0 rgba(255,255,255,0.8) inset,
-                            0 0 0 1px rgba(40,80,140,0.08) !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="window">
@@ -228,37 +204,61 @@ html { color-scheme: light; }
 
       <div class="section-title">Actions</div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-        <button class="btn btn-secondary" onclick="log('Cancel')">Cancel</button>
+        <button class="btn btn-primary" id="apply">Apply</button>
+        <button class="btn btn-secondary" id="cancel">Cancel</button>
       </div>
 
       <div class="form-group">
-        <div class="form-label"><span>Volume</span><span class="value" id="v">60%</span></div>
-        <input type="range" min="0" max="100" value="60" oninput="document.getElementById('v').textContent=this.value+'%';log('Volume '+this.value+'%')">
+        <label class="form-label" for="volume"><span>Volume</span><span class="value" id="v">60%</span></label>
+        <input type="range" id="volume" min="0" max="100" value="60">
       </div>
 
       <label class="checkbox-row">
-        <input type="checkbox" checked onchange="log('Genie effect '+this.checked)">
+        <input type="checkbox" id="genie" checked>
         <span class="chk"></span>
         <span class="chk-label">Enable Genie window effect</span>
       </label>
 
       <div class="form-group">
-        <div class="form-label"><span>Appearance</span></div>
-        <select onchange="log('Appearance '+this.value)">
+        <label class="form-label" for="appearance"><span>Appearance</span></label>
+        <select id="appearance">
           <option>Aqua Blue</option><option>Graphite</option>
           <option>Ocean Surface</option><option>Sunset</option>
         </select>
       </div>
 
       <div class="form-group">
-        <div class="form-label"><span>Computer name</span></div>
-        <input type="text" placeholder="Macintosh" oninput="log('Name '+this.value)">
+        <label class="form-label" for="computer-name"><span>Computer name</span></label>
+        <input type="text" id="computer-name" placeholder="Macintosh">
       </div>
 
-      <div class="status" id="status"><strong>Status —</strong> ready.</div>
+      <div class="status" id="status" role="status" aria-live="polite"><strong>Status —</strong> <span id="status-msg">ready.</span></div>
     </div>
   </div>
-  <script>function log(m){document.getElementById('status').innerHTML='<strong>Status —</strong> '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('status-msg');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('cancel').addEventListener('click', () => log('Cancel'));
+
+      const volume = document.getElementById('volume');
+      const value = document.getElementById('v');
+      volume.addEventListener('input', () => {
+        value.textContent = volume.value + '%';
+        log('Volume ' + volume.value + '%');
+      });
+
+      const genie = document.getElementById('genie');
+      genie.addEventListener('change', () => log('Genie effect ' + genie.checked));
+
+      const appearance = document.getElementById('appearance');
+      appearance.addEventListener('change', () => log('Appearance ' + appearance.value));
+
+      const computerName = document.getElementById('computer-name');
+      computerName.addEventListener('input', () => log('Name ' + computerName.value));
+    })();
+  </script>
 </body>
 </html>

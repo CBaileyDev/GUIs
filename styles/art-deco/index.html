@@ -8,14 +8,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --gold: #d4a944; --gold-hi: #f5d277; --gold-lo: #8a6d20; --ink: #0c0a07; --cream: #f5ecd6; --dark: #14110b; }
+    html { color-scheme: dark; }
     body {
       font-family: 'Lato', sans-serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        radial-gradient(ellipse at center top, #26201a 0%, #0c0a07 70%),
-        #0c0a07;
+        radial-gradient(800px 500px at 50% 0%, rgba(212,169,68,0.18), transparent 65%),
+        linear-gradient(180deg, #14110b 0%, #0a0806 100%);
       color: var(--cream);
+      accent-color: #d4a944;
     }
 
     .card {
@@ -23,6 +25,7 @@
       background:
         linear-gradient(180deg, #1c1710 0%, #0c0a07 100%);
       border: 2px solid var(--gold);
+      border-radius: 4px;
       position: relative;
       box-shadow:
         0 0 0 6px var(--dark),
@@ -112,12 +115,13 @@
       padding: 10px 14px; border: 1px solid var(--gold);
       background: rgba(212,169,68,0.05); margin-bottom: 18px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 16px; height: 16px; transform: rotate(45deg);
       border: 1.5px solid var(--gold); background: transparent;
       position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #d4a944; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk {
       background: var(--gold-hi);
     }
@@ -149,45 +153,22 @@
       color: var(--cream); min-height: 42px; text-align: center;
     }
     .output strong { color: var(--gold); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #d4a944;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #d4a944;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #d4a944;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #d4a944 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #d4a944;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #d4a944 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(800px 500px at 50% 0%, rgba(212,169,68,0.18), transparent 65%),
-                linear-gradient(180deg, #14110b 0%, #0a0806 100%) !important; }
-            .card { border-radius: 4px !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -197,35 +178,59 @@ body { background:
 
     <div class="section-title">Controls</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('APPLIED')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('RESET')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Elegance</span><span class="value" id="v">72%</span></div>
-      <input type="range" min="0" max="100" value="72" oninput="document.getElementById('v').textContent=this.value+'%';log('ELEGANCE '+this.value+'%')">
+      <label class="form-label" for="elegance"><span>Elegance</span><span class="value" id="v">72%</span></label>
+      <input type="range" id="elegance" min="0" max="100" value="72">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('SYMMETRY '+this.checked)">
+      <input type="checkbox" id="symmetry">
       <span class="chk"></span>
       <span class="chk-label">Enforce Symmetry</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span>Motif</span></div>
-      <select onchange="log('MOTIF '+this.value)">
+      <label class="form-label" for="motif"><span>Motif</span></label>
+      <select id="motif">
         <option>Sunburst</option><option>Chevron</option>
         <option>Fan</option><option>Zigzag</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Monogram..." oninput="log('MONOGRAM '+this.value)">
+      <input type="text" id="monogram" placeholder="Monogram..." aria-label="Monogram">
     </div>
 
-    <div class="output" id="out"><strong>Status</strong> · Awaiting your decision</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>Status</strong> · <span id="out-msg">Awaiting your decision</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>Status</strong> · '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('APPLIED'));
+      document.getElementById('reset').addEventListener('click', () => log('RESET'));
+
+      const elegance = document.getElementById('elegance');
+      const value = document.getElementById('v');
+      elegance.addEventListener('input', () => {
+        value.textContent = elegance.value + '%';
+        log('ELEGANCE ' + elegance.value + '%');
+      });
+
+      const symmetry = document.getElementById('symmetry');
+      symmetry.addEventListener('change', () => log('SYMMETRY ' + symmetry.checked));
+
+      const motif = document.getElementById('motif');
+      motif.addEventListener('change', () => log('MOTIF ' + motif.value));
+
+      const monogram = document.getElementById('monogram');
+      monogram.addEventListener('input', () => log('MONOGRAM ' + monogram.value));
+    })();
+  </script>
 </body>
 </html>
