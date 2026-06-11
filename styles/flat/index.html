@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flat Design Menu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
+    body {
+      font-family: "Segoe UI", "Selawik", system-ui, sans-serif;
+      font-weight: 400;
+      min-height: 100dvh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: #ffffff; color: #1f1f1f;
+      accent-color: #0078d7;
+    }
+    :focus-visible { outline: 2px solid #0078d7; outline-offset: 2px; }
+    ::selection { background: #0078d7; color: #ffffff; }
+
+    .card { width: 440px; background: #ffffff; padding: 8px 4px; }
+
+    .chips { display: flex; gap: 6px; margin-bottom: 18px; }
+    .chip { width: 12px; height: 12px; }
+    .chip-cyan { background: #0078d7; }
+    .chip-red { background: #e51400; }
+    .chip-green { background: #60a917; }
+    .chip-amber { background: #f0a30a; }
+
+    h1 { font-size: 38px; font-weight: 300; letter-spacing: -1px; line-height: 1.1; }
+    .sub { font-size: 13px; color: #6a6a6a; margin: 8px 0 32px; }
+
+    .section {
+      font-size: 20px; font-weight: 300; color: #1f1f1f;
+      margin-bottom: 14px;
+    }
+
+    .btn-row { display: flex; gap: 12px; margin-bottom: 32px; }
+    .btn {
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      padding: 9px 28px; border: 2px solid transparent;
+      cursor: pointer; transition: border-color 0.1s, background-color 0.1s;
+    }
+    .btn-primary { background: #0078d7; color: #ffffff; }
+    .btn-primary:hover { border-color: #1f1f1f; }
+    .btn-primary:active { background: #005a9e; }
+    .btn-secondary { background: #cccccc; color: #1f1f1f; }
+    .btn-secondary:hover { border-color: #1f1f1f; }
+    .btn-secondary:active { background: #b8b8b8; }
+
+    .field { margin-bottom: 26px; }
+    .field-label {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; margin-bottom: 10px;
+    }
+    .field-label .value { font-weight: 600; color: #0078d7; }
+
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 24px; background: transparent; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: #c6c6c6; }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 10px; height: 24px; margin-top: -10px; background: #0078d7;
+    }
+    input[type="range"]::-moz-range-track { height: 4px; background: #c6c6c6; }
+    input[type="range"]::-moz-range-thumb {
+      width: 10px; height: 24px; background: #0078d7;
+      border: none; border-radius: 0;
+    }
+
+    .check {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 14px; cursor: pointer; margin-bottom: 26px; position: relative;
+    }
+    .check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .box {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border: 2px solid #1f1f1f; background: #ffffff; position: relative;
+    }
+    .check input:checked ~ .box::after {
+      content: ""; position: absolute; left: 4px; top: 0;
+      width: 6px; height: 11px;
+      border: solid #1f1f1f; border-width: 0 3px 3px 0;
+      transform: rotate(45deg);
+    }
+    .check input:focus-visible ~ .box { outline: 2px solid #0078d7; outline-offset: 2px; }
+
+    select, input[type="text"] {
+      width: 100%; font-family: inherit; font-size: 14px;
+      padding: 8px 10px; border: 2px solid #b3b3b3;
+      background: #ffffff; color: #1f1f1f; border-radius: 0;
+      transition: border-color 0.1s;
+    }
+    select { cursor: pointer; }
+    select:hover, input[type="text"]:hover { border-color: #1f1f1f; }
+    input[type="text"]::placeholder { color: #767676; }
+
+    .status {
+      background: #f2f2f2; padding: 13px 14px;
+      font-size: 13px; min-height: 44px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="chips">
+      <span class="chip chip-cyan"></span>
+      <span class="chip chip-red"></span>
+      <span class="chip chip-green"></span>
+      <span class="chip chip-amber"></span>
+    </div>
+    <h1>settings</h1>
+    <p class="sub">Metro design language &mdash; content before chrome, fast and fluid.</p>
+
+    <div class="section">actions</div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+      <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <label for="volume">Volume</label>
+        <span class="value" id="volume-value">60%</span>
+      </div>
+      <input type="range" id="volume" min="0" max="100" value="60" />
+    </div>
+
+    <label class="check">
+      <input type="checkbox" id="notify" checked />
+      <span class="box"></span>
+      <span>Show app notifications</span>
+    </label>
+
+    <div class="field">
+      <div class="field-label"><label for="accent">Start screen accent</label></div>
+      <select id="accent">
+        <option>Cobalt</option>
+        <option>Emerald</option>
+        <option>Crimson</option>
+        <option>Amber</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><label for="pcname">PC name</label></div>
+      <input type="text" id="pcname" placeholder="surface-rt" />
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite">Ready.</div>
+  </div>
+
+  <script>
+    (function () {
+      var status = document.getElementById("status");
+      function report(message) { status.textContent = message; }
+
+      document.getElementById("btn-save").addEventListener("click", function () {
+        report("Settings saved.");
+      });
+      document.getElementById("btn-cancel").addEventListener("click", function () {
+        report("Changes discarded.");
+      });
+
+      var volume = document.getElementById("volume");
+      var volumeValue = document.getElementById("volume-value");
+      volume.addEventListener("input", function () {
+        volumeValue.textContent = volume.value + "%";
+        report("Volume " + volume.value + "%");
+      });
+
+      document.getElementById("notify").addEventListener("change", function (event) {
+        report("App notifications " + (event.target.checked ? "on" : "off"));
+      });
+
+      document.getElementById("accent").addEventListener("change", function (event) {
+        report("Accent set to " + event.target.value);
+      });
+
+      document.getElementById("pcname").addEventListener("input", function (event) {
+        report("PC name: " + (event.target.value || "(empty)"));
+      });
+    })();
+  </script>
+</body>
+</html>
