@@ -21,14 +21,17 @@ VIEWPORT_HEIGHT = 780
 
 
 def render(html: Path) -> None:
+    """Render single HTML to preview.png (with special handling for internal overlays)."""
     out = html.parent / "preview.png"
     rel = html.relative_to(ROOT)
     print(f"→ {rel}")
 
     cmd = [
         "wkhtmltoimage",
-        "--quality", "85",
-        "--width", str(WIDTH),
+        "--quality",
+        "85",
+        "--width",
+        str(WIDTH),
         "--enable-local-file-access",
         "--quiet",
     ]
@@ -46,6 +49,7 @@ def render(html: Path) -> None:
 
 
 def main() -> int:
+    """Discover and render previews for all HTML templates."""
     templates = [
         f / "index.html"
         for section in ("styles", "internal", "external")
