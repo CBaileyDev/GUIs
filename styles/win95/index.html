@@ -11,15 +11,17 @@
       --silver: #c0c0c0; --silver-light: #dfdfdf; --silver-dark: #808080; --silver-darker: #404040;
       --white: #ffffff; --blue: #000080; --black: #000;
     }
+    html { color-scheme: light; }
     body {
       font-family: "Pixelated MS Sans Serif", "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
       font-size: 12px;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px 80px;
       display: flex; align-items: flex-start; justify-content: center;
       background: var(--teal);
       color: var(--black);
       -webkit-font-smoothing: none;
+      accent-color: #0a246a;
     }
 
     /* Window frame */
@@ -95,7 +97,7 @@
     h1 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
     .sub { font-size: 11px; color: var(--silver-darker); margin-bottom: 12px; }
 
-    .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
     .btn {
       min-width: 75px; padding: 4px 12px;
       font-family: inherit; font-size: 12px;
@@ -136,7 +138,8 @@
       display: flex; align-items: center; gap: 8px;
       cursor: pointer; margin-bottom: 10px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 1px dotted var(--black); outline-offset: 2px; }
     .chk {
       width: 13px; height: 13px; background: var(--white);
       border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
@@ -188,42 +191,19 @@
       border-top: 1px solid var(--silver-darker); border-left: 1px solid var(--silver-darker);
       border-right: 1px solid var(--white); border-bottom: 1px solid var(--white);
     }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #0a246a;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #0a246a;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #0a246a;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #0a246a 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible { outline: 1px dotted var(--black); outline-offset: 2px; }
+    ::selection { background: color-mix(in srgb, #0a246a 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="window">
@@ -245,16 +225,16 @@ html { scroll-behavior: smooth; }
 
       <div class="fieldset" data-legend="General">
         <div class="form-group">
-          <label>Volume:</label>
-          <input type="range" min="0" max="100" value="60" oninput="log('Volume: '+this.value)">
+          <label for="volume">Volume:</label>
+          <input type="range" id="volume" min="0" max="100" value="60">
         </div>
         <label class="checkbox-row">
-          <input type="checkbox" onchange="log('Sound effects: '+this.checked)">
+          <input type="checkbox" id="sound">
           <span class="chk"></span>
           <span>Enable <u>s</u>ound effects</span>
         </label>
         <label class="checkbox-row">
-          <input type="checkbox" checked onchange="log('Show tips: '+this.checked)">
+          <input type="checkbox" id="tips" checked>
           <span class="chk"></span>
           <span>Show tips on startup</span>
         </label>
@@ -262,8 +242,8 @@ html { scroll-behavior: smooth; }
 
       <div class="fieldset" data-legend="Appearance">
         <div class="form-group">
-          <label>Theme:</label>
-          <select onchange="log('Theme: '+this.value)">
+          <label for="theme">Theme:</label>
+          <select id="theme">
             <option>Windows Standard</option>
             <option>High Contrast</option>
             <option>Rainy Day</option>
@@ -271,18 +251,18 @@ html { scroll-behavior: smooth; }
           </select>
         </div>
         <div class="form-group">
-          <label>User name:</label>
-          <input type="text" value="USER" oninput="log('Name: '+this.value)">
+          <label for="username">User name:</label>
+          <input type="text" id="username" value="USER">
         </div>
       </div>
 
-      <div class="btn-row" style="justify-content: flex-end;">
-        <button class="btn btn-primary" onclick="log('OK pressed')">OK</button>
-        <button class="btn" onclick="log('Cancel')">Cancel</button>
-        <button class="btn" onclick="log('Applied')">Apply</button>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="ok">OK</button>
+        <button class="btn" id="cancel">Cancel</button>
+        <button class="btn" id="apply">Apply</button>
       </div>
 
-      <div class="status" id="status">Ready.</div>
+      <div class="status" id="status" role="status" aria-live="polite">Ready.</div>
     </div>
   </div>
 
@@ -291,6 +271,30 @@ html { scroll-behavior: smooth; }
     <div class="clock">10:42 AM</div>
   </div>
 
-  <script>function log(m){document.getElementById('status').textContent=m;}</script>
+  <script>
+    (function () {
+      const status = document.getElementById('status');
+      const log = (m) => { status.textContent = m; };
+
+      const volume = document.getElementById('volume');
+      volume.addEventListener('input', () => log('Volume: ' + volume.value));
+
+      const sound = document.getElementById('sound');
+      sound.addEventListener('change', () => log('Sound effects: ' + sound.checked));
+
+      const tips = document.getElementById('tips');
+      tips.addEventListener('change', () => log('Show tips: ' + tips.checked));
+
+      const theme = document.getElementById('theme');
+      theme.addEventListener('change', () => log('Theme: ' + theme.value));
+
+      const username = document.getElementById('username');
+      username.addEventListener('input', () => log('Name: ' + username.value));
+
+      document.getElementById('ok').addEventListener('click', () => log('OK pressed'));
+      document.getElementById('cancel').addEventListener('click', () => log('Cancel'));
+      document.getElementById('apply').addEventListener('click', () => log('Applied'));
+    })();
+  </script>
 </body>
 </html>

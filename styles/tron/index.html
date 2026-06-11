@@ -8,13 +8,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --cyan: #4fd1ff; --cyan-dim: #1a6b8a; --orange: #ff8b1f; --bg: #000814; --panel: #001524; }
+    html { color-scheme: dark; }
     body {
       font-family: 'Share Tech Mono', monospace;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        linear-gradient(180deg, #000814 0%, #000a1a 80%, #002137 100%);
+        radial-gradient(900px 500px at 50% 0%, rgba(79,209,255,0.18), transparent 60%),
+        #000814;
       color: var(--cyan); overflow-x: hidden;
+      accent-color: var(--cyan);
     }
     /* Perspective grid */
     body::before {
@@ -112,7 +115,8 @@
       background: rgba(79,209,255,0.05); margin-bottom: 16px;
     }
     .checkbox-row:hover { border-color: var(--cyan); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--cyan); outline-offset: 2px; }
     .chk {
       width: 16px; height: 16px; border: 1.5px solid var(--cyan);
       background: transparent; position: relative; flex-shrink: 0;
@@ -148,44 +152,23 @@
       color: rgba(79,209,255,0.7); min-height: 38px;
     }
     .output strong { color: var(--orange); text-shadow: 0 0 6px var(--orange); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #4fd1ff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #4fd1ff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #4fd1ff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #4fd1ff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--cyan) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 50% 0%, rgba(79,209,255,0.18), transparent 60%),
-                #000814 !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -200,35 +183,65 @@ body { background:
 
     <div class="section-title">command</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('DEREZZED')">Derezz</button>
-      <button class="btn" onclick="log('RECOMPILE')">Compile</button>
+      <button class="btn btn-primary" id="derezz">Derezz</button>
+      <button class="btn" id="compile">Compile</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>cycle speed</span><span class="value" id="v">0.75c</span></div>
-      <input type="range" min="0" max="100" value="75" oninput="document.getElementById('v').textContent=(this.value/100).toFixed(2)+'c';log('SPEED '+this.value)">
+      <label class="form-label" for="speed"><span>cycle speed</span><span class="value" id="v">0.75c</span></label>
+      <input type="range" id="speed" min="0" max="100" value="75">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" checked onchange="log('IDENTITY_DISC '+this.checked)">
+      <input type="checkbox" id="disc" checked>
       <span class="chk"></span>
       <span class="chk-label">IDENTITY DISC</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">routine</div>
-      <select onchange="log('ROUTINE '+this.value)">
+      <label class="form-label" for="routine">routine</label>
+      <select id="routine">
         <option>LIGHTCYCLE</option><option>RECOGNIZER</option>
         <option>DISC WAR</option><option>I/O TOWER</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="program.id..." oninput="log('PROGRAM '+this.value)">
+      <input type="text" id="program" placeholder="program.id..." aria-label="Program ID">
     </div>
 
-    <div class="output" id="out">&gt; SYSTEM: <strong>ONLINE</strong> // awaiting directive</div>
+    <div class="output" id="out" role="status" aria-live="polite">&gt; <span id="out-prefix">SYSTEM: </span><strong id="out-msg">ONLINE</strong><span id="out-detail"> // awaiting directive</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='&gt; <strong>'+m+'</strong>';}</script>
+  <script>
+    (function () {
+      const prefix = document.getElementById('out-prefix');
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const log = (m) => {
+        prefix.textContent = '';
+        msg.textContent = m;
+        detail.textContent = '';
+      };
+
+      document.getElementById('derezz').addEventListener('click', () => log('DEREZZED'));
+      document.getElementById('compile').addEventListener('click', () => log('RECOMPILE'));
+
+      const speed = document.getElementById('speed');
+      const speedValue = document.getElementById('v');
+      speed.addEventListener('input', () => {
+        speedValue.textContent = (speed.value / 100).toFixed(2) + 'c';
+        log('SPEED ' + speed.value);
+      });
+
+      const disc = document.getElementById('disc');
+      disc.addEventListener('change', () => log('IDENTITY_DISC ' + disc.checked));
+
+      const routine = document.getElementById('routine');
+      routine.addEventListener('change', () => log('ROUTINE ' + routine.value));
+
+      const program = document.getElementById('program');
+      program.addEventListener('input', () => log('PROGRAM ' + program.value));
+    })();
+  </script>
 </body>
 </html>

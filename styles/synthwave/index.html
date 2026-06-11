@@ -8,15 +8,18 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --pink: #ff2bd0; --cyan: #00eaff; --purple: #8a2be2; --bg: #0a0320; }
+    html { color-scheme: dark; }
     body {
       font-family: 'Rajdhani', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        linear-gradient(180deg, #0a0320 0%, #1a0640 55%, #ff2bd0 100%),
+        radial-gradient(900px 500px at 50% 0%, rgba(255,43,208,0.18), transparent 60%),
+        radial-gradient(800px 500px at 100% 100%, rgba(0,234,255,0.12), transparent 60%),
         #0a0320;
       overflow-x: hidden;
+      accent-color: var(--pink);
     }
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none;
@@ -119,7 +122,8 @@
       color: rgba(255,255,255,0.85);
     }
     .checkbox-row:hover { border-color: var(--pink); background: rgba(255,43,208,0.1); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--pink); outline-offset: 2px; }
     .chk {
       width: 18px; height: 18px; border: 2px solid var(--pink); border-radius: 2px;
       position: relative; flex-shrink: 0;
@@ -153,45 +157,23 @@
       color: rgba(255,255,255,0.7); min-height: 40px;
     }
     .output strong { color: var(--cyan); text-shadow: 0 0 6px var(--cyan); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #ff2bd0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #ff2bd0;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #ff2bd0;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #ff2bd0 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--pink);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--pink) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 50% 0%, rgba(255,43,208,0.18), transparent 60%),
-                radial-gradient(800px 500px at 100% 100%, rgba(0,234,255,0.12), transparent 60%),
-                #0a0320 !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -200,35 +182,59 @@ body { background:
 
     <div class="section-title">// Controls</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Boost engaged')">Boost</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="boost">Boost</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Drive <span id="v">75%</span></div>
-      <input type="range" min="0" max="100" value="75" oninput="document.getElementById('v').textContent=this.value+'%';log('Drive '+this.value+'%')">
+      <label class="form-label" for="drive">Drive <span id="v">75%</span></label>
+      <input type="range" id="drive" min="0" max="100" value="75">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Chromatic '+this.checked)">
+      <input type="checkbox" id="chromatic">
       <span class="chk"></span>
       <span>Enable chromatic aberration</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Palette</div>
-      <select onchange="log('Palette '+this.value)">
+      <label class="form-label" for="palette">Palette</label>
+      <select id="palette">
         <option>Miami Nights</option><option>Outrun</option>
         <option>Tokyo Drift</option><option>Hotline</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Enter callsign..." oninput="log('Callsign '+this.value)">
+      <input type="text" id="callsign" placeholder="Enter callsign..." aria-label="Callsign">
     </div>
 
-    <div class="output" id="out"><strong>STATUS</strong> — Engines idle</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>STATUS</strong> — <span id="out-detail">Engines idle</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>STATUS</strong> — '+m;}</script>
+  <script>
+    (function () {
+      const detail = document.getElementById('out-detail');
+      const log = (m) => { detail.textContent = m; };
+
+      document.getElementById('boost').addEventListener('click', () => log('Boost engaged'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+
+      const drive = document.getElementById('drive');
+      const driveValue = document.getElementById('v');
+      drive.addEventListener('input', () => {
+        driveValue.textContent = drive.value + '%';
+        log('Drive ' + drive.value + '%');
+      });
+
+      const chromatic = document.getElementById('chromatic');
+      chromatic.addEventListener('change', () => log('Chromatic ' + chromatic.checked));
+
+      const palette = document.getElementById('palette');
+      palette.addEventListener('change', () => log('Palette ' + palette.value));
+
+      const callsign = document.getElementById('callsign');
+      callsign.addEventListener('input', () => log('Callsign ' + callsign.value));
+    })();
+  </script>
 </body>
 </html>

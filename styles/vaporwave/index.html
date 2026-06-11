@@ -8,14 +8,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --pink: #ff77c8; --cyan: #7effff; --purple: #c77dff; --peach: #ffcad4; --ink: #3a005a; }
+    html { color-scheme: light; }
     body {
       font-family: 'Barlow', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
         radial-gradient(ellipse at top, #ffccf9 0%, #d5b0ff 40%, #7effff 90%);
       color: var(--ink);
+      accent-color: var(--pink);
     }
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none;
@@ -112,7 +114,8 @@
       border: 2px solid var(--ink); margin-bottom: 18px;
       box-shadow: 3px 3px 0 var(--cyan);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--pink); outline-offset: 2px; }
     .chk {
       width: 18px; height: 18px; border: 2px solid var(--ink);
       background: #fff; position: relative; flex-shrink: 0;
@@ -144,42 +147,23 @@
       box-shadow: 3px 3px 0 var(--purple);
     }
     .output strong { color: var(--pink); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #ff77c8;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #ff77c8;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #ff77c8;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #ff77c8 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--pink);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--pink) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -189,35 +173,59 @@ html { scroll-behavior: smooth; }
 
     <div class="section-title">// actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('apply')">apply</button>
-      <button class="btn btn-secondary" onclick="log('reset')">reset</button>
+      <button class="btn btn-primary" id="apply">apply</button>
+      <button class="btn btn-secondary" id="reset">reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">saturation <span class="value" id="v">88</span></div>
-      <input type="range" min="0" max="100" value="88" oninput="document.getElementById('v').textContent=this.value;log('sat '+this.value)">
+      <label class="form-label" for="saturation">saturation <span class="value" id="v">88</span></label>
+      <input type="range" id="saturation" min="0" max="100" value="88">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('vhs '+this.checked)">
+      <input type="checkbox" id="vhs">
       <span class="chk"></span>
       <span class="chk-label">Enable VHS scanlines</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Scene</div>
-      <select onchange="log('scene '+this.value)">
+      <label class="form-label" for="scene">Scene</label>
+      <select id="scene">
         <option>Bust of Helios</option><option>Palm Beach</option>
         <option>Mall of Dreams</option><option>Tokyo 1989</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="ｔｙｐｅ ｈｅｒｅ..." oninput="log('input '+this.value)">
+      <input type="text" id="text-input" placeholder="ｔｙｐｅ ｈｅｒｅ..." aria-label="Type here">
     </div>
 
-    <div class="output" id="out"><strong>status</strong> — dreaming...</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>status</strong> — <span id="out-detail">dreaming...</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>status</strong> — '+m;}</script>
+  <script>
+    (function () {
+      const detail = document.getElementById('out-detail');
+      const log = (m) => { detail.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('apply'));
+      document.getElementById('reset').addEventListener('click', () => log('reset'));
+
+      const saturation = document.getElementById('saturation');
+      const saturationValue = document.getElementById('v');
+      saturation.addEventListener('input', () => {
+        saturationValue.textContent = saturation.value;
+        log('sat ' + saturation.value);
+      });
+
+      const vhs = document.getElementById('vhs');
+      vhs.addEventListener('change', () => log('vhs ' + vhs.checked));
+
+      const scene = document.getElementById('scene');
+      scene.addEventListener('change', () => log('scene ' + scene.value));
+
+      const textInput = document.getElementById('text-input');
+      textInput.addEventListener('input', () => log('input ' + textInput.value));
+    })();
+  </script>
 </body>
 </html>
