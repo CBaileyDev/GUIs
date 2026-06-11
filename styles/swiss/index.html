@@ -7,12 +7,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     :root { --ink: #111; --paper: #f5f1ea; --red: #d7261e; }
     body {
       font-family: 'Inter', Helvetica, Arial, sans-serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background: var(--paper); color: var(--ink);
+      accent-color: var(--red);
     }
 
     .card {
@@ -118,7 +120,8 @@
       cursor: pointer; margin-top: 14px;
       padding: 10px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--red); outline-offset: 2px; }
     .chk {
       width: 14px; height: 14px;
       border: 1.5px solid var(--ink); background: var(--paper);
@@ -158,42 +161,23 @@
     .output .lbl { grid-column: 1; font-weight: 700; letter-spacing: 2px; }
     .output .val { grid-column: 2; }
     .output strong { color: var(--red); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #d7261e;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #d7261e;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #d7261e;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #d7261e 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--red);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--red) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -213,8 +197,8 @@ html { scroll-behavior: smooth; }
       <div class="section-body">
         <div class="section-title">Actions</div>
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="log('Apply')">Apply <span class="arrow">→</span></button>
-          <button class="btn btn-secondary" onclick="log('Reset')">Reset <span class="arrow">↺</span></button>
+          <button class="btn btn-primary" id="apply">Apply <span class="arrow">→</span></button>
+          <button class="btn btn-secondary" id="reset">Reset <span class="arrow">↺</span></button>
         </div>
       </div>
     </div>
@@ -224,36 +208,56 @@ html { scroll-behavior: smooth; }
       <div class="section-body">
         <div class="section-title">Parameters</div>
         <div class="form-group">
-          <div class="form-label"><span>Grid density</span><span class="value" id="v">08</span></div>
-          <input type="range" min="1" max="16" value="8" oninput="document.getElementById('v').textContent=this.value.padStart(2,'0');log('Density '+this.value)">
+          <label class="form-label" for="density"><span>Grid density</span><span class="value" id="v">08</span></label>
+          <input type="range" id="density" min="1" max="16" value="8">
         </div>
 
         <label class="checkbox-row">
-          <input type="checkbox" checked onchange="log('Baseline '+this.checked)">
+          <input type="checkbox" id="baseline" checked>
           <span class="chk"></span>
           <span class="chk-label">Baseline grid visible</span>
         </label>
 
         <div class="form-group">
-          <div class="form-label"><span>Typeface</span></div>
-          <select onchange="log('Typeface '+this.value)">
+          <label class="form-label" for="typeface"><span>Typeface</span></label>
+          <select id="typeface">
             <option>Helvetica</option><option>Akzidenz-Grotesk</option>
             <option>Univers</option><option>Suisse Int'l</option>
           </select>
         </div>
 
         <div class="form-group">
-          <div class="form-label"><span>Title</span></div>
-          <input type="text" placeholder="e.g. Die Neue Grafik" oninput="log('Title '+this.value)">
+          <label class="form-label" for="title"><span>Title</span></label>
+          <input type="text" id="title" placeholder="e.g. Die Neue Grafik">
         </div>
       </div>
     </div>
 
     <div class="output">
       <div class="lbl">LOG</div>
-      <div class="val" id="out"><strong>Ready.</strong> Awaiting input.</div>
+      <div class="val" id="out" role="status" aria-live="polite"><strong id="out-msg">Ready.</strong><span id="out-detail"> Awaiting input.</span></div>
     </div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>'+m+'.</strong>';}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const value = document.getElementById('v');
+      const log = (m) => {
+        msg.textContent = m + '.';
+        detail.textContent = '';
+      };
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+      document.getElementById('density').addEventListener('input', (e) => {
+        value.textContent = e.target.value.padStart(2, '0');
+        log('Density ' + e.target.value);
+      });
+      document.getElementById('baseline').addEventListener('change', (e) => log('Baseline ' + e.target.checked));
+      document.getElementById('typeface').addEventListener('change', (e) => log('Typeface ' + e.target.value));
+      document.getElementById('title').addEventListener('input', (e) => log('Title ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>

@@ -7,21 +7,29 @@
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
     :root { --green: #33ff66; --dim: #1a8033; --bg: #020a04; }
     body {
       font-family: 'IBM Plex Mono', monospace;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex;
       align-items: flex-start;
       justify-content: center;
       background: radial-gradient(ellipse at center, #052a0f 0%, #020a04 80%);
       color: var(--green);
+      accent-color: var(--green);
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 1;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px);
     }
     body::after {
       content: '';
-      position: fixed; inset: 0; pointer-events: none;
+      position: fixed; inset: 0; pointer-events: none; z-index: 1;
       background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+      box-shadow: inset 0 0 180px rgba(0,0,0,0.85);
       animation: flicker 3s infinite;
     }
     @keyframes flicker { 0%,95%{opacity:1} 96%{opacity:0.85} 97%{opacity:1} 98%{opacity:0.9} }
@@ -83,7 +91,8 @@
       padding: 8px 10px; border: 1px solid var(--dim); margin-bottom: 14px;
     }
     .checkbox-row:hover { border-color: var(--green); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--green); outline-offset: 2px; }
     .chk {
       font-family: 'VT323', monospace; font-size: 18px;
       width: 20px; text-align: center; color: var(--green);
@@ -109,45 +118,23 @@
     }
     .cursor { display: inline-block; width: 8px; height: 14px; background: var(--green); animation: blink 1s infinite; vertical-align: middle; }
     @keyframes blink { 50% { opacity: 0; } }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #33ff66;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #33ff66;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #33ff66;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #33ff66 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--green) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body::before { content:''; position: fixed; inset:0; pointer-events:none; z-index: 1;
-                background: repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px); }
-            body::after { content:''; position: fixed; inset:0; pointer-events:none; z-index:1;
-                box-shadow: inset 0 0 180px rgba(0,0,0,0.85); }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -156,37 +143,55 @@ body::before { content:''; position: fixed; inset:0; pointer-events:none; z-inde
 
     <div class="section-title"><span class="prompt">&gt;</span> COMMANDS</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('EXECUTE APPLY')">EXEC</button>
-      <button class="btn" onclick="log('RESET STATE')">RESET</button>
+      <button class="btn btn-primary" id="exec">EXEC</button>
+      <button class="btn" id="reset">RESET</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span><span class="prompt">&gt;</span> CPU_SPEED</span><span id="v">42%</span></div>
-      <input type="range" min="0" max="100" value="42" oninput="document.getElementById('v').textContent=this.value+'%';log('CPU_SPEED '+this.value+'%')">
+      <label class="form-label" for="cpu"><span><span class="prompt">&gt;</span> CPU_SPEED</span><span id="v">42%</span></label>
+      <input type="range" id="cpu" min="0" max="100" value="42">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('VERBOSE '+this.checked)">
+      <input type="checkbox" id="verbose">
       <span class="chk"></span>
       <span>ENABLE VERBOSE LOGGING</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span class="prompt">&gt;</span> PROFILE</div>
-      <select onchange="log('PROFILE '+this.value)">
+      <label class="form-label" for="profile"><span class="prompt">&gt;</span> PROFILE</label>
+      <select id="profile">
         <option>DEFAULT</option><option>SAFE MODE</option>
         <option>OVERCLOCK</option><option>DIAGNOSTIC</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="&gt; enter command..." oninput="log('CMD '+this.value)">
+      <input type="text" id="cmd" placeholder="&gt; enter command..." aria-label="Command">
     </div>
 
-    <div class="output" id="out">&gt; SYSTEM READY<br>&gt; awaiting input<span class="cursor"></span></div>
+    <div class="output" id="out" role="status" aria-live="polite"><span id="out-intro">&gt; SYSTEM READY<br></span>&gt; <span id="out-msg">awaiting input</span><span class="cursor"></span></div>
   </div>
   <script>
-    function log(m){document.getElementById('out').innerHTML='&gt; '+m+'<span class="cursor"></span>';}
+    (function () {
+      const intro = document.getElementById('out-intro');
+      const msg = document.getElementById('out-msg');
+      const value = document.getElementById('v');
+      const log = (m) => {
+        intro.textContent = '';
+        msg.textContent = m;
+      };
+
+      document.getElementById('exec').addEventListener('click', () => log('EXECUTE APPLY'));
+      document.getElementById('reset').addEventListener('click', () => log('RESET STATE'));
+      document.getElementById('cpu').addEventListener('input', (e) => {
+        value.textContent = e.target.value + '%';
+        log('CPU_SPEED ' + e.target.value + '%');
+      });
+      document.getElementById('verbose').addEventListener('change', (e) => log('VERBOSE ' + e.target.checked));
+      document.getElementById('profile').addEventListener('change', (e) => log('PROFILE ' + e.target.value));
+      document.getElementById('cmd').addEventListener('input', (e) => log('CMD ' + e.target.value));
+    })();
   </script>
 </body>
 </html>
