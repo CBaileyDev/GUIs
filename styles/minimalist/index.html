@@ -7,24 +7,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     :root { --ink: #111; --muted: #8a8a8a; --line: #e6e6e6; --accent: #111; --bg: #fafafa; }
     body {
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 60px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background: var(--bg); color: var(--ink);
       font-feature-settings: "ss01", "cv11";
+      accent-color: var(--accent);
     }
     .card {
       width: 420px; padding: 40px 36px;
       background: #fff; border: 1px solid var(--line);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 40px 80px -60px rgba(0,0,0,0.12);
     }
     .eyebrow {
       font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
       color: var(--muted); margin-bottom: 14px;
     }
-    h1 { font-size: 28px; font-weight: 500; letter-spacing: -0.5px; line-height: 1.15; }
+    h1 { font-size: 28px; font-weight: 500; letter-spacing: -0.9px; line-height: 1.15; }
     .sub { font-size: 14px; color: var(--muted); margin-top: 6px; margin-bottom: 32px; font-weight: 400; }
 
     hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
@@ -66,8 +69,9 @@
       display: flex; align-items: center; gap: 12px; cursor: pointer;
       padding: 12px 0; border-bottom: 1px solid var(--line); margin-bottom: 4px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk { width: 16px; height: 16px; border: 1px solid var(--ink); position: relative; flex-shrink: 0; }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid var(--accent); outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--ink); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: ''; position: absolute; left: 4px; top: 1px;
@@ -93,44 +97,22 @@
       font-size: 12px; color: var(--muted); min-height: 36px;
     }
     .output strong { color: var(--ink); font-weight: 500; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #111;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #111;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #111;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #111 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background: #fafafa !important; }
-            .card { box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 40px 80px -60px rgba(0,0,0,0.12) !important; }
-            h1 { letter-spacing: -0.9px !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -140,35 +122,54 @@ body { background: #fafafa !important; }
 
     <div class="section-title">Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Opacity <span class="value" id="v">80</span></div>
-      <input type="range" min="0" max="100" value="80" oninput="document.getElementById('v').textContent=this.value;log('Opacity '+this.value)">
+      <label class="form-label" for="opacity">Opacity <span class="value" id="v">80</span></label>
+      <input type="range" id="opacity" min="0" max="100" value="80">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Auto save '+this.checked)">
+      <input type="checkbox" id="auto-save">
       <span class="chk"></span>
       <span class="chk-label">Enable auto save</span>
     </label>
 
     <div class="form-group" style="margin-top:18px">
-      <div class="form-label">Theme</div>
-      <select onchange="log('Theme '+this.value)">
+      <label class="form-label" for="theme">Theme</label>
+      <select id="theme">
         <option>Paper</option><option>Graphite</option>
         <option>Ivory</option><option>Slate</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Label" oninput="log('Label '+this.value)">
+      <input type="text" id="label" placeholder="Label" aria-label="Label">
     </div>
 
-    <div class="output" id="out"><strong>Ready.</strong></div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong id="out-msg">Ready.</strong></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong>';}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const setStatus = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => setStatus('Apply'));
+      document.getElementById('reset').addEventListener('click', () => setStatus('Reset'));
+
+      const opacity = document.getElementById('opacity');
+      const value = document.getElementById('v');
+      opacity.addEventListener('input', () => {
+        value.textContent = opacity.value;
+        setStatus('Opacity ' + opacity.value);
+      });
+
+      document.getElementById('auto-save').addEventListener('change', (e) => setStatus('Auto save ' + e.target.checked));
+      document.getElementById('theme').addEventListener('change', (e) => setStatus('Theme ' + e.target.value));
+      document.getElementById('label').addEventListener('input', (e) => setStatus('Label ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>

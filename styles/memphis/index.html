@@ -7,13 +7,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     :root {
       --ink: #111; --paper: #fdfdfb;
       --pink: #ff3e8f; --teal: #1de9b6; --yellow: #ffd92e; --blue: #2d6cff; --red: #ff4040;
     }
     body {
       font-family: 'Space Grotesk', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
@@ -24,6 +25,7 @@
         repeating-linear-gradient(45deg, transparent 0 30px, rgba(0,0,0,0.03) 30px 31px),
         var(--paper);
       color: var(--ink); overflow-x: hidden;
+      accent-color: #ff2fa0;
     }
     body::before {
       content: ''; position: fixed; top: 40px; right: 40px;
@@ -111,11 +113,12 @@
       background: var(--yellow); margin-bottom: 20px;
       box-shadow: 5px 5px 0 var(--ink);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 22px; height: 22px; border: 3px solid var(--ink);
       background: var(--paper); position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #ff2fa0; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--teal); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: '✕'; position: absolute; inset: -4px 0 0 0;
@@ -142,42 +145,22 @@
       font-family: 'Bungee', sans-serif; font-size: 12px; letter-spacing: 2px;
     }
     .output strong { color: var(--yellow); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #ff2fa0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #ff2fa0;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #ff2fa0;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #ff2fa0 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #ff2fa0;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #ff2fa0 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -187,35 +170,54 @@ html { scroll-behavior: smooth; }
 
     <div class="section-title">// actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('APPLY')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('RESET')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Confetti</span><span class="value" id="v">40</span></div>
-      <input type="range" min="0" max="100" value="40" oninput="document.getElementById('v').textContent=this.value;log('CONFETTI '+this.value)">
+      <label class="form-label" for="confetti"><span>Confetti</span><span class="value" id="v">40</span></label>
+      <input type="range" id="confetti" min="0" max="100" value="40">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('SQUIGGLES '+this.checked)">
+      <input type="checkbox" id="squiggles">
       <span class="chk"></span>
       <span class="chk-label">Enable squiggles</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span>Vibe</span></div>
-      <select onchange="log('VIBE '+this.value)">
+      <label class="form-label" for="vibe"><span>Vibe</span></label>
+      <select id="vibe">
         <option>Totally Rad</option><option>Pastel Pop</option>
         <option>Gridlocked</option><option>Zigzag</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="yell something here..." oninput="log('INPUT '+this.value)">
+      <input type="text" id="shout" placeholder="yell something here..." aria-label="Yell something here">
     </div>
 
-    <div class="output" id="out"><strong>STATUS</strong> — READY TO PARTY</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>STATUS</strong><span id="out-detail"> — READY TO PARTY</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>STATUS</strong> — '+m;}</script>
+  <script>
+    (function () {
+      const detail = document.getElementById('out-detail');
+      const setStatus = (m) => { detail.textContent = ' — ' + m; };
+
+      document.getElementById('apply').addEventListener('click', () => setStatus('APPLY'));
+      document.getElementById('reset').addEventListener('click', () => setStatus('RESET'));
+
+      const confetti = document.getElementById('confetti');
+      const value = document.getElementById('v');
+      confetti.addEventListener('input', () => {
+        value.textContent = confetti.value;
+        setStatus('CONFETTI ' + confetti.value);
+      });
+
+      document.getElementById('squiggles').addEventListener('change', (e) => setStatus('SQUIGGLES ' + e.target.checked));
+      document.getElementById('vibe').addEventListener('change', (e) => setStatus('VIBE ' + e.target.value));
+      document.getElementById('shout').addEventListener('input', (e) => setStatus('INPUT ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>

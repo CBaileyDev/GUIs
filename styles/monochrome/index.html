@@ -7,13 +7,15 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     :root { --ink: #000; --paper: #fff; --g1: #f4f4f4; --g2: #e0e0e0; --g3: #a8a8a8; --g4: #525252; }
     body {
       font-family: 'IBM Plex Sans', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background: var(--paper); color: var(--ink);
+      accent-color: var(--ink);
     }
     .card {
       width: 420px; padding: 32px;
@@ -71,8 +73,9 @@
     }
     .checkbox-row:hover { background: var(--ink); color: var(--paper); }
     .checkbox-row:hover .chk { border-color: var(--paper); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk { width: 16px; height: 16px; border: 1.5px solid currentColor; flex-shrink: 0; position: relative; }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid var(--ink); outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: currentColor; }
     input[type="checkbox"]:checked ~ .chk::after {
       content: ''; position: absolute; inset: 2px;
@@ -107,42 +110,22 @@
       font-size: 12px; min-height: 40px;
     }
     .output strong { background: var(--paper); color: var(--ink); padding: 1px 6px; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #000;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #000;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #000;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #000 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--ink) 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -152,35 +135,58 @@ html { scroll-behavior: smooth; }
 
     <div class="section-title">actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Contrast</span><span class="value" id="v">100</span></div>
-      <input type="range" min="0" max="100" value="100" oninput="document.getElementById('v').textContent=this.value;log('contrast '+this.value)">
+      <label class="form-label" for="contrast"><span>Contrast</span><span class="value" id="v">100</span></label>
+      <input type="range" id="contrast" min="0" max="100" value="100">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('dither '+this.checked)">
+      <input type="checkbox" id="dither">
       <span class="chk"></span>
       <span class="chk-label">Enable dithering</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span>Variant</span></div>
-      <select onchange="log('variant '+this.value)">
+      <label class="form-label" for="variant"><span>Variant</span></label>
+      <select id="variant">
         <option>Pure BW</option><option>Halftone</option>
         <option>Riso Black</option><option>Charcoal</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Label..." oninput="log('label '+this.value)">
+      <input type="text" id="label" placeholder="Label..." aria-label="Label">
     </div>
 
-    <div class="output" id="out"><strong>READY</strong> awaiting input</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong id="out-msg">READY</strong><span id="out-detail"> awaiting input</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>OK</strong> '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const setStatus = (m) => {
+        msg.textContent = 'OK';
+        detail.textContent = ' ' + m;
+      };
+
+      document.getElementById('apply').addEventListener('click', () => setStatus('apply'));
+      document.getElementById('reset').addEventListener('click', () => setStatus('reset'));
+
+      const contrast = document.getElementById('contrast');
+      const value = document.getElementById('v');
+      contrast.addEventListener('input', () => {
+        value.textContent = contrast.value;
+        setStatus('contrast ' + contrast.value);
+      });
+
+      document.getElementById('dither').addEventListener('change', (e) => setStatus('dither ' + e.target.checked));
+      document.getElementById('variant').addEventListener('change', (e) => setStatus('variant ' + e.target.value));
+      document.getElementById('label').addEventListener('input', (e) => setStatus('label ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>
