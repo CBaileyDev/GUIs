@@ -19,13 +19,18 @@
       --inner-light: rgba(255,255,255,0.9);
       --inner-dark: rgba(140,145,195,0.35);
     }
+    html { color-scheme: light; }
     body {
       font-family: 'Baloo 2', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
-      background: linear-gradient(135deg, #dfe5f7 0%, #f3deff 50%, #ffe5ef 100%);
+      background:
+        radial-gradient(900px 600px at 20% 10%, #e5e2ff 0%, transparent 60%),
+        radial-gradient(700px 500px at 90% 90%, #ffd6ee 0%, transparent 55%),
+        linear-gradient(135deg, #f1ecff 0%, #fde8f3 100%);
       color: var(--text);
+      accent-color: #8a5cf5;
     }
     .card {
       width: 420px; padding: 32px;
@@ -95,7 +100,7 @@
       box-shadow: inset 2px 2px 6px var(--inner-light), inset -2px -2px 6px var(--inner-dark);
       margin-bottom: 18px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 26px; height: 26px; border-radius: 10px; background: var(--clay);
       box-shadow:
@@ -104,6 +109,7 @@
       position: relative; flex-shrink: 0;
       transition: background 0.2s, box-shadow 0.2s;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #8a5cf5; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       box-shadow: 2px 2px 6px rgba(138,92,245,0.45), inset 1px 1px 2px rgba(255,255,255,0.3);
@@ -134,45 +140,22 @@
       font-size: 13px; color: var(--text-soft); font-weight: 600;
     }
     .output strong { color: var(--accent); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #8a5cf5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #8a5cf5;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #8a5cf5;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #8a5cf5 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #8a5cf5;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #8a5cf5 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 600px at 20% 10%, #e5e2ff 0%, transparent 60%),
-                radial-gradient(700px 500px at 90% 90%, #ffd6ee 0%, transparent 55%),
-                linear-gradient(135deg, #f1ecff 0%, #fde8f3 100%) !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -181,35 +164,59 @@ body { background:
 
     <div class="section-title">Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Applied')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Softness <span id="v">68%</span></div>
-      <input type="range" min="0" max="100" value="68" oninput="document.getElementById('v').textContent=this.value+'%';log('Softness '+this.value+'%')">
+      <label class="form-label" for="softness">Softness <span id="v">68%</span></label>
+      <input type="range" id="softness" min="0" max="100" value="68">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Bounce '+this.checked)">
+      <input type="checkbox" id="bounce">
       <span class="chk"></span>
       <span class="chk-label">Enable bounce animation</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Palette</div>
-      <select onchange="log('Palette '+this.value)">
+      <label class="form-label" for="palette">Palette</label>
+      <select id="palette">
         <option>Lavender Bliss</option><option>Coral Dream</option>
         <option>Mint Cloud</option><option>Peach Bubble</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Name your creation..." oninput="log('Name '+this.value)">
+      <input type="text" id="creation-name" placeholder="Name your creation..." aria-label="Name your creation">
     </div>
 
-    <div class="output" id="out"><strong>status</strong> — ready to squish</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>status</strong> — <span id="out-msg">ready to squish</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>status</strong> — '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('Applied'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+
+      const softness = document.getElementById('softness');
+      const value = document.getElementById('v');
+      softness.addEventListener('input', () => {
+        value.textContent = softness.value + '%';
+        log('Softness ' + softness.value + '%');
+      });
+
+      const bounce = document.getElementById('bounce');
+      bounce.addEventListener('change', () => log('Bounce ' + bounce.checked));
+
+      const palette = document.getElementById('palette');
+      palette.addEventListener('change', () => log('Palette ' + palette.value));
+
+      const creationName = document.getElementById('creation-name');
+      creationName.addEventListener('input', () => log('Name ' + creationName.value));
+    })();
+  </script>
 </body>
 </html>

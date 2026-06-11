@@ -12,21 +12,24 @@
       --fg: #f7f8f8; --fg-muted: #8a8f98; --fg-faint: #62666d;
       --accent: #5e6ad2; --accent-hi: #7885ff;
     }
+    html { color-scheme: dark; }
     body {
       font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        radial-gradient(1200px 600px at 50% -200px, rgba(94,106,210,0.25), transparent 60%),
+        radial-gradient(1200px 600px at 50% -200px, rgba(94,106,210,0.35), transparent 60%),
+        radial-gradient(700px 500px at 100% 100%, rgba(120,133,255,0.10), transparent 60%),
         var(--bg);
       color: var(--fg);
       font-feature-settings: "cv11";
+      accent-color: var(--accent-hi);
     }
 
     .card {
       width: 440px; padding: 28px;
       background: linear-gradient(180deg, #131416 0%, #0e0f11 100%);
-      border: 1px solid var(--line); border-radius: 12px;
+      border: 1px solid var(--line); border-radius: 16px;
       box-shadow:
         0 1px 0 rgba(255,255,255,0.04) inset,
         0 24px 48px rgba(0,0,0,0.4),
@@ -99,13 +102,14 @@
       transition: background 0.12s;
     }
     .checkbox-row:hover { background: rgba(255,255,255,0.02); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 16px; height: 16px; border-radius: 4px;
       border: 1.5px solid var(--fg-faint); background: transparent;
       position: relative; flex-shrink: 0;
       transition: background 0.12s, border-color 0.12s;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid var(--accent-hi); outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--accent); border-color: var(--accent); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: ''; position: absolute; left: 4px; top: 0.5px;
@@ -136,46 +140,18 @@
       box-shadow: 0 0 6px var(--accent);
     }
     .output strong { color: var(--fg); font-weight: 500; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #7885ff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #7885ff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #7885ff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #7885ff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 2px; border-radius: 6px; }
+    ::selection { background: color-mix(in srgb, var(--accent-hi) 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(1200px 600px at 50% -200px, rgba(94,106,210,0.35), transparent 60%),
-                radial-gradient(700px 500px at 100% 100%, rgba(120,133,255,0.10), transparent 60%),
-                #08090a !important; }
-            .card { border-radius: 16px !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -188,8 +164,8 @@ body { background:
 
     <div class="section-title">Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Saved changes')">Save changes <span class="kbd">⌘S</span></button>
-      <button class="btn btn-secondary" onclick="log('Discarded')">Discard</button>
+      <button class="btn btn-primary" id="save">Save changes <span class="kbd">⌘S</span></button>
+      <button class="btn btn-secondary" id="discard">Discard</button>
     </div>
 
     <hr>
@@ -197,12 +173,12 @@ body { background:
     <div class="section-title">Display</div>
 
     <div class="form-group">
-      <div class="form-label">Sidebar width <span class="value" id="v">240px</span></div>
-      <input type="range" min="180" max="360" value="240" oninput="document.getElementById('v').textContent=this.value+'px';log('Sidebar '+this.value+'px')">
+      <label class="form-label" for="sidebar-width">Sidebar width <span class="value" id="v">240px</span></label>
+      <input type="range" id="sidebar-width" min="180" max="360" value="240">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" checked onchange="log('Compact mode '+this.checked)">
+      <input type="checkbox" id="compact" checked>
       <span class="chk"></span>
       <div>
         <div class="chk-label">Compact mode</div>
@@ -211,20 +187,43 @@ body { background:
     </label>
 
     <div class="form-group">
-      <div class="form-label">Default view</div>
-      <select onchange="log('View '+this.value)">
+      <label class="form-label" for="view">Default view</label>
+      <select id="view">
         <option>Board</option><option>List</option>
         <option>Timeline</option><option>Spreadsheet</option>
       </select>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Workspace name</div>
-      <input type="text" placeholder="acme-eng" oninput="log('Workspace '+this.value)">
+      <label class="form-label" for="workspace">Workspace name</label>
+      <input type="text" id="workspace" placeholder="acme-eng">
     </div>
 
-    <div class="output" id="out"><strong>Synced</strong> · a moment ago</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong id="out-msg">Synced</strong><span id="out-detail"> · a moment ago</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong> · now';}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const log = (m) => {
+        msg.textContent = m;
+        detail.textContent = ' · now';
+      };
+
+      document.getElementById('save').addEventListener('click', () => log('Saved changes'));
+      document.getElementById('discard').addEventListener('click', () => log('Discarded'));
+
+      const sidebar = document.getElementById('sidebar-width');
+      const sidebarValue = document.getElementById('v');
+      sidebar.addEventListener('input', () => {
+        sidebarValue.textContent = `${sidebar.value}px`;
+        log(`Sidebar ${sidebar.value}px`);
+      });
+
+      document.getElementById('compact').addEventListener('change', (e) => log(`Compact mode ${e.target.checked}`));
+      document.getElementById('view').addEventListener('change', (e) => log(`View ${e.target.value}`));
+      document.getElementById('workspace').addEventListener('input', (e) => log(`Workspace ${e.target.value}`));
+    })();
+  </script>
 </body>
 </html>

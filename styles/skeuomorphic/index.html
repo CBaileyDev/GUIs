@@ -7,15 +7,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     body {
       font-family: 'Source Sans 3', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        repeating-linear-gradient(45deg, #654321 0px, #6b4924 2px, #5c3b1f 2px, #6b4924 4px),
-        #5c3b1f;
+        radial-gradient(900px 500px at 50% 0%, rgba(200,160,100,0.18), transparent 60%),
+        linear-gradient(180deg, #3a2817 0%, #241509 100%);
       color: #2b1d0e;
+      accent-color: #b07a3a;
     }
     .card {
       width: 440px; padding: 32px;
@@ -117,7 +119,8 @@
       box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 2px 4px rgba(0,0,0,0.15);
       margin-bottom: 18px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid #b07a3a; outline-offset: 2px; }
     .chk {
       width: 22px; height: 22px; border-radius: 6px;
       background: linear-gradient(180deg, #c0ad7e, #e5d3a3);
@@ -160,44 +163,23 @@
       min-height: 44px;
     }
     .output strong { color: #b55408; font-style: normal; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #b07a3a;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #b07a3a;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #b07a3a;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #b07a3a 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #b07a3a;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #b07a3a 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 50% 0%, rgba(200,160,100,0.18), transparent 60%),
-                linear-gradient(180deg, #3a2817 0%, #241509 100%) !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -206,35 +188,51 @@ body { background:
 
     <div class="section-title">Controls</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Applied')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Volume <span class="value" id="v">55</span></div>
-      <input type="range" min="0" max="100" value="55" oninput="document.getElementById('v').textContent=this.value;log('Volume '+this.value)">
+      <label class="form-label" for="volume">Volume <span class="value" id="v">55</span></label>
+      <input type="range" id="volume" min="0" max="100" value="55">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Glossy '+this.checked)">
+      <input type="checkbox" id="glossy">
       <span class="chk"></span>
       <span class="chk-label">Enable glossy finish</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Material</div>
-      <select onchange="log('Material '+this.value)">
+      <label class="form-label" for="material">Material</label>
+      <select id="material">
         <option>Leather</option><option>Oak Wood</option>
         <option>Brushed Brass</option><option>Felt</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Engrave name..." oninput="log('Name '+this.value)">
+      <input type="text" id="engrave" placeholder="Engrave name..." aria-label="Engrave name">
     </div>
 
-    <div class="output" id="out"><strong>Status —</strong> ready for your input</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>Status —</strong> <span id="out-msg">ready for your input</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>Status —</strong> '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const value = document.getElementById('v');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('Applied'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+      document.getElementById('volume').addEventListener('input', (e) => {
+        value.textContent = e.target.value;
+        log('Volume ' + e.target.value);
+      });
+      document.getElementById('glossy').addEventListener('change', (e) => log('Glossy ' + e.target.checked));
+      document.getElementById('material').addEventListener('change', (e) => log('Material ' + e.target.value));
+      document.getElementById('engrave').addEventListener('input', (e) => log('Name ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>

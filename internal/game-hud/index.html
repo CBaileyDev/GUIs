@@ -127,7 +127,8 @@
       clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
     }
     .chkrow { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; }
-    .chkrow input { display: none; }
+    .chkrow input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chkrow input:focus-visible ~ .chk { outline: 2px solid var(--accent); outline-offset: 2px; }
     .chkrow .chk {
       width: 14px; height: 14px; border: 1px solid var(--accent);
       position: relative; flex-shrink: 0;
@@ -178,6 +179,14 @@
     .dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 6px var(--warn); }
     .dot.a { top: 30%; left: 60%; } .dot.b { top: 65%; left: 40%; background: var(--accent); box-shadow: 0 0 6px var(--accent); }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body class="scene">
@@ -211,18 +220,18 @@
     <div class="panel-title">// TACTICAL CONSOLE</div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('DEPLOYED')">Deploy</button>
-      <button class="btn" onclick="log('RECALLED')">Recall</button>
+      <button class="btn btn-primary" id="deploy">Deploy</button>
+      <button class="btn" id="recall">Recall</button>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <div class="form-label"><span>Shield</span><span class="value" id="v">65</span></div>
-        <input type="range" min="0" max="100" value="65" oninput="document.getElementById('v').textContent=this.value;log('Shield '+this.value)">
+        <div class="form-label"><label for="shield">Shield</label><span class="value" id="v">65</span></div>
+        <input type="range" id="shield" min="0" max="100" value="65">
       </div>
       <div class="form-group">
-        <div class="form-label"><span>Loadout</span></div>
-        <select onchange="log('Loadout '+this.value)">
+        <div class="form-label"><label for="loadout">Loadout</label></div>
+        <select id="loadout">
           <option>Assault</option><option>Scout</option>
           <option>Sniper</option><option>Medic</option>
         </select>
@@ -230,16 +239,16 @@
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="// radio call..." oninput="log('Radio: '+this.value)">
+      <input type="text" id="radio" placeholder="// radio call..." aria-label="Radio call">
     </div>
 
     <label class="chkrow">
-      <input type="checkbox" onchange="log('Auto-revive '+this.checked)">
+      <input type="checkbox" id="autoRevive">
       <span class="chk"></span>
       <span>Enable auto-revive protocol</span>
     </label>
 
-    <div class="output" id="out"><strong>[COMM]</strong> channel open — standby</div>
+    <div class="output" id="out" aria-live="polite"><strong>[COMM]</strong> channel open — standby</div>
   </div>
 
   <!-- Bottom-right: radar -->
@@ -249,6 +258,27 @@
     <div class="dot b"></div>
   </div>
 
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>[COMM]</strong> '+m;}</script>
+  <script>
+    (() => {
+      const out = document.getElementById('out');
+      const shieldValue = document.getElementById('v');
+
+      function log(message) {
+        const tag = document.createElement('strong');
+        tag.textContent = '[COMM]';
+        out.replaceChildren(tag, ` ${message}`);
+      }
+
+      document.getElementById('deploy').addEventListener('click', () => log('DEPLOYED'));
+      document.getElementById('recall').addEventListener('click', () => log('RECALLED'));
+      document.getElementById('shield').addEventListener('input', e => {
+        shieldValue.textContent = e.target.value;
+        log(`Shield ${e.target.value}`);
+      });
+      document.getElementById('loadout').addEventListener('change', e => log(`Loadout ${e.target.value}`));
+      document.getElementById('radio').addEventListener('input', e => log(`Radio: ${e.target.value}`));
+      document.getElementById('autoRevive').addEventListener('change', e => log(`Auto-revive ${e.target.checked}`));
+    })();
+  </script>
 </body>
 </html>

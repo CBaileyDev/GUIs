@@ -8,14 +8,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --ink: #0a0a0a; --paper: #fff9e6; --red: #ff2b2b; --yellow: #ffd400; --blue: #1d7bff; --halftone: 8px; }
+    html { color-scheme: light; }
     body {
       font-family: 'Nunito', sans-serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
         radial-gradient(circle at center, rgba(0,0,0,0.08) 1.5px, transparent 2px) 0 0 / var(--halftone) var(--halftone),
         var(--yellow);
       color: var(--ink);
+      accent-color: #1d7bff;
     }
 
     .card {
@@ -114,11 +116,12 @@
       padding: 10px 14px; border: 3px solid var(--ink); background: var(--paper);
       margin-bottom: 18px; box-shadow: 4px 4px 0 var(--ink);
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 24px; height: 24px; border: 3px solid var(--ink);
       background: #fff; position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #1d7bff; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--red); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: '✓'; position: absolute; inset: -4px 0 0 1px;
@@ -153,42 +156,22 @@
       transform: rotate(45deg);
     }
     .bubble strong { color: var(--red); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #1d7bff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #1d7bff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #1d7bff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #1d7bff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #1d7bff;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #1d7bff 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -198,35 +181,63 @@ html { scroll-behavior: smooth; }
 
     <div class="section-title">// ACTIONS</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('BAM! you hit APPLY')">ZAP!</button>
-      <button class="btn btn-secondary" onclick="log('WHOOSH - reset')">WHOOSH</button>
+      <button class="btn btn-primary" id="apply">ZAP!</button>
+      <button class="btn btn-secondary" id="reset">WHOOSH</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>POWER</span><span class="value" id="v">88%</span></div>
-      <input type="range" min="0" max="100" value="88" oninput="document.getElementById('v').textContent=this.value+'%';log('POWER '+this.value+'%')">
+      <label class="form-label" for="power"><span>POWER</span><span class="value" id="v">88%</span></label>
+      <input type="range" id="power" min="0" max="100" value="88">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" checked onchange="log('CAPE '+(this.checked?'ON':'OFF'))">
+      <input type="checkbox" id="cape" checked>
       <span class="chk"></span>
       <span class="chk-label">cape flapping enabled</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span>SIDEKICK</span></div>
-      <select onchange="log('SIDEKICK '+this.value)">
+      <label class="form-label" for="sidekick"><span>SIDEKICK</span></label>
+      <select id="sidekick">
         <option>Boy Wonder</option><option>Sassy Robot</option>
         <option>Talking Dog</option><option>Tiny Dragon</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Hero name..." oninput="log('HERO '+this.value)">
+      <input type="text" id="hero-name" placeholder="Hero name..." aria-label="Hero name">
     </div>
 
-    <div class="bubble" id="out"><strong>SUPER!</strong> Ready for action, chief!</div>
+    <div class="bubble" id="out" role="status" aria-live="polite"><strong id="out-label">SUPER!</strong> <span id="out-msg">Ready for action, chief!</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>HOLY COW!</strong> '+m;}</script>
+  <script>
+    (function () {
+      const label = document.getElementById('out-label');
+      const msg = document.getElementById('out-msg');
+      const log = (m) => {
+        label.textContent = 'HOLY COW!';
+        msg.textContent = m;
+      };
+
+      document.getElementById('apply').addEventListener('click', () => log('BAM! you hit APPLY'));
+      document.getElementById('reset').addEventListener('click', () => log('WHOOSH - reset'));
+
+      const power = document.getElementById('power');
+      const value = document.getElementById('v');
+      power.addEventListener('input', () => {
+        value.textContent = power.value + '%';
+        log('POWER ' + power.value + '%');
+      });
+
+      const cape = document.getElementById('cape');
+      cape.addEventListener('change', () => log('CAPE ' + (cape.checked ? 'ON' : 'OFF')));
+
+      const sidekick = document.getElementById('sidekick');
+      sidekick.addEventListener('change', () => log('SIDEKICK ' + sidekick.value));
+
+      const heroName = document.getElementById('hero-name');
+      heroName.addEventListener('input', () => log('HERO ' + heroName.value));
+    })();
+  </script>
 </body>
 </html>

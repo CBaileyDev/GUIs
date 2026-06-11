@@ -143,7 +143,8 @@
       margin-bottom: 14px; font-size: 13px;
     }
     .chkrow:hover { background: #f3f4f6; }
-    .chkrow input { display: none; }
+    .chkrow input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chkrow input:focus-visible ~ .chk { outline: 2px solid var(--accent-hi); outline-offset: 2px; }
     .chkrow .chk {
       width: 16px; height: 16px; border-radius: 4px;
       border: 1.5px solid #d1d5db; background: #fff;
@@ -174,6 +175,14 @@
       background: #10b981; box-shadow: 0 0 6px #10b981;
     }
     .status strong { color: var(--ink); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -187,77 +196,109 @@
     <div class="fake-line w85"></div>
   </div>
 
-  <button class="open-btn" onclick="open_drawer()">Menu</button>
+  <button class="open-btn" id="openBtn" aria-controls="drawer" aria-expanded="true">Menu</button>
 
-  <div class="backdrop open" id="bg" onclick="close_drawer()"></div>
+  <div class="backdrop open" id="bg"></div>
 
-  <aside class="drawer open" id="drawer" aria-label="Navigation drawer">
+  <aside class="drawer open" id="drawer" role="dialog" aria-label="Navigation drawer">
     <div class="drawer-header">
       <div>
         <div class="drawer-title">Workspace</div>
         <div class="drawer-sub">acme-engineering</div>
       </div>
-      <button class="close-btn" onclick="close_drawer()" aria-label="Close">✕</button>
+      <button class="close-btn" id="closeBtn" aria-label="Close">✕</button>
     </div>
 
     <div class="drawer-body">
       <div class="nav-title">Navigation</div>
-      <div class="nav-link active" onclick="log('Inbox')">
+      <div class="nav-link active" data-log="Inbox">
         <span class="nav-icon">◐</span> Inbox <span class="nav-count">12</span>
       </div>
-      <div class="nav-link" onclick="log('Projects')">
+      <div class="nav-link" data-log="Projects">
         <span class="nav-icon">▣</span> Projects <span class="nav-count">4</span>
       </div>
-      <div class="nav-link" onclick="log('Team')">
+      <div class="nav-link" data-log="Team">
         <span class="nav-icon">◎</span> Team
       </div>
-      <div class="nav-link" onclick="log('Archive')">
+      <div class="nav-link" data-log="Archive">
         <span class="nav-icon">◫</span> Archive
       </div>
 
       <div class="section-title">Quick actions</div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="log('Saved')">Save</button>
-        <button class="btn btn-secondary" onclick="log('Discarded')">Cancel</button>
+        <button class="btn btn-primary" id="save">Save</button>
+        <button class="btn btn-secondary" id="cancel">Cancel</button>
       </div>
 
       <div class="section-title">Settings</div>
       <div class="form-group">
-        <div class="form-label"><span>Volume</span><span class="value" id="v">64</span></div>
-        <input type="range" min="0" max="100" value="64" oninput="document.getElementById('v').textContent=this.value;log('Volume '+this.value)">
+        <div class="form-label"><label for="volume">Volume</label><span class="value" id="v">64</span></div>
+        <input type="range" id="volume" min="0" max="100" value="64">
       </div>
 
       <label class="chkrow">
-        <input type="checkbox" checked onchange="log('Notifications '+this.checked)">
+        <input type="checkbox" id="notifications" checked>
         <span class="chk"></span>
         <span>Enable notifications</span>
       </label>
 
       <div class="form-group">
-        <div class="form-label">Theme</div>
-        <select onchange="log('Theme '+this.value)">
+        <label class="form-label" for="theme">Theme</label>
+        <select id="theme">
           <option>System</option><option>Light</option><option>Dark</option><option>Auto</option>
         </select>
       </div>
 
       <div class="form-group">
-        <div class="form-label">Workspace name</div>
-        <input type="text" placeholder="acme-eng" oninput="log('Name '+this.value)">
+        <label class="form-label" for="workspaceName">Workspace name</label>
+        <input type="text" id="workspaceName" placeholder="acme-eng">
       </div>
     </div>
 
     <div class="drawer-footer">
-      <div class="status" id="out"><strong>Ready</strong> — explore the drawer</div>
+      <div class="status" id="out" aria-live="polite"><strong>Ready</strong> — explore the drawer</div>
     </div>
   </aside>
 
   <script>
-    const drawer = document.getElementById('drawer');
-    const bg = document.getElementById('bg');
-    function open_drawer(){ drawer.classList.add('open'); bg.classList.add('open'); }
-    function close_drawer(){ drawer.classList.remove('open'); bg.classList.remove('open'); }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') close_drawer(); });
-    function log(m){document.getElementById('out').innerHTML='<strong>'+m+'</strong>';}
+    (() => {
+      const drawer = document.getElementById('drawer');
+      const backdrop = document.getElementById('bg');
+      const openBtn = document.getElementById('openBtn');
+      const out = document.getElementById('out');
+      const volumeValue = document.getElementById('v');
+
+      function setOpen(open) {
+        drawer.classList.toggle('open', open);
+        backdrop.classList.toggle('open', open);
+        openBtn.setAttribute('aria-expanded', String(open));
+      }
+
+      function log(message) {
+        const strong = document.createElement('strong');
+        strong.textContent = message;
+        out.replaceChildren(strong);
+      }
+
+      openBtn.addEventListener('click', () => setOpen(true));
+      backdrop.addEventListener('click', () => setOpen(false));
+      document.getElementById('closeBtn').addEventListener('click', () => setOpen(false));
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => log(link.dataset.log));
+      });
+
+      document.getElementById('save').addEventListener('click', () => log('Saved'));
+      document.getElementById('cancel').addEventListener('click', () => log('Discarded'));
+      document.getElementById('volume').addEventListener('input', e => {
+        volumeValue.textContent = e.target.value;
+        log(`Volume ${e.target.value}`);
+      });
+      document.getElementById('notifications').addEventListener('change', e => log(`Notifications ${e.target.checked}`));
+      document.getElementById('theme').addEventListener('change', e => log(`Theme ${e.target.value}`));
+      document.getElementById('workspaceName').addEventListener('input', e => log(`Name ${e.target.value}`));
+    })();
   </script>
 </body>
 </html>

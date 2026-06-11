@@ -7,18 +7,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo+Black&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     body {
       font-family: 'Space Mono', monospace;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      background: #ffff00;
+      background-color: #ffff33;
       background-image:
-        linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px),
-        linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px);
+        linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
       background-size: 24px 24px;
+      accent-color: #0000ff;
     }
     .card {
       width: 420px;
@@ -83,8 +85,9 @@
       padding: 10px 12px; background: #fff; border: 3px solid #000;
       margin-bottom: 18px; font-weight: 700;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk { width: 22px; height: 22px; border: 3px solid #000; background: #fff; position: relative; flex-shrink: 0; }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid #0000ff; outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: #00ff88; }
     input[type="checkbox"]:checked ~ .chk::after {
       content: 'X'; font-family: 'Archivo Black', sans-serif;
@@ -102,46 +105,22 @@
       font-size: 12px; font-weight: 700; border: 3px solid #000;
     }
     .output strong { color: #ffff00; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #0000ff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #0000ff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #0000ff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #0000ff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #0000ff;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #0000ff 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background-image:
-                linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px) !important;
-                background-size: 24px 24px, 24px 24px !important;
-                background-color: #ffff33 !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -151,37 +130,59 @@ body { background-image:
 
     <div class="section-title">Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('APPLY')">APPLY</button>
-      <button class="btn btn-secondary" onclick="log('RESET')">RESET</button>
+      <button class="btn btn-primary" id="apply">APPLY</button>
+      <button class="btn btn-secondary" id="reset">RESET</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">VOLUME <span id="v">60%</span></div>
-      <input type="range" min="0" max="100" value="60" oninput="document.getElementById('v').textContent=this.value+'%';log('VOL '+this.value)">
+      <label class="form-label" for="volume">VOLUME <span id="v">60%</span></label>
+      <input type="range" id="volume" min="0" max="100" value="60">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('GRID '+this.checked)">
+      <input type="checkbox" id="grid">
       <span class="chk"></span>
       <span>SHOW GRID OVERLAY</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">THEME</div>
-      <select onchange="log('THEME '+this.value)">
+      <label class="form-label" for="theme">THEME</label>
+      <select id="theme">
         <option>ACID YELLOW</option><option>HOT PINK</option>
         <option>ELECTRIC BLUE</option><option>CONCRETE GRAY</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="TYPE SOMETHING..." oninput="log('INPUT '+this.value)">
+      <input type="text" id="text-input" placeholder="TYPE SOMETHING..." aria-label="Type something">
     </div>
 
-    <div class="output" id="out"><strong>STATUS:</strong> AWAITING INPUT_</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>STATUS:</strong> <span id="out-msg">AWAITING INPUT_</span></div>
   </div>
   <script>
-    function log(m){document.getElementById('out').innerHTML='<strong>STATUS:</strong> '+m;}
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('APPLY'));
+      document.getElementById('reset').addEventListener('click', () => log('RESET'));
+
+      const volume = document.getElementById('volume');
+      const value = document.getElementById('v');
+      volume.addEventListener('input', () => {
+        value.textContent = volume.value + '%';
+        log('VOL ' + volume.value);
+      });
+
+      const grid = document.getElementById('grid');
+      grid.addEventListener('change', () => log('GRID ' + grid.checked));
+
+      const theme = document.getElementById('theme');
+      theme.addEventListener('change', () => log('THEME ' + theme.value));
+
+      const textInput = document.getElementById('text-input');
+      textInput.addEventListener('input', () => log('INPUT ' + textInput.value));
+    })();
   </script>
 </body>
 </html>

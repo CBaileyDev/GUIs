@@ -12,12 +12,18 @@
       --cyan: #8be9fd; --green: #50fa7b; --orange: #ffb86c;
       --pink: #ff79c6; --purple: #bd93f9; --red: #ff5555; --yellow: #f1fa8c;
     }
+    html { color-scheme: dark; }
     body {
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
-      background: var(--bg); color: var(--fg);
+      background:
+        radial-gradient(900px 500px at 20% 0%, rgba(189,147,249,0.12), transparent 60%),
+        radial-gradient(700px 400px at 100% 100%, rgba(139,233,253,0.08), transparent 60%),
+        var(--bg);
+      color: var(--fg);
+      accent-color: var(--purple);
     }
     .card {
       width: 420px; padding: 32px;
@@ -90,12 +96,13 @@
       transition: background 0.15s;
     }
     .checkbox-row:hover { background: #4e5166; }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 18px; height: 18px; border-radius: 4px;
       border: 1.5px solid var(--com); background: var(--bg);
       position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid var(--purple); outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--purple); border-color: var(--purple); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: ''; position: absolute; left: 5px; top: 1px;
@@ -122,45 +129,18 @@
     }
     .output strong { color: var(--green); }
     .output em { color: var(--yellow); font-style: normal; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #bd93f9;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #bd93f9;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #bd93f9;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #bd93f9 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 6px; }
+    ::selection { background: color-mix(in srgb, var(--purple) 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 20% 0%, rgba(189,147,249,0.12), transparent 60%),
-                radial-gradient(700px 400px at 100% 100%, rgba(139,233,253,0.08), transparent 60%),
-                #282a36 !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -170,35 +150,58 @@ body { background:
 
     <div class="section-title">actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Saturation <span class="value" id="v">80</span></div>
-      <input type="range" min="0" max="100" value="80" oninput="document.getElementById('v').textContent=this.value;log('Saturation '+this.value)">
+      <label class="form-label" for="saturation">Saturation <span class="value" id="v">80</span></label>
+      <input type="range" id="saturation" min="0" max="100" value="80">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Ligatures '+this.checked)">
+      <input type="checkbox" id="ligatures">
       <span class="chk"></span>
       <span class="chk-label">Font ligatures</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Accent color</div>
-      <select onchange="log('Accent '+this.value)">
+      <label class="form-label" for="accent">Accent color</label>
+      <select id="accent">
         <option>Pink</option><option>Purple</option>
         <option>Cyan</option><option>Green</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Search theme..." oninput="log('Search '+this.value)">
+      <input type="text" id="search" placeholder="Search theme..." aria-label="Search theme">
     </div>
 
-    <div class="output" id="out"><strong>ready</strong> <em>v2.0</em></div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong id="out-msg">ready</strong><span id="out-detail"> <em>v2.0</em></span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const detail = document.getElementById('out-detail');
+      const log = (m) => {
+        msg.textContent = 'ok';
+        detail.textContent = ` ${m}`;
+      };
+
+      document.getElementById('apply').addEventListener('click', () => log('Apply'));
+      document.getElementById('reset').addEventListener('click', () => log('Reset'));
+
+      const saturation = document.getElementById('saturation');
+      const saturationValue = document.getElementById('v');
+      saturation.addEventListener('input', () => {
+        saturationValue.textContent = saturation.value;
+        log(`Saturation ${saturation.value}`);
+      });
+
+      document.getElementById('ligatures').addEventListener('change', (e) => log(`Ligatures ${e.target.checked}`));
+      document.getElementById('accent').addEventListener('change', (e) => log(`Accent ${e.target.value}`));
+      document.getElementById('search').addEventListener('input', (e) => log(`Search ${e.target.value}`));
+    })();
+  </script>
 </body>
 </html>

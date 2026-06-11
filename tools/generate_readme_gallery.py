@@ -16,8 +16,12 @@ STYLES = [
     ("comic", "Comic", "Halftone dots, bold outlines, KA-POW energy"),
     ("cyberpunk", "Cyberpunk", "Neon scanlines on a dark grid"),
     ("dracula", "Dracula", "Classic purple-and-cyan dev theme"),
+    ("editorial", "Editorial", "Typeset print-magazine page with hairline rules"),
+    ("flat", "Flat Design", "Metro-era solid blocks, no chrome"),
+    ("frutiger-aero", "Frutiger Aero", "Glossy 2000s sky-and-aqua optimism"),
     ("gameboy", "Game Boy", "Four-shade green LCD inside a plastic shell"),
     ("glassmorphism", "Glassmorphism", "Frosted glass over a vivid backdrop"),
+    ("gruvbox", "Gruvbox", "Warm retro-groove editor palette"),
     ("imgui-style", "Dear ImGui", "Flat immediate-mode dark UI (Python)"),
     ("ios", "iOS", "Grouped lists, switches, and phone chrome"),
     ("linear", "Linear", "Modern dark SaaS dashboard menu"),
@@ -34,6 +38,7 @@ STYLES = [
     ("steampunk", "Steampunk", "Brass gears, parchment, Victorian chrome"),
     ("swiss", "Swiss", "International Style grid typography"),
     ("synthwave", "Synthwave", "Neon pink/cyan 80s sunset grid"),
+    ("system7", "System 7", "1-bit classic Macintosh chrome"),
     ("tron", "Tron", "Cyan glow grid and derezzed chrome"),
     ("vaporwave", "Vaporwave", "Pastel neon with Japanese serif accents"),
     ("win95", "Windows 95", "Classic Chicago-era window chrome"),
@@ -47,6 +52,7 @@ INTERNAL = [
     ("floating-toolbar", "Floating Toolbar", "Canvas toolbar with settings popover"),
     ("sidebar-drawer", "Sidebar Drawer", "Slide-in navigation drawer"),
     ("notification-stack", "Notification Stack", "Toast stack with trigger panel"),
+    ("context-menu", "Context Menu", "Right-click menu with submenu and shortcuts"),
 ]
 
 EXTERNAL = [

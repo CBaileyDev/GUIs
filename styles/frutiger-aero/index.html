@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frutiger Aero Menu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
+    body {
+      font-family: "Segoe UI", Frutiger, "Frutiger Linotype", Calibri, sans-serif;
+      font-size: 13px;
+      min-height: 100dvh;
+      padding: 40px 20px;
+      display: flex; align-items: flex-start; justify-content: center;
+      background: linear-gradient(180deg, #bfe3f5 0%, #e8f6fd 100%);
+      color: #15405e;
+      accent-color: #2a7ab8;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before, body::after {
+      content: ""; position: absolute; border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+    }
+    body::before { width: 340px; height: 340px; top: -110px; left: -90px; }
+    body::after { width: 220px; height: 220px; bottom: -60px; right: 6%; }
+
+    .card {
+      width: 430px;
+      background: linear-gradient(180deg, #ffffff 0%, #f0f9fe 100%);
+      border: 1px solid #9fcfe8;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(42, 122, 184, 0.22);
+      padding: 22px 24px;
+      position: relative;
+    }
+
+    h1 { font-size: 22px; font-weight: 600; color: #1d6296; margin-bottom: 3px; }
+    .sub { font-size: 12px; color: #4a7fa3; margin-bottom: 18px; }
+
+    .divider { height: 1px; background: #cfe9f6; margin: 16px 0; }
+
+    .btn-row { display: flex; gap: 10px; margin-bottom: 18px; }
+    .btn {
+      flex: 1; padding: 8px 14px;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      border-radius: 8px; cursor: pointer;
+      transition: filter 0.12s;
+    }
+    .btn-primary {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.08) 100%),
+        linear-gradient(180deg, #8ed459 0%, #74c043 50%, #559a26 100%);
+      border: 1px solid #41801b;
+      color: #fff;
+      text-shadow: 0 1px 1px rgba(20, 60, 5, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 3px rgba(42,122,184,0.3);
+    }
+    .btn-secondary {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%),
+        linear-gradient(180deg, #9fd6ec 0%, #7ec8e3 50%, #2a7ab8 100%);
+      border: 1px solid #1f628f;
+      color: #fff;
+      text-shadow: 0 1px 1px rgba(10, 45, 75, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 3px rgba(42,122,184,0.3);
+    }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { filter: brightness(0.92); }
+
+    .form-group { margin-bottom: 15px; }
+    .form-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; font-weight: 600; color: #1d6296; margin-bottom: 6px;
+    }
+    .form-label .value { color: #559a26; font-weight: 700; }
+
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 7px;
+      background: linear-gradient(180deg, #b9dff0, #e3f4fc);
+      border: 1px solid #9fcfe8; border-radius: 6px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 17px; height: 17px; border-radius: 50%;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 50%) ,
+        linear-gradient(180deg, #9fd6ec, #2a7ab8);
+      border: 1px solid #1f628f;
+      box-shadow: 0 1px 2px rgba(42,122,184,0.4);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 15px; height: 15px; border-radius: 50%;
+      background: linear-gradient(180deg, #9fd6ec, #2a7ab8);
+      border: 1px solid #1f628f;
+    }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; margin-bottom: 15px; position: relative;
+    }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .box {
+      width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+      background: linear-gradient(180deg, #ffffff, #ddf0fa);
+      border: 1px solid #7eb6d6;
+      position: relative;
+    }
+    input:checked ~ .box {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 50%),
+        linear-gradient(180deg, #8ed459, #559a26);
+      border-color: #41801b;
+    }
+    input:checked ~ .box::after {
+      content: ""; position: absolute; left: 4.5px; top: 1.5px;
+      width: 5px; height: 9px;
+      border: solid #fff; border-width: 0 2px 2px 0;
+      transform: rotate(40deg);
+    }
+    input:focus-visible ~ .box { outline: 2px solid #2a7ab8; outline-offset: 2px; }
+    .box-label { color: #15405e; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 7px 9px;
+      font-family: inherit; font-size: 13px; color: #15405e;
+      background: linear-gradient(180deg, #ffffff, #eef8fd);
+      border: 1px solid #9fcfe8; border-radius: 7px;
+    }
+    input[type="text"]::placeholder { color: #8db4cc; }
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #2a7ab8;
+      box-shadow: 0 0 0 3px rgba(126, 200, 227, 0.45);
+    }
+
+    .status {
+      margin-top: 18px; padding: 9px 12px;
+      background: linear-gradient(180deg, #eaf7fd, #ddf1fb);
+      border: 1px solid #9fcfe8; border-radius: 8px;
+      font-size: 12px; color: #1d6296;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .status strong { color: #559a26; }
+
+    :focus-visible { outline: 2px solid #2a7ab8; outline-offset: 2px; }
+    ::selection { background: rgba(126, 200, 227, 0.55); color: #15405e; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Frutiger Aero Menu</h1>
+    <p class="sub">Sidebar &amp; desktop personalization for a sunnier OS.</p>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="apply" type="button">Apply</button>
+      <button class="btn btn-secondary" id="preview" type="button">Preview</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="glass">
+        <span>Glass transparency</span><span class="value" id="glass-value">65%</span>
+      </label>
+      <input type="range" id="glass" min="0" max="100" value="65">
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="sounds" checked>
+      <span class="box"></span>
+      <span class="box-label">Play nature sound scheme</span>
+    </label>
+
+    <div class="form-group">
+      <label class="form-label" for="gadget"><span>Sidebar gadget</span></label>
+      <select id="gadget">
+        <option>Weather — Partly Sunny</option>
+        <option>Clock — Polished Chrome</option>
+        <option>CPU Meter — Dual Dial</option>
+        <option>Feed Headlines</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="wallpaper"><span>Wallpaper search</span></label>
+      <input type="text" id="wallpaper" placeholder="e.g. green hills, koi pond, bubbles">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="status" role="status" aria-live="polite">
+      <strong>Ready</strong> — <span id="status-msg">your desktop awaits a breath of fresh air.</span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var msg = document.getElementById('status-msg');
+      function log(text) { msg.textContent = text; }
+
+      document.getElementById('apply').addEventListener('click', function () {
+        log('settings applied — enjoy the view.');
+      });
+      document.getElementById('preview').addEventListener('click', function () {
+        log('previewing changes on the desktop.');
+      });
+
+      var glass = document.getElementById('glass');
+      var glassValue = document.getElementById('glass-value');
+      glass.addEventListener('input', function () {
+        glassValue.textContent = glass.value + '%';
+        log('glass transparency set to ' + glass.value + '%.');
+      });
+
+      var sounds = document.getElementById('sounds');
+      sounds.addEventListener('change', function () {
+        log('nature sounds ' + (sounds.checked ? 'on — birdsong enabled.' : 'off.'));
+      });
+
+      var gadget = document.getElementById('gadget');
+      gadget.addEventListener('change', function () {
+        log('gadget pinned: ' + gadget.value + '.');
+      });
+
+      var wallpaper = document.getElementById('wallpaper');
+      wallpaper.addEventListener('input', function () {
+        log(wallpaper.value ? 'searching wallpapers for "' + wallpaper.value + '"…' : 'wallpaper search cleared.');
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -8,15 +8,17 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --chrome-0: #cfd5e4; --chrome-1: #8894b2; --ink: #0a0a22; --blue: #2e8bff; --pink: #ff7cdf; }
+    html { color-scheme: light; }
     body {
       font-family: 'DM Sans', sans-serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        radial-gradient(circle at 20% 20%, #a2d6ff, transparent 45%),
-        radial-gradient(circle at 80% 80%, #ffd9f4, transparent 50%),
-        linear-gradient(180deg, #dfeafe, #fdd8f1);
+        radial-gradient(900px 500px at 20% 0%, rgba(46,139,255,0.18), transparent 60%),
+        radial-gradient(700px 500px at 90% 100%, rgba(255,124,223,0.16), transparent 60%),
+        linear-gradient(180deg, #e8edf7 0%, #c8d2e6 100%);
       color: var(--ink);
+      accent-color: var(--blue);
     }
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none;
@@ -133,7 +135,8 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
       margin-bottom: 18px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--blue); outline-offset: 2px; }
     .chk {
       width: 20px; height: 20px; border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #fff, var(--chrome-0) 80%);
@@ -175,45 +178,23 @@
       background: linear-gradient(135deg, var(--blue), var(--pink));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #2e8bff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #2e8bff;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #2e8bff;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #2e8bff 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--blue) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 20% 0%, rgba(46,139,255,0.18), transparent 60%),
-                radial-gradient(700px 500px at 90% 100%, rgba(255,124,223,0.16), transparent 60%),
-                linear-gradient(180deg, #e8edf7 0%, #c8d2e6 100%) !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -223,35 +204,59 @@ body { background:
 
     <div class="section-title">☆ Actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('applied!')">Go</button>
-      <button class="btn btn-secondary" onclick="log('reset')">Reset</button>
+      <button class="btn btn-primary" id="go">Go</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Shine</span><span class="value" id="v">70</span></div>
-      <input type="range" min="0" max="100" value="70" oninput="document.getElementById('v').textContent=this.value;log('shine '+this.value)">
+      <label class="form-label" for="shine"><span>Shine</span><span class="value" id="v">70</span></label>
+      <input type="range" id="shine" min="0" max="100" value="70">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" checked onchange="log('sparkle '+this.checked)">
+      <input type="checkbox" id="sparkle" checked>
       <span class="chk"></span>
       <span class="chk-label">Extra sparkle</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Buddy icon</div>
-      <select onchange="log('buddy '+this.value)">
+      <label class="form-label" for="buddy">Buddy icon</label>
+      <select id="buddy">
         <option>✨ Star</option><option>🫧 Bubble</option>
         <option>💎 Gem</option><option>🦋 Butterfly</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="ur screen name..." oninput="log('name '+this.value)">
+      <input type="text" id="screen-name" placeholder="ur screen name..." aria-label="Screen name">
     </div>
 
-    <div class="output" id="out"><strong>status</strong> · ready 2 glow</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>status</strong> · <span id="out-detail">ready 2 glow</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>status</strong> · '+m;}</script>
+  <script>
+    (function () {
+      const detail = document.getElementById('out-detail');
+      const log = (m) => { detail.textContent = m; };
+
+      document.getElementById('go').addEventListener('click', () => log('applied!'));
+      document.getElementById('reset').addEventListener('click', () => log('reset'));
+
+      const shine = document.getElementById('shine');
+      const shineValue = document.getElementById('v');
+      shine.addEventListener('input', () => {
+        shineValue.textContent = shine.value;
+        log('shine ' + shine.value);
+      });
+
+      const sparkle = document.getElementById('sparkle');
+      sparkle.addEventListener('change', () => log('sparkle ' + sparkle.checked));
+
+      const buddy = document.getElementById('buddy');
+      buddy.addEventListener('change', () => log('buddy ' + buddy.value));
+
+      const screenName = document.getElementById('screen-name');
+      screenName.addEventListener('input', () => log('name ' + screenName.value));
+    })();
+  </script>
 </body>
 </html>

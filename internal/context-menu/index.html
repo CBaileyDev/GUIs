@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Context Menu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
+    body {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      min-height: 100dvh;
+      background: #1e2023;
+      color: #c9ccd1;
+      overflow: hidden;
+      accent-color: #4f8ef7;
+    }
+
+    .surface { position: fixed; inset: 0; }
+    .doc {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 760px; height: 540px;
+      background-color: #24262a;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 40px 40px;
+      border: 1px solid #34373c;
+      border-radius: 4px;
+    }
+    .doc-label {
+      position: absolute; top: -26px; left: 0;
+      font-size: 12px; color: #84888f;
+    }
+    .shape { position: absolute; border-radius: 3px; }
+    .shape.a { left: 86px; top: 92px; width: 170px; height: 110px; background: #2e3136; border: 1px solid #46494f; }
+    .shape.b { left: 320px; top: 250px; width: 230px; height: 90px; background: #2a2d31; border: 1px dashed #4a4e55; }
+
+    .hint {
+      position: fixed; top: 22px; left: 50%; transform: translateX(-50%);
+      font-size: 12px; color: #84888f;
+    }
+    .open-btn {
+      position: fixed; top: 16px; right: 16px;
+      padding: 6px 14px;
+      font-family: inherit; font-size: 12px; font-weight: 500;
+      color: #e7e9ec; background: #2e3136;
+      border: 1px solid #46494f; border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .open-btn:hover { background: #3a3d43; }
+
+    .statusbar {
+      position: fixed; left: 16px; bottom: 14px;
+      padding: 5px 12px;
+      font-size: 12px; color: #9da1a8;
+      background: #26282c; border: 1px solid #34373c; border-radius: 6px;
+    }
+    .statusbar strong { color: #e7e9ec; font-weight: 500; }
+
+    .menu {
+      position: fixed; z-index: 10;
+      min-width: 224px;
+      padding: 5px;
+      background: #2a2c30;
+      border: 1px solid #46494f;
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+    .menu[hidden] { display: none; }
+    .menu button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%;
+      padding: 5px 10px 5px 26px;
+      font-family: inherit; font-size: 13px; text-align: left;
+      color: #e7e9ec; background: none;
+      border: none; border-radius: 5px;
+      cursor: pointer; position: relative;
+    }
+    .menu button:hover:not(:disabled),
+    .menu button:focus { background: #3d6ddb; color: #fff; outline: none; }
+    .menu button:disabled { color: #6b6f76; cursor: default; }
+    .menu button .kbd { margin-left: auto; font-size: 12px; color: #9da1a8; }
+    .menu button:hover:not(:disabled) .kbd,
+    .menu button:focus .kbd { color: rgba(255, 255, 255, 0.75); }
+    .menu button[aria-checked="true"]::before {
+      content: ""; position: absolute; left: 9px; top: 8px;
+      width: 5px; height: 9px;
+      border: solid currentColor; border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+    }
+    .menu .sep { height: 1px; background: #3e4147; margin: 5px 8px; }
+    .menu .arrow { margin-left: auto; font-size: 11px; color: #9da1a8; }
+    .menu button:hover .arrow, .menu button:focus .arrow { color: rgba(255, 255, 255, 0.75); }
+    .menu .danger { color: #f2555a; }
+    .menu .danger:hover, .menu .danger:focus { background: #c93338; color: #fff; }
+
+    .submenu-wrap { position: relative; }
+    .submenu {
+      position: absolute; left: calc(100% + 1px); top: -6px;
+      min-width: 168px;
+    }
+    .submenu.flip { left: auto; right: calc(100% + 1px); }
+
+    :focus-visible { outline: 2px solid #4f8ef7; outline-offset: 2px; }
+    .menu button:focus-visible { outline: none; }
+    ::selection { background: rgba(79, 142, 247, 0.4); color: #fff; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="surface" id="surface">
+    <p class="hint">Right-click anywhere on the canvas</p>
+    <div class="doc">
+      <span class="doc-label">Untitled board — 2 objects</span>
+      <div class="shape a"></div>
+      <div class="shape b"></div>
+    </div>
+    <button class="open-btn" id="open-btn" type="button" aria-haspopup="menu">Open menu</button>
+    <div class="statusbar" role="status" aria-live="polite">
+      <strong>Last action:</strong> <span id="status-msg">none yet</span>
+    </div>
+  </div>
+
+  <div class="menu" id="menu" role="menu" aria-label="Canvas actions" hidden>
+    <button type="button" role="menuitem" data-action="Cut">Cut <span class="kbd">⌘X</span></button>
+    <button type="button" role="menuitem" data-action="Copy">Copy <span class="kbd">⌘C</span></button>
+    <button type="button" role="menuitem" data-action="Paste" disabled aria-disabled="true">Paste <span class="kbd">⌘V</span></button>
+    <div class="sep" role="separator"></div>
+    <button type="button" role="menuitemcheckbox" aria-checked="true" data-action="Show grid">Show grid</button>
+    <button type="button" role="menuitemcheckbox" aria-checked="false" data-action="Snap to guides">Snap to guides</button>
+    <div class="sep" role="separator"></div>
+    <div class="submenu-wrap" id="sub-wrap">
+      <button type="button" role="menuitem" id="sub-parent" aria-haspopup="menu" aria-expanded="false">Sort by <span class="arrow">▸</span></button>
+      <div class="menu submenu" id="submenu" role="menu" aria-label="Sort by" hidden>
+        <button type="button" role="menuitem" data-action="Sort by name">Name</button>
+        <button type="button" role="menuitem" data-action="Sort by date modified">Date modified</button>
+        <button type="button" role="menuitem" data-action="Sort by size">Size</button>
+      </div>
+    </div>
+    <div class="sep" role="separator"></div>
+    <button type="button" role="menuitem" class="danger" data-action="Delete">Delete <span class="kbd">⌫</span></button>
+  </div>
+
+  <script>
+    (function () {
+      var menu = document.getElementById('menu');
+      var submenu = document.getElementById('submenu');
+      var subParent = document.getElementById('sub-parent');
+      var subWrap = document.getElementById('sub-wrap');
+      var openBtn = document.getElementById('open-btn');
+      var statusMsg = document.getElementById('status-msg');
+      var PAD = 8;
+
+      function enabledItems(container) {
+        return Array.prototype.filter.call(
+          container.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"]'),
+          function (el) {
+            return !el.disabled && (el.closest('.submenu') === null) === (container === menu);
+          }
+        );
+      }
+
+      function openSubmenu() {
+        submenu.hidden = false;
+        subParent.setAttribute('aria-expanded', 'true');
+        submenu.classList.remove('flip');
+        submenu.style.top = '';
+        var rect = submenu.getBoundingClientRect();
+        if (rect.right > window.innerWidth - PAD) submenu.classList.add('flip');
+        if (rect.bottom > window.innerHeight - PAD) {
+          submenu.style.top = (window.innerHeight - PAD - rect.bottom - 6) + 'px';
+        } else {
+          submenu.style.top = '';
+        }
+      }
+
+      function closeSubmenu() {
+        submenu.hidden = true;
+        subParent.setAttribute('aria-expanded', 'false');
+      }
+
+      function openMenu(x, y) {
+        menu.hidden = false;
+        closeSubmenu();
+        var w = menu.offsetWidth, h = menu.offsetHeight;
+        if (x + w > window.innerWidth - PAD) x = Math.max(PAD, x - w);
+        if (y + h > window.innerHeight - PAD) y = Math.max(PAD, y - h);
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        enabledItems(menu)[0].focus({ preventScroll: true });
+      }
+
+      function closeMenu(returnFocus) {
+        if (menu.hidden) return;
+        closeSubmenu();
+        menu.hidden = true;
+        if (returnFocus) openBtn.focus();
+      }
+
+      function report(action) {
+        statusMsg.textContent = action;
+      }
+
+      menu.addEventListener('click', function (event) {
+        var item = event.target.closest('[role="menuitem"], [role="menuitemcheckbox"]');
+        if (!item || item.disabled) return;
+        if (item === subParent) { openSubmenu(); return; }
+        if (item.getAttribute('role') === 'menuitemcheckbox') {
+          var checked = item.getAttribute('aria-checked') !== 'true';
+          item.setAttribute('aria-checked', String(checked));
+          report(item.dataset.action + ' ' + (checked ? 'on' : 'off'));
+          return;
+        }
+        report(item.dataset.action);
+        closeMenu(true);
+      });
+
+      menu.addEventListener('keydown', function (event) {
+        var inSub = !submenu.hidden && submenu.contains(document.activeElement);
+        var list = enabledItems(inSub ? submenu : menu);
+        var index = list.indexOf(document.activeElement);
+        if (event.key === 'Escape') {
+          event.stopPropagation();
+          if (inSub) { closeSubmenu(); subParent.focus(); }
+          else closeMenu(true);
+        } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          var step = event.key === 'ArrowDown' ? 1 : -1;
+          list[(index + step + list.length) % list.length].focus();
+        } else if (event.key === 'Home' || event.key === 'End') {
+          event.preventDefault();
+          list[event.key === 'Home' ? 0 : list.length - 1].focus();
+        } else if (event.key === 'ArrowRight' && document.activeElement === subParent) {
+          event.preventDefault();
+          openSubmenu();
+          enabledItems(submenu)[0].focus();
+        } else if (event.key === 'ArrowLeft' && inSub) {
+          event.preventDefault();
+          closeSubmenu();
+          subParent.focus();
+        }
+      });
+
+      subWrap.addEventListener('mouseenter', openSubmenu);
+      subWrap.addEventListener('mouseleave', closeSubmenu);
+      subParent.addEventListener('focus', openSubmenu);
+      menu.addEventListener('focusin', function (event) {
+        if (event.target !== subParent && !subWrap.contains(event.target)) closeSubmenu();
+      });
+
+      document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        if (event.target.closest('.menu')) return;
+        openMenu(event.clientX, event.clientY);
+      });
+
+      openBtn.addEventListener('click', function () {
+        var rect = openBtn.getBoundingClientRect();
+        openMenu(rect.left, rect.bottom + 6);
+      });
+
+      document.addEventListener('pointerdown', function (event) {
+        if (!event.target.closest('.menu') && event.target !== openBtn && event.button !== 2) {
+          closeMenu(false);
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeMenu(true);
+      });
+
+      openMenu(470, 230);
+      report('none yet');
+    })();
+  </script>
+</body>
+</html>

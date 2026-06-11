@@ -7,18 +7,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
     :root {
       --brass: #c08a30; --brass-hi: #f3d27a; --brass-lo: #6a4818;
       --copper: #b87333; --ink: #2a1a08; --parchment: #e6d4a5;
     }
     body {
       font-family: 'IM Fell English', serif;
-      min-height: 100vh; padding: 40px 20px;
+      min-height: 100dvh; padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
       background:
-        radial-gradient(ellipse at center, #3a2a14 0%, #1a0f06 80%),
-        #1a0f06;
+        radial-gradient(800px 500px at 50% 0%, rgba(201,150,42,0.20), transparent 60%),
+        linear-gradient(180deg, #2a1c0e 0%, #181008 100%);
       color: var(--parchment);
+      accent-color: #c9962a;
     }
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none;
@@ -154,7 +156,8 @@
       padding: 10px 14px; border: 1px solid var(--brass-lo);
       background: rgba(192,138,48,0.06); margin-bottom: 18px;
     }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid #c9962a; outline-offset: 2px; }
     .chk {
       width: 20px; height: 20px; border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #2a1a08, #1a0f06);
@@ -198,44 +201,23 @@
       background: var(--ink); color: var(--brass-hi); padding: 1px 6px;
       font-family: 'Cinzel Decorative', serif;
     }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #c9962a;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #c9962a;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #c9962a;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #c9962a 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid #c9962a;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, #c9962a 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(800px 500px at 50% 0%, rgba(201,150,42,0.20), transparent 60%),
-                linear-gradient(180deg, #2a1c0e 0%, #181008 100%) !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="gear a"></div>
@@ -251,35 +233,51 @@ body { background:
 
     <div class="section-title">Directives</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('engaged the machine')">Engage</button>
-      <button class="btn btn-secondary" onclick="log('vented the steam')">Vent</button>
+      <button class="btn btn-primary" id="engage">Engage</button>
+      <button class="btn btn-secondary" id="vent">Vent</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label"><span>Boiler pressure</span><span class="value" id="v">140 PSI</span></div>
-      <input type="range" min="0" max="200" value="140" oninput="document.getElementById('v').textContent=this.value+' PSI';log('Pressure '+this.value+' PSI')">
+      <label class="form-label" for="pressure"><span>Boiler pressure</span><span class="value" id="v">140 PSI</span></label>
+      <input type="range" id="pressure" min="0" max="200" value="140">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" checked onchange="log('Automaton '+(this.checked?'online':'offline'))">
+      <input type="checkbox" id="automaton" checked>
       <span class="chk"></span>
       <span class="chk-label">Automaton assistant</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label"><span>Mechanism</span></div>
-      <select onchange="log('Mechanism: '+this.value)">
+      <label class="form-label" for="mechanism"><span>Mechanism</span></label>
+      <select id="mechanism">
         <option>Difference Engine</option><option>Tesla Coil</option>
         <option>Aether Condenser</option><option>Babbage Array</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Engraved upon the plate..." oninput="log('Plate: '+this.value)">
+      <input type="text" id="plate" placeholder="Engraved upon the plate..." aria-label="Plate engraving">
     </div>
 
-    <div class="output" id="out"><strong>log</strong>&nbsp;&nbsp;The apparatus hums quietly in standby.</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>log</strong>&nbsp;&nbsp;<span id="out-msg">The apparatus hums quietly in standby.</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>log</strong>&nbsp;&nbsp;'+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const value = document.getElementById('v');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('engage').addEventListener('click', () => log('engaged the machine'));
+      document.getElementById('vent').addEventListener('click', () => log('vented the steam'));
+      document.getElementById('pressure').addEventListener('input', (e) => {
+        value.textContent = e.target.value + ' PSI';
+        log('Pressure ' + e.target.value + ' PSI');
+      });
+      document.getElementById('automaton').addEventListener('change', (e) => log('Automaton ' + (e.target.checked ? 'online' : 'offline')));
+      document.getElementById('mechanism').addEventListener('change', (e) => log('Mechanism: ' + e.target.value));
+      document.getElementById('plate').addEventListener('input', (e) => log('Plate: ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>

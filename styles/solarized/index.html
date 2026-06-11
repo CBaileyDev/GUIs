@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: light; }
     :root {
       --base03: #002b36; --base02: #073642; --base01: #586e75; --base00: #657b83;
       --base0: #839496; --base1: #93a1a1; --base2: #eee8d5; --base3: #fdf6e3;
@@ -15,10 +16,14 @@
     }
     body {
       font-family: 'Fira Sans', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
-      background: var(--base3); color: var(--base00);
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(38,139,210,0.10), transparent 60%),
+        var(--base3);
+      color: var(--base00);
+      accent-color: var(--blue);
     }
     .card {
       width: 420px; padding: 32px;
@@ -80,7 +85,8 @@
       margin-bottom: 18px;
     }
     .checkbox-row:hover { border-color: var(--blue); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .checkbox-row input:focus-visible ~ .chk { outline: 2px solid var(--blue); outline-offset: 2px; }
     .chk {
       width: 18px; height: 18px; border-radius: 4px;
       border: 1.5px solid var(--base1); background: var(--base2);
@@ -112,44 +118,23 @@
     }
     .output strong { color: var(--green); }
     .output em { color: var(--yellow); font-style: normal; }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: light; }
-body {
-    min-height: 100dvh;
-    accent-color: #268bd2;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #268bd2;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #268bd2;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #268bd2 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--blue) 30%, transparent); color: inherit; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 10% 0%, rgba(38,139,210,0.10), transparent 60%),
-                #fdf6e3 !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -159,35 +144,51 @@ body { background:
 
     <div class="section-title">actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Brightness <span class="value" id="v">70</span></div>
-      <input type="range" min="0" max="100" value="70" oninput="document.getElementById('v').textContent=this.value;log('brightness '+this.value)">
+      <label class="form-label" for="brightness">Brightness <span class="value" id="v">70</span></label>
+      <input type="range" id="brightness" min="0" max="100" value="70">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('high-contrast '+this.checked)">
+      <input type="checkbox" id="contrast">
       <span class="chk"></span>
       <span class="chk-label">High contrast mode</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Variant</div>
-      <select onchange="log('variant '+this.value)">
+      <label class="form-label" for="variant">Variant</label>
+      <select id="variant">
         <option>Solarized Light</option><option>Solarized Dark</option>
         <option>Accent: Blue</option><option>Accent: Cyan</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="config.key..." oninput="log('key '+this.value)">
+      <input type="text" id="key" placeholder="config.key..." aria-label="Config key">
     </div>
 
-    <div class="output" id="out"><strong>ok</strong> // <em>ready</em></div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>ok</strong> // <span id="out-msg"><em>ready</em></span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> // '+m;}</script>
+  <script>
+    (function () {
+      const msg = document.getElementById('out-msg');
+      const value = document.getElementById('v');
+      const log = (m) => { msg.textContent = m; };
+
+      document.getElementById('apply').addEventListener('click', () => log('apply'));
+      document.getElementById('reset').addEventListener('click', () => log('reset'));
+      document.getElementById('brightness').addEventListener('input', (e) => {
+        value.textContent = e.target.value;
+        log('brightness ' + e.target.value);
+      });
+      document.getElementById('contrast').addEventListener('change', (e) => log('high-contrast ' + e.target.checked));
+      document.getElementById('variant').addEventListener('change', (e) => log('variant ' + e.target.value));
+      document.getElementById('key').addEventListener('input', (e) => log('key ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>

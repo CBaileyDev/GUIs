@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
     :root {
       --nord0: #2e3440; --nord1: #3b4252; --nord2: #434c5e; --nord3: #4c566a;
       --nord4: #d8dee9; --nord5: #e5e9f0; --nord6: #eceff4;
@@ -16,10 +17,14 @@
     }
     body {
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 40px 20px;
       display: flex; align-items: flex-start; justify-content: center;
-      background: var(--nord0); color: var(--nord5);
+      background:
+        radial-gradient(900px 500px at 50% 0%, rgba(136,192,208,0.10), transparent 60%),
+        var(--nord0);
+      color: var(--nord5);
+      accent-color: var(--frost2);
     }
     .card {
       width: 420px; padding: 32px;
@@ -83,12 +88,13 @@
       transition: border-color 0.15s;
     }
     .checkbox-row:hover { border-color: var(--nord3); }
-    .checkbox-row input { display: none; }
+    .checkbox-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .chk {
       width: 18px; height: 18px; border-radius: 4px;
       border: 1.5px solid var(--nord3); background: var(--nord0);
       position: relative; flex-shrink: 0;
     }
+    input[type="checkbox"]:focus-visible ~ .chk { outline: 2px solid var(--frost2); outline-offset: 2px; }
     input[type="checkbox"]:checked ~ .chk { background: var(--frost2); border-color: var(--frost2); }
     input[type="checkbox"]:checked ~ .chk::after {
       content: ''; position: absolute; left: 5px; top: 1px;
@@ -115,44 +121,22 @@
       color: var(--nord4); min-height: 40px;
     }
     .output strong { color: var(--aurora-green); }
-  
 
-/* @@MODERNIZED-v1-start @@ */
-html { color-scheme: dark; }
-body {
-    min-height: 100dvh;
-    accent-color: #88c0d0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-synthesis: none;
-}
-:focus-visible {
-    outline: 2px solid #88c0d0;
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="switch"]:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid #88c0d0;
-    outline-offset: 2px;
-}
-::selection { background: color-mix(in srgb, #88c0d0 30%, transparent); color: inherit; }
-img { image-rendering: auto; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    :focus-visible {
+      outline: 2px solid var(--frost2);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    ::selection { background: color-mix(in srgb, var(--frost2) 30%, transparent); color: inherit; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+      }
     }
-}
-body { background:
-                radial-gradient(900px 500px at 50% 0%, rgba(136,192,208,0.10), transparent 60%),
-                #2e3440 !important; }
-/* @@MODERNIZED-v1-end @@ */
-</style>
+  </style>
 </head>
 <body>
   <div class="card">
@@ -162,35 +146,54 @@ body { background:
 
     <div class="section-title">actions</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="log('Apply')">Apply</button>
-      <button class="btn btn-secondary" onclick="log('Reset')">Reset</button>
+      <button class="btn btn-primary" id="apply">Apply</button>
+      <button class="btn btn-secondary" id="reset">Reset</button>
     </div>
 
     <div class="form-group">
-      <div class="form-label">Contrast <span class="value" id="v">72</span></div>
-      <input type="range" min="0" max="100" value="72" oninput="document.getElementById('v').textContent=this.value;log('Contrast '+this.value)">
+      <label class="form-label" for="contrast">Contrast <span class="value" id="v">72</span></label>
+      <input type="range" id="contrast" min="0" max="100" value="72">
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" onchange="log('Italic comments '+this.checked)">
+      <input type="checkbox" id="italic-comments">
       <span class="chk"></span>
       <span class="chk-label">Italic comments</span>
     </label>
 
     <div class="form-group">
-      <div class="form-label">Variant</div>
-      <select onchange="log('Variant '+this.value)">
+      <label class="form-label" for="variant">Variant</label>
+      <select id="variant">
         <option>Polar Night</option><option>Snow Storm</option>
         <option>Frost</option><option>Aurora</option>
       </select>
     </div>
 
     <div class="form-group">
-      <input type="text" placeholder="Config key..." oninput="log('Key '+this.value)">
+      <input type="text" id="config-key" placeholder="Config key..." aria-label="Config key">
     </div>
 
-    <div class="output" id="out"><strong>ok</strong> // ready</div>
+    <div class="output" id="out" role="status" aria-live="polite"><strong>ok</strong><span id="out-detail"> // ready</span></div>
   </div>
-  <script>function log(m){document.getElementById('out').innerHTML='<strong>ok</strong> // '+m;}</script>
+  <script>
+    (function () {
+      const detail = document.getElementById('out-detail');
+      const setStatus = (m) => { detail.textContent = ' // ' + m; };
+
+      document.getElementById('apply').addEventListener('click', () => setStatus('Apply'));
+      document.getElementById('reset').addEventListener('click', () => setStatus('Reset'));
+
+      const contrast = document.getElementById('contrast');
+      const value = document.getElementById('v');
+      contrast.addEventListener('input', () => {
+        value.textContent = contrast.value;
+        setStatus('Contrast ' + contrast.value);
+      });
+
+      document.getElementById('italic-comments').addEventListener('change', (e) => setStatus('Italic comments ' + e.target.checked));
+      document.getElementById('variant').addEventListener('change', (e) => setStatus('Variant ' + e.target.value));
+      document.getElementById('config-key').addEventListener('input', (e) => setStatus('Key ' + e.target.value));
+    })();
+  </script>
 </body>
 </html>
