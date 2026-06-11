@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""Draw preview.png placeholders for the Python-only templates.
-
-These are mockups — a real screenshot would require running a display server
-with the actual GUI toolkit. The generated image matches the app's typical
-chrome (title bar, colors, typography) so the main README gallery stays
-visually consistent.
-"""
+"""Draw preview.png placeholders for Python-only templates."""
 
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Callable
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -18,7 +13,6 @@ W, H = 600, 640
 
 
 def pick_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
-    """Return a truetype font or fallback."""
     candidates = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold
         else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -32,7 +26,6 @@ def pick_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
 
 
 def pick_mono(size: int) -> ImageFont.ImageFont:
-    """Return a monospace font or fallback."""
     for path in [
         "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
@@ -42,168 +35,94 @@ def pick_mono(size: int) -> ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
-def draw_chrome(
-    d: ImageDraw.ImageDraw, title: str, bg: str, fg: str, dots_style: str = "mac"
-) -> None:
-    """Draw window chrome (title bar + traffic lights or windows buttons)."""
+def draw_chrome(d: ImageDraw.ImageDraw, title: str, bg: str, fg: str) -> None:
     d.rectangle((0, 0, W, 32), fill=bg)
-    if dots_style == "mac":
-        for i, color in enumerate(("#ff5f57", "#febc2e", "#28c840")):
-            d.ellipse((14 + i * 20, 10, 26 + i * 20, 22), fill=color)
-    else:  # windows
-        d.rectangle((W - 90, 0, W - 60, 32), fill=bg, outline=fg)
-        d.rectangle((W - 60, 0, W - 30, 32), fill=bg, outline=fg)
-        d.rectangle((W - 30, 0, W, 32), fill="#e81123")
+    for i, color in enumerate(("#ff5f57", "#febc2e", "#28c840")):
+        d.ellipse((14 + i * 20, 10, 26 + i * 20, 22), fill=color)
     d.text((W / 2, 16), title, fill=fg, font=pick_font(12), anchor="mm")
 
 
-def draw_slider(
-    d: ImageDraw.ImageDraw,
-    y: int,
-    label: str,
-    value: int,
-    fg: str,
-    track: str,
-    thumb: str,
-    font: ImageFont.ImageFont,
-) -> None:
-    """Draw a labeled slider with fill and thumb."""
-    d.text((32, y), label, fill=fg, font=font)
-    tw = pick_font(12).getlength(f"{value}%")
-    d.text((W - 32 - tw, y), f"{value}%", fill=thumb, font=pick_font(12))
-    d.rounded_rectangle((32, y + 26, W - 32, y + 30), radius=2, fill=track)
-    cx = 32 + (W - 64) * value / 100
-    d.rounded_rectangle((32, y + 26, cx, y + 30), radius=2, fill=thumb)
-    d.ellipse((cx - 8, y + 20, cx + 8, y + 36), fill=thumb, outline="white", width=2)
-
-
-def draw_check(
-    d: ImageDraw.ImageDraw,
-    x: int,
-    y: int,
-    checked: bool,
-    fg: str,
+def draw_menu_mock(
+    out: Path,
+    *,
+    title: str,
+    subtitle: str,
+    chrome_bg: str,
+    chrome_fg: str,
+    body_bg: str,
+    card_bg: str | None,
+    title_fg: str,
+    sub_fg: str,
+    line_fg: str,
+    primary_bg: str,
+    secondary_bg: str,
+    secondary_fg: str,
+    secondary_outline: str | None,
+    label_fg: str,
     accent: str,
-    label: str,
-    font: ImageFont.ImageFont,
+    field_bg: str,
+    field_outline: str,
+    field_fg: str,
+    placeholder: str,
+    combo_value: str,
+    check_label: str,
+    check_on: bool,
+    status_fg: str,
+    status_text: str = "Ready",
+    card_inset: int = 0,
 ) -> None:
-    """Draw checkbox + label."""
-    d.rounded_rectangle((x, y, x + 18, y + 18), radius=4, fill=accent if checked else "#222", outline=fg, width=1)
-    if checked:
+    img = Image.new("RGB", (W, H), body_bg)
+    d = ImageDraw.Draw(img)
+    draw_chrome(d, title, chrome_bg, chrome_fg)
+
+    top = 32 + card_inset
+    left = 18 + card_inset
+    right = W - 18 - card_inset
+    if card_bg:
+        d.rounded_rectangle((18, 50, W - 18, H - 18), radius=16, fill=card_bg)
+
+    x = left + 14
+    d.text((x, top + 24), title, fill=title_fg, font=pick_font(22, bold=True))
+    d.text((x, top + 58), subtitle, fill=sub_fg, font=pick_font(13))
+    d.line((x, top + 92, right - 14, top + 92), fill=line_fg, width=1)
+
+    y = top + 118
+    d.text((x, y), "Actions", fill=sub_fg, font=pick_font(11, bold=True))
+    draw_btn = lambda box, text, bg, fg, outline=None: (
+        d.rounded_rectangle(box, radius=8, fill=bg, outline=outline, width=1 if outline else 0),
+        d.text(((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), text, fill=fg, font=pick_font(14, bold=True), anchor="mm"),
+    )
+    draw_btn((x, y + 22, x + 250, y + 64), "Apply", primary_bg, "white")
+    draw_btn((x + 268, y + 22, right - 14, y + 64), "Reset", secondary_bg, secondary_fg, secondary_outline)
+
+    y += 100
+    d.text((x, y), "Opacity", fill=label_fg, font=pick_font(13))
+    d.text((right - 14, y), "72%", fill=accent, font=pick_font(12), anchor="rt")
+    d.rounded_rectangle((x, y + 26, right - 14, y + 30), radius=2, fill=line_fg)
+    cx = x + (right - 14 - x) * 0.72
+    d.rounded_rectangle((x, y + 26, cx, y + 30), radius=2, fill=accent)
+    d.ellipse((cx - 8, y + 20, cx + 8, y + 36), fill=accent, outline="white", width=2)
+
+    y += 70
+    d.rounded_rectangle((x, y, x + 18, y + 18), radius=4,
+                        fill=accent if check_on else field_bg, outline=label_fg, width=1)
+    if check_on:
         d.line([(x + 4, y + 9), (x + 8, y + 13), (x + 14, y + 5)], fill="white", width=2)
-    d.text((x + 30, y + 2), label, fill=fg, font=font)
+    d.text((x + 30, y + 2), check_label, fill=label_fg, font=pick_font(13))
 
+    y += 40
+    d.text((x, y), "Theme" if "ImGui" not in title else "Style", fill=label_fg, font=pick_font(12))
+    d.rounded_rectangle((x, y + 22, right - 14, y + 60), radius=6, fill=field_bg, outline=field_outline, width=1)
+    d.text((x + 12, y + 41), combo_value, fill=field_fg, font=pick_font(13), anchor="lm")
 
-def draw_btn(
-    d: ImageDraw.ImageDraw,
-    box: tuple[int, int, int, int],
-    text: str,
-    bg: str,
-    fg: str,
-    font: ImageFont.ImageFont,
-    outline: str | None = None,
-) -> None:
-    """Draw rounded button with centered text."""
-    d.rounded_rectangle(box, radius=8, fill=bg, outline=outline, width=1 if outline else 0)
-    d.text(((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), text, fill=fg, font=font, anchor="mm")
+    y += 80
+    d.rounded_rectangle((x, y, right - 14, y + 38), radius=6, fill=field_bg, outline=field_outline, width=1)
+    d.text((x + 12, y + 19), placeholder, fill=sub_fg, font=pick_font(13), anchor="lm")
 
+    y += 56
+    d.rounded_rectangle((x, y, right - 14, y + 40), radius=6, fill=field_bg if not card_bg else "#0b0f1e")
+    d.text((x + 12, y + 20), status_text, fill=status_fg, font=pick_mono(12), anchor="lm")
 
-# --- Theme mockups (data-driven where possible; kept explicit for visual fidelity) ---
-
-
-def tkinter_mock(out: Path) -> None:
-    img = Image.new("RGB", (W, H), "#ededed")
-    d = ImageDraw.Draw(img)
-    draw_chrome(d, "tkinter Menu", "#dcdcdc", "#222")
-    d.rectangle((0, 32, W, H), fill="#ededed")
-    d.text((32, 56), "tkinter Menu", fill="#111", font=pick_font(22, bold=True))
-    d.text((32, 90), "Native Python Tk widgets", fill="#555", font=pick_font(13))
-    d.line((32, 124, W - 32, 124), fill="#c4c4c4", width=1)
-    draw_btn(d, (32, 150, 290, 192), "Apply", "#0078d7", "white", pick_font(14, bold=True))
-    draw_btn(d, (310, 150, W - 32, 192), "Reset", "#f3f3f3", "#111", pick_font(14, bold=True), outline="#b8b8b8")
-    draw_slider(d, 220, "Opacity", 72, "#222", "#c4c4c4", "#0078d7", pick_font(13))
-    draw_check(d, 32, 290, True, "#222", "#0078d7", "Enable blur backdrop", pick_font(13))
-    d.text((32, 330), "Theme preset", fill="#555", font=pick_font(12))
-    d.rounded_rectangle((32, 352, W - 32, 390), radius=3, fill="white", outline="#b8b8b8", width=1)
-    d.text((44, 370), "Aurora Violet", fill="#222", font=pick_font(13), anchor="lm")
-    d.polygon([(W - 52, 364), (W - 40, 364), (W - 46, 372)], fill="#555")
-    d.rounded_rectangle((32, 406, W - 32, 444), radius=3, fill="white", outline="#b8b8b8", width=1)
-    d.text((44, 425), "Enter overlay title…", fill="#999", font=pick_font(13), anchor="lm")
-    d.rounded_rectangle((32, 470, W - 32, 510), radius=3, fill="#f6f6f6", outline="#d4d4d4", width=1)
-    d.text((44, 490), "status — waiting for input", fill="#555", font=pick_mono(12), anchor="lm")
-    img.save(out, "PNG", optimize=True)
-
-
-def pyqt_mock(out: Path) -> None:
-    img = Image.new("RGB", (W, H), "#1e1f29")
-    d = ImageDraw.Draw(img)
-    draw_chrome(d, "PyQt6 Menu", "#14151c", "#e8eaf2")
-    d.rectangle((0, 32, W, H), fill="#1e1f29")
-    d.text((32, 56), "PyQt6 Menu", fill="white", font=pick_font(22, bold=True))
-    d.text((32, 90), "Native Qt widgets · dark theme", fill="#9098b0", font=pick_font(13))
-    d.line((32, 124, W - 32, 124), fill="#2a2c3a", width=1)
-    d.text((32, 140), "ACTIONS", fill="#8a95ff", font=pick_font(11, bold=True))
-    draw_btn(d, (32, 162, 290, 204), "Apply", "#6c63ff", "white", pick_font(14, bold=True))
-    draw_btn(d, (310, 162, W - 32, 204), "Reset", "#2a2c3a", "#e8eaf2", pick_font(14, bold=True), outline="#383b4c")
-    draw_slider(d, 230, "Opacity", 72, "#c3c9db", "#2a2c3a", "#6c63ff", pick_font(13))
-    draw_check(d, 32, 300, True, "#e8eaf2", "#6c63ff", "Enable blur backdrop", pick_font(13))
-    d.text((32, 340), "Theme preset", fill="#c3c9db", font=pick_font(12))
-    d.rounded_rectangle((32, 360, W - 32, 398), radius=6, fill="#15161d", outline="#2a2c3a", width=1)
-    d.text((44, 379), "Aurora Violet", fill="#e8eaf2", font=pick_font(13), anchor="lm")
-    d.polygon([(W - 52, 374), (W - 40, 374), (W - 46, 382)], fill="#9098b0")
-    d.rounded_rectangle((32, 414, W - 32, 452), radius=6, fill="#15161d", outline="#2a2c3a", width=1)
-    d.text((44, 433), "Enter overlay title…", fill="#5a5f72", font=pick_font(13), anchor="lm")
-    d.rounded_rectangle((32, 478, W - 32, 520), radius=6, fill="#15161d", outline="#2a2c3a", width=1)
-    d.text((44, 498), "status — waiting for input", fill="#9098b0", font=pick_mono(12), anchor="lm")
-    img.save(out, "PNG", optimize=True)
-
-
-def customtkinter_mock(out: Path) -> None:
-    img = Image.new("RGB", (W, H), "#0e1220")
-    d = ImageDraw.Draw(img)
-    draw_chrome(d, "CustomTkinter Menu", "#0a0e1a", "#e3e7f5")
-    d.rectangle((0, 32, W, H), fill="#0e1220")
-    d.rounded_rectangle((18, 50, W - 18, H - 18), radius=16, fill="#161b2e")
-    d.text((40, 72), "CustomTkinter Menu", fill="white", font=pick_font(22, bold=True))
-    d.text((40, 106), "Modern rounded tkinter widgets", fill="#8a93b3", font=pick_font(13))
-    d.line((40, 140, W - 40, 140), fill="#252b45", width=1)
-    d.text((40, 156), "ACTIONS", fill="#8a93b3", font=pick_font(11, bold=True))
-    draw_btn(d, (40, 178, 290, 216), "Apply", "#5b6cff", "white", pick_font(14, bold=True))
-    draw_btn(d, (310, 178, W - 40, 216), "Reset", "#252b45", "#e3e7f5", pick_font(14, bold=True), outline="#383f5c")
-    draw_slider(d, 244, "Opacity", 72, "#c3c9db", "#252b45", "#5b6cff", pick_font(13))
-    draw_check(d, 40, 314, False, "#e3e7f5", "#5b6cff", "Enable blur backdrop", pick_font(13))
-    d.text((40, 350), "THEME PRESET", fill="#8a93b3", font=pick_font(11, bold=True))
-    d.rounded_rectangle((40, 374, W - 40, 412), radius=8, fill="#0f1324", outline="#383f5c", width=1)
-    d.text((52, 393), "Aurora Violet", fill="#e3e7f5", font=pick_font(13), anchor="lm")
-    d.rounded_rectangle((W - 80, 374, W - 40, 412), radius=8, fill="#5b6cff")
-    d.polygon([(W - 68, 388), (W - 52, 388), (W - 60, 398)], fill="white")
-    d.rounded_rectangle((40, 426, W - 40, 464), radius=8, fill="#0f1324", outline="#383f5c", width=1)
-    d.text((52, 445), "Enter overlay title…", fill="#5a5f72", font=pick_font(13), anchor="lm")
-    d.rounded_rectangle((40, 488, W - 40, 530), radius=8, fill="#0b0f1e")
-    d.text((52, 508), "status — waiting for input", fill="#8a93b3", font=pick_mono(12), anchor="lm")
-    img.save(out, "PNG", optimize=True)
-
-
-def wxpython_mock(out: Path) -> None:
-    img = Image.new("RGB", (W, H), "#f5f5f8")
-    d = ImageDraw.Draw(img)
-    draw_chrome(d, "wxPython Menu", "#e9e9ed", "#222")
-    d.rectangle((0, 32, W, H), fill="#f5f5f8")
-    d.text((32, 56), "wxPython Menu", fill="#222", font=pick_font(22, bold=True))  # fixed incomplete hex
-    d.text((32, 90), "Native widgets via wxWidgets on your OS", fill="#6e7382", font=pick_font(13))
-    d.line((32, 124, W - 32, 124), fill="#cacad2", width=1)
-    d.text((32, 140), "ACTIONS", fill="#6e7382", font=pick_font(11, bold=True))
-    draw_btn(d, (32, 162, 290, 200), "Apply", "#5865f2", "white", pick_font(14, bold=True))
-    draw_btn(d, (310, 162, W - 32, 200), "Reset", "white", "#333", pick_font(14, bold=True), outline="#c5c7cc")
-    draw_slider(d, 226, "Opacity — 72%", 72, "#3c4150", "#d1d3da", "#5865f2", pick_font(13))
-    draw_check(d, 32, 296, True, "#333", "#5865f2", "Enable blur backdrop", pick_font(13))
-    d.text((32, 336), "Theme preset", fill="#3c4150", font=pick_font(12))
-    d.rounded_rectangle((32, 356, W - 32, 394), radius=4, fill="white", outline="#c5c7cc", width=1)
-    d.text((44, 375), "Aurora Violet", fill="#222", font=pick_font(13), anchor="lm")
-    d.rounded_rectangle((32, 410, W - 32, 448), radius=4, fill="white", outline="#c5c7cc", width=1)
-    d.text((44, 429), "Enter overlay title…", fill="#888", font=pick_font(13), anchor="lm")
-    d.rounded_rectangle((32, 472, W - 32, 514), radius=4, fill="#f0f0f4", outline="#d9d9de", width=1)
-    d.text((44, 493), "status — waiting for input", fill="#6e7382", font=pick_mono(12), anchor="lm")
     img.save(out, "PNG", optimize=True)
 
 
@@ -211,45 +130,71 @@ def imgui_mock(out: Path) -> None:
     img = Image.new("RGB", (W, H), "#1d1d26")
     d = ImageDraw.Draw(img)
     d.rectangle((0, 0, W, 30), fill="#232330")
-    d.text((14, 15), "Dear PyGui · ImGui Menu", fill="#dcdce0", font=pick_font(12), anchor="lm")
+    d.text((14, 15), "Dear ImGui Style", fill="#dcdce0", font=pick_font(12), anchor="lm")
     d.rectangle((0, 30, W, H), fill="#1d1d26")
-    d.text((22, 50), "Dear PyGui Menu", fill="white", font=pick_font(22, bold=True))
-    d.text((22, 82), "Flat immediate-mode dark ImGui aesthetic", fill="#9090a0", font=pick_font(12))
-    d.line((22, 112, W - 22, 112), fill="#333344", width=1)
-    d.text((22, 124), "ACTIONS", fill="#e7b53c", font=pick_mono(10))
-    draw_btn(d, (22, 144, 285, 178), "Apply", "#4a8cf0", "white", pick_font(13, bold=True))
-    draw_btn(d, (300, 144, W - 22, 178), "Reset", "#3a3a4a", "#dcdce0", pick_font(13, bold=True))
-    d.text((22, 200), "Opacity", fill="#dcdce0", font=pick_font(12))
-    d.text((W - 22, 200), "72%", fill="#e7b53c", font=pick_mono(12), anchor="rt")
-    d.rectangle((22, 222, W - 22, 238), fill="#0f0f18", outline="#333344", width=1)
-    d.rectangle((22, 222, 22 + (W - 44) * 0.72, 238), fill="#4a8cf0")
-    d.rectangle((22, 258, W - 22, 282), fill="#2a2a36")
-    d.rectangle((22, 258, 40, 282), fill="#4a8cf0")
-    d.line([(27, 270), (32, 275), (36, 264)], fill="white", width=2)
-    d.text((52, 270), "Enable blur backdrop", fill="#dcdce0", font=pick_font(12), anchor="lm")
-    d.text((22, 302), "Theme preset", fill="#dcdce0", font=pick_font(12))
-    d.rectangle((22, 322, W - 22, 346), fill="#0f0f18", outline="#333344", width=1)
-    d.text((34, 334), "Aurora Violet", fill="#dcdce0", font=pick_font(12), anchor="lm")
-    d.polygon([(W - 42, 330), (W - 30, 330), (W - 36, 340)], fill="#9090a0")
-    d.rectangle((22, 364, W - 22, 388), fill="#0f0f18", outline="#333344", width=1)
-    d.text((34, 376), "Enter overlay title…", fill="#60606c", font=pick_font(12), anchor="lm")
-    d.rectangle((22, 410, W - 22, 446), fill="#0f0f18", outline="#333344", width=1)
-    d.text((34, 428), "status — waiting for input", fill="#9090a0", font=pick_mono(11), anchor="lm")
+    d.text((22, 50), "Dear ImGui aesthetic", fill="#9090a0", font=pick_font(12))
+    d.line((22, 72, W - 22, 72), fill="#333344", width=1)
+    d.rounded_rectangle((22, 88, 285, 122), radius=3, fill="#4a8cf0")
+    d.text((153, 105), "Apply", fill="white", font=pick_font(13, bold=True), anchor="mm")
+    d.rounded_rectangle((300, 88, W - 22, 122), radius=3, fill="#3a3a4a")
+    d.text((361, 105), "Reset", fill="#dcdce0", font=pick_font(13, bold=True), anchor="mm")
+    d.text((22, 144), "Opacity", fill="#dcdce0", font=pick_font(12))
+    d.text((W - 22, 144), "50%", fill="#4a8cf0", font=pick_mono(12), anchor="rt")
+    d.rectangle((22, 166, W - 22, 182), fill="#0f0f18", outline="#333344", width=1)
+    d.rectangle((22, 166, 22 + (W - 44) * 0.5, 182), fill="#4a8cf0")
+    d.text((22, 200), "Show toolbar", fill="#dcdce0", font=pick_font(12))
+    d.text((22, 232), "Theme", fill="#dcdce0", font=pick_font(12))
+    d.rectangle((22, 252, W - 22, 276), fill="#0f0f18", outline="#333344", width=1)
+    d.text((34, 264), "Dark", fill="#dcdce0", font=pick_font(12), anchor="lm")
+    d.rectangle((22, 294, W - 22, 318), fill="#0f0f18", outline="#333344", width=1)
+    d.text((34, 306), "Window title…", fill="#60606c", font=pick_font(12), anchor="lm")
+    d.text((22, 340), "Ready", fill="#9090a0", font=pick_mono(11))
     img.save(out, "PNG", optimize=True)
 
 
-TARGETS: dict[str, callable[[Path], None]] = {
-    "external/tkinter-menu": tkinter_mock,
-    "external/pyqt-menu": pyqt_mock,
-    "external/customtkinter": customtkinter_mock,
-    "external/wxpython": wxpython_mock,
+THEMES: dict[str, Callable[[Path], None]] = {
+    "external/tkinter-menu": lambda out: draw_menu_mock(
+        out, title="Tkinter Menu", subtitle="Standard ttk widgets on a dark palette",
+        chrome_bg="#dcdcdc", chrome_fg="#222", body_bg="#1e1e2e", card_bg=None,
+        title_fg="#89b4fa", sub_fg="#6c7086", line_fg="#313244",
+        primary_bg="#89b4fa", secondary_bg="#2a2a3e", secondary_fg="#cdd6f4", secondary_outline=None,
+        label_fg="#cdd6f4", accent="#89b4fa", field_bg="#2a2a3e", field_outline="#313244",
+        field_fg="#cdd6f4", placeholder="Config key…", combo_value="Catppuccin Mocha",
+        check_label="Bold headers", check_on=False, status_fg="#6c7086",
+    ),
+    "external/pyqt-menu": lambda out: draw_menu_mock(
+        out, title="PyQt6 Menu", subtitle="Native Qt widgets · dark theme",
+        chrome_bg="#14151c", chrome_fg="#e8eaf2", body_bg="#1e1f29", card_bg=None,
+        title_fg="#ffffff", sub_fg="#9098b0", line_fg="#2a2c3a",
+        primary_bg="#6c63ff", secondary_bg="#2a2c3a", secondary_fg="#e8eaf2", secondary_outline="#383b4c",
+        label_fg="#c3c9db", accent="#8a95ff", field_bg="#15161d", field_outline="#2a2c3a",
+        field_fg="#e8eaf2", placeholder="Window title…", combo_value="Fusion",
+        check_label="Show toolbar", check_on=False, status_fg="#9098b0",
+    ),
+    "external/customtkinter": lambda out: draw_menu_mock(
+        out, title="CustomTkinter Menu", subtitle="Rounded widgets on a dark card",
+        chrome_bg="#0a0e1a", chrome_fg="#e3e7f5", body_bg="#0e1220", card_bg="#161b2e",
+        title_fg="#ffffff", sub_fg="#8a93b3", line_fg="#252b45",
+        primary_bg="#5b6cff", secondary_bg="#252b45", secondary_fg="#e3e7f5", secondary_outline="#383f5c",
+        label_fg="#c3c9db", accent="#5b6cff", field_bg="#0f1324", field_outline="#383f5c",
+        field_fg="#e3e7f5", placeholder="Profile name…", combo_value="Dark",
+        check_label="High DPI scaling", check_on=False, status_fg="#8a93b3", card_inset=18,
+    ),
+    "external/wxpython": lambda out: draw_menu_mock(
+        out, title="wxPython Menu", subtitle="Native widgets via wxWidgets",
+        chrome_bg="#e9e9ed", chrome_fg="#222", body_bg="#f5f5f8", card_bg=None,
+        title_fg="#14141a", sub_fg="#6e7382", line_fg="#cacad2",
+        primary_bg="#5865f2", secondary_bg="#ffffff", secondary_fg="#333333", secondary_outline="#c5c7cc",
+        label_fg="#3c4150", accent="#5865f2", field_bg="#ffffff", field_outline="#c5c7cc",
+        field_fg="#222222", placeholder="Profile name…", combo_value="System",
+        check_label="Remember window size", check_on=False, status_fg="#6e7382",
+    ),
     "styles/imgui-style": imgui_mock,
 }
 
 
 def main() -> int:
-    """Generate all Python mock previews."""
-    for rel, fn in TARGETS.items():
+    for rel, fn in THEMES.items():
         folder = ROOT / rel
         folder.mkdir(exist_ok=True)
         out = folder / "preview.png"
